@@ -45,10 +45,10 @@ CREATE TABLE `journals` (
   `cover_upload_id` int(11) DEFAULT NULL,
   `authors` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
   `tags` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
-  `pengurus` text DEFAULT NULL,                    
+  `pengurus` text DEFAULT NULL,                    -- TAMBAH INI
   `email` varchar(255) DEFAULT NULL,
   `contact` varchar(100) DEFAULT NULL,
-  `volume` varchar(100) DEFAULT NULL,            
+  `volume` varchar(100) DEFAULT NULL,              -- TAMBAH INI
   `views` int(11) DEFAULT 0,
   `client_temp_id` varchar(255) DEFAULT NULL,
   `client_updated_at` datetime DEFAULT NULL,

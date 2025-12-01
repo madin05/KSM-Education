@@ -45,8 +45,6 @@
   margin-bottom: 5px;
 }
 
-/* Alternative: Tanpa vendor prefix (lebih modern) */
-
 .journal-title {
   font-size: 14px;
   font-weight: 600;
@@ -178,28 +176,11 @@
 
 /* ===== FULL JOURNAL PAGE ===== */
 
-.page-header {
-  text-align: center;
-  margin-bottom: 40px;
-}
-
-.page-header h1 {
-  font-size: 32px;
-  font-weight: 700;
-  color: #2c3e50;
-  margin-bottom: 10px;
-}
-
-.page-header p {
-  font-size: 15px;
-  color: #666;
-}
-
 /* Filter Section */
 .filter-section {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 15px;
   margin-bottom: 30px;
   padding: 15px 20px;
   background: white;
@@ -207,31 +188,47 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-.filter-group {
+.filter-row-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.filter-row-bottom {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.search-box {
+  flex: 1;
   display: flex;
   align-items: center;
   gap: 10px;
+  padding: 10px 15px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  transition: all 0.3s;
 }
 
-.filter-group label {
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
-}
-
-.filter-group select {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 13px;
-  cursor: pointer;
+.search-box:focus-within {
   background: white;
-  transition: border-color 0.3s ease;
+  box-shadow: 0 0 0 2px #2c3e50;
 }
 
-.filter-group select:focus {
+.search-box input {
+  flex: 1;
+  border: none;
+  background: none;
   outline: none;
-  border-color: #2196f3;
+  font-size: 14px;
+  font-family: "Inter", sans-serif;
+}
+
+.search-box i {
+  width: 18px;
+  height: 18px;
+  color: #666;
 }
 
 .filter-stats {
@@ -298,10 +295,9 @@
 
 /* Back Button */
 .back-section {
-  text-align: center;
   margin-top: 40px;
-  padding-top: 30px;
   border-top: 2px solid #f0f0f0;
+  padding-top: 20px;
 }
 
 .btn-back {
@@ -326,50 +322,6 @@
 .btn-back i {
   width: 16px;
   height: 16px;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .journal-item {
-    flex-direction: column;
-    gap: 10px;
-    padding: 12px;
-    max-height: none;
-  }
-
-  .journal-thumbnail {
-    width: 100%;
-    height: 180px;
-  }
-
-  .page-header h1 {
-    font-size: 24px;
-  }
-
-  .filter-section {
-    flex-direction: column;
-    gap: 15px;
-    align-items: flex-start;
-  }
-
-  .filter-group {
-    width: 100%;
-  }
-
-  .filter-group select {
-    width: 100%;
-  }
-
-  .journal-actions {
-    flex-wrap: wrap;
-  }
-
-  .btn-download,
-  .btn-edit,
-  .btn-delete {
-    flex: 1;
-    min-width: 60px;
-  }
 }
 
 /* ===== COVER PREVIEW FIXED ===== */
@@ -442,3 +394,447 @@
   box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.1);
 }
 
+/* ===== HAMBURGER MENU (MOBILE) ===== */
+.hamburger-menu {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 28px;
+  height: 21px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1001;
+}
+
+.hamburger-menu span {
+  display: block;
+  width: 100%;
+  height: 3px;
+  background-color: #2c3e50;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.hamburger-menu.active span:nth-child(1) {
+  transform: translateY(9px) rotate(45deg);
+}
+
+.hamburger-menu.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger-menu.active span:nth-child(3) {
+  transform: translateY(-9px) rotate(-45deg);
+}
+
+/* ===== NAV OVERLAY ===== */
+.nav-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.nav-overlay.active {
+  display: block;
+  opacity: 1;
+}
+
+/* Hide close button on desktop */
+.dropdown-close {
+  display: none;
+}
+
+/* ===== ICON SORT DROPDOWN ===== */
+.sort-dropdown {
+  position: relative;
+}
+
+.btn-icon-sort {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #2c3e50;
+  background: white;
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-icon-sort:hover {
+  background: #2c3e50;
+  color: white;
+  transform: scale(1.1);
+}
+
+.btn-icon-sort svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Dropdown Menu */
+.sort-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0; /* ✅ Tetep left: 0 di desktop */
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  min-width: 200px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.sort-dropdown.active .sort-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.sort-item {
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  font-family: "Inter", sans-serif;
+  text-align: left;
+}
+
+.sort-item:hover {
+  background: #f5f5f5;
+}
+
+.sort-item.active {
+  background: #2c3e50;
+  color: white;
+}
+
+.sort-item svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* Container nav di bawah grid artikel */
+#latestArticlesNavUser,
+#latestArticlesNavAdmin {
+  margin-top: 24px;
+  text-align: center;
+}
+
+/* Tombol Lihat semua artikel */
+.btn-see-all {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+
+  background: #3498db;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+  transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+.btn-see-all:hover {
+  background: #2980b9;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(52, 152, 219, 0.5);
+}
+
+.btn-see-all:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+}
+
+/* ===== MOBILE RESPONSIVE (MAX 768PX) ===== */
+@media (max-width: 768px) {
+  /* Show hamburger */
+  .hamburger-menu {
+    display: flex;
+  }
+
+  .btn-see-all {
+    width: 100%;
+    max-width: 260px;
+  }
+
+  /* Logo size */
+  .logo img {
+    width: 60px !important;
+  }
+
+  /* Sliding nav from right */
+  nav {
+    position: fixed;
+    top: 70px;
+    right: -100%;
+    width: 280px;
+    height: calc(100vh - 70px);
+    background: white;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    padding: 20px;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    transition: right 0.3s ease;
+    z-index: 1000;
+    overflow-y: auto;
+  }
+
+  nav.active {
+    right: 0;
+  }
+
+  nav > a {
+    width: 100%;
+    padding: 15px 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 16px;
+    border-radius: 0 !important;
+    margin: 0;
+  }
+
+  nav a:hover {
+    border-radius: 0 !important;
+    color: #2c3e50;
+  }
+
+  nav a.active {
+    border-radius: 0 !important;
+  }
+
+  /* Dropdown in mobile */
+  .nav-dropdown {
+    width: 100%;
+  }
+
+  .nav-link.has-caret {
+    width: 100%;
+    padding: 15px 10px !important;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: none !important;
+    border-radius: 0 !important;
+  }
+
+  .nav-link.has-caret .caret {
+    transform: rotate(0deg);
+  }
+
+  .nav-dropdown.active .nav-link.has-caret .caret {
+    transform: rotate(180deg);
+  }
+
+  /* Dropdown close button - HIDDEN */
+  .dropdown-close {
+    display: none !important;
+  }
+
+  /* Dropdown menu mobile */
+  .dropdown-menu {
+    position: relative !important;
+    width: 100%;
+    box-shadow: none !important;
+    border: none !important;
+    background: #f8f9fa;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    margin-top: 0 !important;
+    padding: 0 !important;
+    top: auto !important;
+    left: auto !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+  }
+
+  .nav-dropdown.active .dropdown-menu {
+    max-height: 200px;
+    padding: 5px 0 !important;
+  }
+
+  .dropdown-menu a {
+    padding: 10px 20px !important;
+    font-size: 14px;
+    border-radius: 0 !important;
+    display: block;
+    width: 100%;
+    margin: 0 !important;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  /* ✅ FIX: SHOW AUTH SECTION ON MOBILE (for search box) */
+  .auth-section {
+    display: none; /* Keep hidden in header */
+  }
+
+  /* Prevent scroll when menu open */
+  body.menu-open {
+    overflow: hidden;
+  }
+
+  /* Header adjustments */
+  .header-container {
+    padding: 15px 20px;
+  }
+
+  /* Journal items responsive */
+  .journal-item {
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+    max-height: none;
+  }
+
+  .journal-thumbnail {
+    width: 100%;
+    height: 180px;
+  }
+
+  /* ✅ FIX: Filter Section Mobile */
+  .filter-section {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px 15px;
+  }
+
+  .filter-row-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .filter-row-bottom {
+    display: flex;
+    justify-content: center;
+    padding-top: 8px;
+    border-top: 1px solid #f0f0f0;
+  }
+
+  .filter-group {
+    width: 100%;
+  }
+
+  .filter-group select {
+    width: 100%;
+  }
+
+  /* ✅ FIX: Search Box Mobile */
+  .search-box {
+    flex: 1;
+    min-width: 0;
+    display: flex !important; /* Force show */
+    padding: 8px 12px;
+    background: #f5f5f5;
+    border-radius: 8px;
+  }
+
+  .search-box input {
+    flex: 1;
+    border: none;
+    background: none;
+    outline: none;
+    font-size: 14px;
+    font-family: "Inter", sans-serif;
+  }
+
+  .search-box i {
+    width: 16px;
+    height: 16px;
+    color: #666;
+    flex-shrink: 0;
+  }
+
+  .filter-stats {
+    font-size: 13px;
+    text-align: center;
+  }
+
+  /* Journal actions responsive */
+  .journal-actions {
+    flex-wrap: wrap;
+  }
+
+  .btn-download,
+  .btn-edit,
+  .btn-delete {
+    flex: 1;
+    min-width: 60px;
+  }
+
+  /* ✅ ICON SORT DROPDOWN MOBILE */
+  .filter-group .sort-dropdown {
+    width: auto;
+    flex-shrink: 0;
+  }
+
+  .sort-dropdown {
+    position: static;
+  }
+  .btn-icon-sort {
+    width: 44px;
+    height: 44px;
+  }
+
+  .btn-icon-sort svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .sort-menu {
+    position: fixed !important;
+    top: auto !important;
+    left: 15px !important; /* Padding dari kiri */
+    right: 15px !important; /* Padding dari kanan */
+    width: calc(100% - 30px) !important;
+    max-width: 100px !important;
+    margin-top: 4px;
+  }
+
+  .sort-item {
+    padding: 14px 16px;
+    font-size: 15px;
+  }
+
+  .sort-item svg {
+    width: 20px;
+    height: 20px;
+  }
+}

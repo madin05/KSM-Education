@@ -23,25 +23,41 @@ async function getArticleById(id, type) {
 
   try {
     if (type === "jurnal") {
-      // Fetch from database
       const response = await fetch(`/ksmaja/api/get_journal.php?id=${id}`);
       const data = await response.json();
 
-      if (data.ok && data.result) {
-        const j = data.result;
+      console.log("📦 API Response:", data);
+
+      if (data.ok && data.journal) {
+        const j = data.journal;
 
         // Parse JSON fields
-        const authors = j.authors
-          ? typeof j.authors === "string"
-            ? JSON.parse(j.authors)
-            : j.authors
-          : [];
-        const tags = j.tags ? (typeof j.tags === "string" ? JSON.parse(j.tags) : j.tags) : [];
-        const pengurus = j.pengurus
-          ? typeof j.pengurus === "string"
-            ? JSON.parse(j.pengurus)
-            : j.pengurus
-          : [];
+        let authors = j.authors;
+        if (typeof authors === "string") {
+          try {
+            authors = JSON.parse(authors);
+          } catch (e) {
+            authors = [authors];
+          }
+        }
+
+        let tags = j.tags;
+        if (typeof tags === "string") {
+          try {
+            tags = JSON.parse(tags);
+          } catch (e) {
+            tags = [tags];
+          }
+        }
+
+        let pengurus = j.pengurus;
+        if (typeof pengurus === "string") {
+          try {
+            pengurus = JSON.parse(pengurus);
+          } catch (e) {
+            pengurus = [pengurus];
+          }
+        }
 
         return {
           id: j.id,
@@ -54,7 +70,7 @@ async function getArticleById(id, type) {
           penulis: authors.length > 0 ? authors[0] : "Unknown",
           tags: tags,
           pengurus: pengurus,
-          volume: j.volume, // ✅ TAMBAH INI
+          volume: j.volume,
           date: j.created_at,
           uploadDate: j.created_at,
           fileData: j.file_url,
@@ -70,16 +86,18 @@ async function getArticleById(id, type) {
           type: "jurnal",
         };
       } else {
-        console.error("Journal not found in database:", data);
+        console.error("❌ Journal not found:", data);
         return null;
       }
     } else if (type === "opini") {
-      // Fetch opinion from database
       const response = await fetch(`/ksmaja/api/get_opinion.php?id=${id}`);
       const data = await response.json();
 
-      if (data.ok && data.result) {
-        const o = data.result;
+      console.log("📦 Opinion Response:", data);
+
+      const o = data.opinion || data.result;
+
+      if (data.ok && o) {
         return {
           id: o.id,
           title: o.title,
@@ -103,22 +121,13 @@ async function getArticleById(id, type) {
           type: "opini",
         };
       } else {
-        console.error("Opinion not found in database:", data);
+        console.error("❌ Opinion not found:", data);
         return null;
       }
     }
   } catch (error) {
-    console.error("❌ Error fetching article from database:", error);
-
-    // Fallback to localStorage
-    console.warn("⚠️ Falling back to localStorage...");
-    if (type === "jurnal") {
-      const journals = JSON.parse(localStorage.getItem("journals") || "[]");
-      return journals.find((j) => j.id === id || j.id === String(id));
-    } else {
-      const opinions = JSON.parse(localStorage.getItem("opinions") || "[]");
-      return opinions.find((o) => o.id === id || o.id === String(id));
-    }
+    console.error("❌ Error fetching article:", error);
+    return null;
   }
 }
 
@@ -134,28 +143,24 @@ async function loadArticleDetail() {
 
   const loadingState = document.getElementById("loadingState");
   const errorState = document.getElementById("errorState");
-  const articleDetail = document.getElementById("articleDetail"); //  ADD THIS
+  const articleDetail = document.getElementById("articleDetail");
 
-  // Show loading
   if (loadingState) {
     loadingState.style.display = "flex";
   }
   if (errorState) {
     errorState.style.display = "none";
   }
-  //  ADD: Hide article detail during loading
   if (articleDetail) {
     articleDetail.style.display = "none";
   }
 
-  // Validate parameters
   if (!articleId) {
     showError("Article ID missing from URL\n\nDebug Info:\nArticle ID: null\nType: " + articleType);
     return;
   }
 
   try {
-    // Get article from database
     const article = await getArticleById(articleId, articleType);
 
     if (!article) {
@@ -169,23 +174,20 @@ async function loadArticleDetail() {
       return;
     }
 
-    console.log("Article loaded:", article);
+    console.log("✅ Article loaded:", article);
 
-    //  FIX: Hide loading, Show article detail
     if (loadingState) {
       loadingState.style.display = "none";
     }
 
-    //  ADD: SHOW ARTICLE DETAIL
     if (articleDetail) {
       articleDetail.style.display = "block";
-      console.log(" Article detail shown");
+      console.log("✅ Article detail shown");
     }
 
-    // Display article
     await displayArticle(article, articleType);
   } catch (error) {
-    console.error("Error loading article:", error);
+    console.error("❌ Error loading article:", error);
     showError(
       "Failed to load article\n\nDebug Info:\nArticle ID: " +
         articleId +
@@ -199,7 +201,7 @@ async function loadArticleDetail() {
 
 // ===== DISPLAY ARTICLE =====
 async function displayArticle(article, type) {
-  console.log("Displaying article:", article.title);
+  console.log("📄 Displaying article:", article.title);
 
   // Title
   const titleElement = document.getElementById("articleTitle");
@@ -207,7 +209,7 @@ async function displayArticle(article, type) {
     titleElement.textContent = article.title || article.judul || "Untitled";
   }
 
-  //  FIX: Cover Image - ALWAYS show and set display block
+  // Cover Image
   const coverImg = document.getElementById("articleCover");
   if (coverImg) {
     const coverUrl =
@@ -215,7 +217,6 @@ async function displayArticle(article, type) {
       article.cover ||
       "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=1200&h=400&fit=crop";
 
-    // Set display first
     coverImg.style.display = "block";
     coverImg.src = coverUrl;
     coverImg.onerror = () => {
@@ -223,7 +224,7 @@ async function displayArticle(article, type) {
         "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=1200&h=400&fit=crop";
     };
 
-    console.log(" Cover image set:", coverUrl);
+    console.log("✅ Cover image set:", coverUrl);
   }
 
   // Meta info
@@ -248,37 +249,6 @@ async function displayArticle(article, type) {
     abstractElement.textContent = article.abstract || article.abstrak || "No abstract available";
   }
 
-  // Body
-  const bodyElement = document.getElementById("articleBody");
-
-  if (bodyElement) {
-    // Check if we have body content
-    if (article.body || article.content) {
-      const bodyContent = article.body || article.content;
-      bodyElement.innerHTML = `<div class="article-body-content">${bodyContent.replace(
-        /\n/g,
-        "<br><br>"
-      )}</div>`;
-      console.log(" Body content set from article.body");
-    }
-    // Try to extract from PDF
-    else if (pdfExtractor && (article.fileData || article.file || article.pdfUrl)) {
-      const pdfUrl = article.fileData || article.file || article.pdfUrl;
-      console.log("Attempting to extract PDF content from:", pdfUrl);
-      try {
-        await pdfExtractor.renderPDFContent(pdfUrl, bodyElement);
-        console.log(" PDF content extracted and rendered");
-      } catch (error) {
-        console.error("PDF extraction failed:", error);
-        bodyElement.innerHTML = "<p>Unable to extract PDF content</p>";
-      }
-    }
-    // No content available
-    else {
-      bodyElement.innerHTML = "<p>No additional content available</p>";
-    }
-  }
-
   // Tags
   const tagsSection = document.getElementById("tagsSection");
   const tagsContainer = document.getElementById("articleTags");
@@ -288,7 +258,7 @@ async function displayArticle(article, type) {
       tagsContainer.innerHTML = article.tags
         .map((tag) => `<span class="tag">${tag}</span>`)
         .join("");
-      console.log(" Tags displayed:", article.tags.length);
+      console.log("✅ Tags displayed:", article.tags.length);
     } else {
       tagsSection.style.display = "none";
     }
@@ -299,12 +269,24 @@ async function displayArticle(article, type) {
   if (authorsContainer) {
     if (article.authors && Array.isArray(article.authors) && article.authors.length > 0) {
       authorsContainer.innerHTML = article.authors
-        .map((author) => `<span class="author-badge">${author}</span>`)
+        .map(
+          (author) => `
+          <div class="author-card">
+            <i data-feather="user"></i>
+            <span>${author}</span>
+          </div>
+        `
+        )
         .join("");
-      console.log(" Authors displayed:", article.authors);
+      console.log("✅ Authors displayed:", article.authors);
     } else {
       const singleAuthor = article.author || article.penulis || "Unknown Author";
-      authorsContainer.innerHTML = `<span class="author-badge">${singleAuthor}</span>`;
+      authorsContainer.innerHTML = `
+        <div class="author-card">
+          <i data-feather="user"></i>
+          <span>${singleAuthor}</span>
+        </div>
+      `;
     }
   }
 
@@ -315,15 +297,21 @@ async function displayArticle(article, type) {
     if (type === "jurnal" && article.pengurus && article.pengurus.length > 0) {
       pengurusSection.style.display = "block";
       pengurusContainer.innerHTML = article.pengurus
-        .map((pengurus) => `<span class="pengurus-badge">${pengurus}</span>`)
+        .map(
+          (pengurus) => `
+          <div class="author-card">
+            <i data-feather="briefcase"></i>
+            <span>${pengurus}</span>
+          </div>
+        `
+        )
         .join("");
-      console.log(" Pengurus displayed:", article.pengurus.length);
+      console.log("✅ Pengurus displayed:", article.pengurus.length);
     } else {
       pengurusSection.style.display = "none";
     }
   }
 
-  // Contact
   // Contact
   const emailLink = document.getElementById("articleEmail");
   const phoneEl = document.getElementById("articlePhone");
@@ -338,7 +326,7 @@ async function displayArticle(article, type) {
     phoneEl.textContent = article.phone || article.contact?.phone || article.kontak || "-";
   }
 
-  // Volume (TAMBAH INI)
+  // Volume
   const volumeSection = document.getElementById("volumeSection");
   const volumeElement = document.getElementById("articleVolume");
 
@@ -352,17 +340,17 @@ async function displayArticle(article, type) {
     }
   }
 
-  // PDF Section
+  // PDF VIEWER
   const pdfSection = document.getElementById("pdfSection");
   if (pdfSection) {
-    const pdfUrl = article.fileData || article.file || article.pdfUrl;
+    const pdfUrl = article.file_url || article.fileData || article.file || article.pdfUrl;
+
     if (pdfUrl) {
       pdfSection.style.display = "block";
 
       const pdfIframe = document.getElementById("pdfIframe");
       if (pdfIframe) {
-        pdfIframe.src = pdfUrl;
-        console.log(" PDF iframe set:", pdfUrl);
+        pdfIframe.src = pdfUrl; // sekarang: /ksmaja/serve_pdf.php?file=/ksmaja/uploads/xxx.pdf
       }
 
       const downloadLink = document.getElementById("pdfDownload");
@@ -380,12 +368,12 @@ async function displayArticle(article, type) {
     feather.replace();
   }
 
-  console.log(" Article displayed successfully");
+  console.log("✅ Article displayed successfully");
 }
 
 // ===== SHOW ERROR =====
 function showError(message) {
-  console.error("Showing error:", message);
+  console.error("❌ Showing error:", message);
 
   const loadingState = document.getElementById("loadingState");
   const errorState = document.getElementById("errorState");
@@ -467,9 +455,7 @@ if (searchModal) {
 }
 
 async function performSearch(query) {
-  // Fetch from database instead of localStorage
   try {
-    //  FIX: Tambahkan path lengkap
     const journalsResp = await fetch("/ksmaja/api/list_journals.php?limit=50&offset=0");
     const journalsData = await journalsResp.json();
 
@@ -495,7 +481,7 @@ async function performSearch(query) {
 
     displaySearchResults(results, query);
   } catch (error) {
-    console.error("Search error:", error);
+    console.error("❌ Search error:", error);
   }
 }
 
@@ -542,4 +528,4 @@ document.addEventListener("DOMContentLoaded", () => {
   if (typeof feather !== "undefined") feather.replace();
 });
 
-console.log("explore_jurnal_user.js loaded (Database Mode)");
+console.log("✅ explore_jurnal_user.js loaded (Database Mode)");

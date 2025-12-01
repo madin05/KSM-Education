@@ -5,8 +5,8 @@ header('Content-Type: application/json; charset=utf-8');
 // header('Access-Control-Allow-Origin: http://localhost:3000');
 // header('Access-Control-Allow-Credentials: true');
 
-define('DB_PORT','3306');   // MAMP default
-define('DB_NAME','journal_system2'); // ubah jika perlu
+define('DB_PORT','3306');  
+define('DB_NAME','journal_system2'); 
 $DB_HOST = 'localhost';
 $DB_NAME = 'journal_system2';
 $DB_USER = 'root';

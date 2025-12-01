@@ -239,6 +239,7 @@ class AuthorsManager {
 }
 
 // ===== EDIT JOURNAL MANAGER =====
+// ===== EDIT JOURNAL MANAGER (UPDATED WITH TAGS & PENGURUS) =====
 class EditJournalManager {
   constructor() {
     this.modal = document.getElementById("editModal");
@@ -247,6 +248,11 @@ class EditJournalManager {
     this.cancelBtn = document.getElementById("cancelEdit");
     this.authorsContainer = document.getElementById("editAuthorsContainer");
     this.addAuthorBtn = document.getElementById("editAddAuthorBtn");
+    this.pengurusContainer = document.getElementById("editPengurusContainer");
+    this.addPengurusBtn = document.getElementById("editAddPengurusBtn");
+    this.tagsContainer = document.getElementById("editTagsContainer");
+    this.tagInput = document.getElementById("editTagInput");
+    this.addTagBtn = document.getElementById("editAddTagBtn");
     this.currentJournalId = null;
 
     if (!this.modal || !this.form) {
@@ -265,8 +271,27 @@ class EditJournalManager {
       this.closeEditModal();
     });
 
+    // Authors
     this.addAuthorBtn?.addEventListener("click", () => {
       this.addAuthorField();
+    });
+
+    // ✅ Pengurus
+    this.addPengurusBtn?.addEventListener("click", () => {
+      this.addPengurusField();
+    });
+
+    // ✅ Tags
+    this.addTagBtn?.addEventListener("click", () => {
+      this.addTag();
+    });
+
+    // ✅ Tag input - Enter key
+    this.tagInput?.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        this.addTag();
+      }
     });
 
     this.form.addEventListener("submit", (e) => {
@@ -274,118 +299,233 @@ class EditJournalManager {
       this.handleEditSubmit();
     });
 
-    console.log("✅ EditJournalManager initialized");
+    console.log("✅ EditJournalManager initialized (with Tags & Pengurus)");
+  }
+
+  // ===== ADD TAG =====
+  addTag() {
+    const tag = this.tagInput.value.trim();
+
+    if (!tag) {
+      alert("Masukkan tag terlebih dahulu");
+      return;
+    }
+
+    const tagElement = document.createElement("span");
+    tagElement.className = "tag-item";
+    tagElement.innerHTML = `
+      ${tag}
+      <span class="tag-remove" onclick="this.remove()">&times;</span>
+    `;
+
+    this.tagsContainer.appendChild(tagElement);
+    this.tagInput.value = "";
+  }
+
+  // ===== ADD PENGURUS FIELD =====
+  addPengurusField() {
+    const pengurusGroups = this.pengurusContainer.querySelectorAll(".pengurus-input-group");
+    const nextIndex = pengurusGroups.length;
+
+    const pengurusGroup = document.createElement("div");
+    pengurusGroup.className = "pengurus-input-group";
+    pengurusGroup.dataset.pengurusIndex = nextIndex;
+
+    pengurusGroup.innerHTML = `
+      <input type="text" 
+             class="pengurus-input" 
+             placeholder="Nama Pengurus ${nextIndex + 1}">
+      <button type="button" class="btn-remove-pengurus">
+        <i data-feather="x"></i>
+      </button>
+    `;
+
+    this.pengurusContainer.appendChild(pengurusGroup);
+
+    const removeBtn = pengurusGroup.querySelector(".btn-remove-pengurus");
+    removeBtn.addEventListener("click", () => {
+      pengurusGroup.remove();
+      this.updatePengurusPlaceholders();
+    });
+
+    if (typeof feather !== "undefined") {
+      feather.replace();
+    }
+
+    this.updatePengurusPlaceholders();
+  }
+
+  updatePengurusPlaceholders() {
+    const pengurusGroups = this.pengurusContainer.querySelectorAll(".pengurus-input-group");
+    pengurusGroups.forEach((group, index) => {
+      const input = group.querySelector(".pengurus-input");
+      if (input) {
+        input.placeholder = `Nama Pengurus ${index + 1}`;
+      }
+    });
   }
 
   openEditModal(journalId) {
     console.log("Opening edit modal for journal ID:", journalId);
 
-    // Ambil data journal
-    let journal = null;
+    // Ambil data journal dari database
+    this.fetchJournalData(journalId);
+  }
 
-    // Cari di journalManager
-    if (window.journalManager && window.journalManager.journals) {
-      journal = window.journalManager.journals.find((j) => String(j.id) === String(journalId));
+  async fetchJournalData(journalId) {
+    try {
+      const response = await fetch(`/ksmaja/api/get_journal.php?id=${journalId}`);
+      const result = await response.json();
+
+      if (!result.ok) {
+        throw new Error(result.message || "Failed to load journal");
+      }
+
+      const journal = result.journal;
+      console.log("Journal data loaded:", journal);
+
+      this.currentJournalId = journalId;
+
+      // Isi field-field form
+      document.getElementById("editJournalId").value = journalId;
+      document.getElementById("editJudulJurnal").value = journal.title || "";
+      document.getElementById("editEmail").value = journal.email || "";
+      document.getElementById("editKontak").value = journal.contact || "";
+      document.getElementById("editVolume").value = journal.volume || "";
+      document.getElementById("editAbstrak").value = journal.abstract || "";
+
+      // ✅ Populate Tags
+      this.populateTags(journal.tags);
+
+      // ✅ Populate Pengurus
+      this.populatePengurus(journal.pengurus);
+
+      // ✅ Populate Authors
+      this.populateAuthors(journal.authors);
+
+      // Tampilkan modal
+      this.modal.classList.add("active");
+      document.body.style.overflow = "hidden";
+
+      if (typeof feather !== "undefined") {
+        feather.replace();
+      }
+    } catch (error) {
+      console.error("Error loading journal:", error);
+      alert("❌ Gagal memuat data jurnal: " + error.message);
+    }
+  }
+
+  // ===== POPULATE TAGS =====
+  populateTags(tags) {
+    this.tagsContainer.innerHTML = "";
+
+    let tagsArray = [];
+    if (Array.isArray(tags)) {
+      tagsArray = tags;
+    } else if (typeof tags === "string" && tags.trim()) {
+      try {
+        tagsArray = JSON.parse(tags);
+      } catch (e) {
+        tagsArray = [tags];
+      }
     }
 
-    // Cari di paginationManager jika tidak ketemu
-    if (!journal && window.paginationManager && window.paginationManager.journals) {
-      journal = window.paginationManager.journals.find((j) => String(j.id) === String(journalId));
+    tagsArray.forEach((tag) => {
+      const tagElement = document.createElement("span");
+      tagElement.className = "tag-item";
+      tagElement.innerHTML = `
+        ${tag}
+        <span class="tag-remove" onclick="this.parentElement.remove()">&times;</span>
+      `;
+      this.tagsContainer.appendChild(tagElement);
+    });
+  }
+
+  // ===== POPULATE PENGURUS =====
+  populatePengurus(pengurus) {
+    this.pengurusContainer.innerHTML = "";
+
+    let pengurusArray = [];
+    if (Array.isArray(pengurus)) {
+      pengurusArray = pengurus;
+    } else if (typeof pengurus === "string" && pengurus.trim()) {
+      try {
+        pengurusArray = JSON.parse(pengurus);
+      } catch (e) {
+        pengurusArray = [pengurus];
+      }
     }
 
-    if (!journal) {
-      alert("Jurnal tidak ditemukan!");
-      console.error("Journal not found for ID:", journalId);
+    if (pengurusArray.length === 0) {
+      this.addPengurusField(); // Add one empty field
       return;
     }
 
-    console.log("Journal data:", journal);
+    pengurusArray.forEach((name, index) => {
+      const pengurusGroup = document.createElement("div");
+      pengurusGroup.className = "pengurus-input-group";
+      pengurusGroup.dataset.pengurusIndex = index;
 
-    this.currentJournalId = journalId;
+      pengurusGroup.innerHTML = `
+        <input type="text" 
+               class="pengurus-input" 
+               placeholder="Nama Pengurus ${index + 1}" 
+               value="${name || ""}">
+        <button type="button" class="btn-remove-pengurus">
+          <i data-feather="x"></i>
+        </button>
+      `;
 
-    // Isi field-field form
-    document.getElementById("editJournalId").value = journalId;
-    document.getElementById("editJudulJurnal").value = journal.title || "";
+      this.pengurusContainer.appendChild(pengurusGroup);
 
-    // Handle email - cek berbagai kemungkinan field
-    const emailValue = journal.email || journal.contact_email || "";
-    document.getElementById("editEmail").value = emailValue;
+      const removeBtn = pengurusGroup.querySelector(".btn-remove-pengurus");
+      removeBtn.addEventListener("click", () => {
+        pengurusGroup.remove();
+        this.updatePengurusPlaceholders();
+      });
+    });
 
-    // Handle kontak - cek berbagai kemungkinan field
-    const kontakValue = journal.contact || journal.phone || journal.contact_phone || "";
-    document.getElementById("editKontak").value = kontakValue;
-
-    // Populate volume
-    const volumeValue = journal.volume || "";
-    document.getElementById("editVolume").value = volumeValue;
-
-    // Handle abstrak - cek berbagai kemungkinan field
-    const abstrakValue = journal.abstract || journal.fullAbstract || journal.description || "";
-    document.getElementById("editAbstrak").value = abstrakValue;
-
-    // Populate authors
-    let authorsArray = [];
-    if (Array.isArray(journal.authors)) {
-      authorsArray = journal.authors;
-    } else if (Array.isArray(journal.author)) {
-      authorsArray = journal.author;
-    } else if (journal.authors) {
-      // Mungkin string JSON
-      try {
-        authorsArray = JSON.parse(journal.authors);
-      } catch (e) {
-        authorsArray = [journal.authors];
-      }
-    } else if (journal.author) {
-      authorsArray = [journal.author];
-    } else {
-      authorsArray = [""];
-    }
-
-    this.populateAuthors(authorsArray);
-
-    // Tampilkan modal
-    this.modal.classList.add("active");
-    document.body.style.overflow = "hidden";
-
-    // Refresh feather icons
     if (typeof feather !== "undefined") {
       feather.replace();
     }
   }
 
-  closeEditModal() {
-    this.modal.classList.remove("active");
-    document.body.style.overflow = "auto";
-    this.currentJournalId = null;
-    this.form.reset();
-  }
-
   populateAuthors(authors) {
     this.authorsContainer.innerHTML = "";
 
-    // Pastikan authors adalah array dan tidak kosong
-    if (!Array.isArray(authors) || authors.length === 0) {
-      authors = [""];
+    let authorsArray = [];
+    if (Array.isArray(authors)) {
+      authorsArray = authors;
+    } else if (typeof authors === "string" && authors.trim()) {
+      try {
+        authorsArray = JSON.parse(authors);
+      } catch (e) {
+        authorsArray = [authors];
+      }
     }
 
-    authors.forEach((author, index) => {
+    if (authorsArray.length === 0) {
+      authorsArray = [""];
+    }
+
+    authorsArray.forEach((author, index) => {
       const authorGroup = document.createElement("div");
       authorGroup.className = "author-input-group";
       authorGroup.dataset.authorIndex = index;
 
       authorGroup.innerHTML = `
-      <input type="text" 
-             class="author-input" 
-             placeholder="Nama Penulis ${index + 1}" 
-             value="${author || ""}"
-             ${index === 0 ? "required" : ""}>
-      <button type="button" class="btn-remove-author" style="display: ${
-        index === 0 && authors.length === 1 ? "none" : "flex"
-      }">
-        <i data-feather="x"></i>
-      </button>
-    `;
+        <input type="text" 
+               class="author-input" 
+               placeholder="Nama Penulis ${index + 1}" 
+               value="${author || ""}"
+               ${index === 0 ? "required" : ""}>
+        <button type="button" class="btn-remove-author" style="display: ${
+          index === 0 && authorsArray.length === 1 ? "none" : "flex"
+        }">
+          <i data-feather="x"></i>
+        </button>
+      `;
 
       this.authorsContainer.appendChild(authorGroup);
 
@@ -458,72 +598,142 @@ class EditJournalManager {
   }
 
   async handleEditSubmit() {
-    // Validasi: ambil data authors dari form
     const authors = this.getAuthors();
     if (authors.length === 0) {
       alert("Minimal harus ada 1 penulis!");
       return;
     }
 
-    // Ambil nilai dari form input
     const judul = document.getElementById("editJudulJurnal").value.trim();
     const abstrak = document.getElementById("editAbstrak").value.trim();
     const email = document.getElementById("editEmail").value.trim();
     const contact = document.getElementById("editKontak").value.trim();
     const volume = document.getElementById("editVolume").value.trim();
 
-    // Validasi field required
     if (!judul || !abstrak) {
       alert("Judul dan abstrak harus diisi!");
       return;
     }
 
-    try {
-      // Kirim request ke API untuk update journal di database
+    const tags = this.getTags();
+    const pengurus = this.getPengurus();
 
-      const response = await fetch("/ksmaja/api/edit_journal.php", {
+    try {
+      // ✅ GANTI DENGAN FORMDATA!
+      const formData = new FormData();
+
+      // Add journal ID
+      formData.append("id", this.currentJournalId);
+
+      // Add text fields
+      if (judul) formData.append("title", judul);
+      if (abstrak) formData.append("abstract", abstrak);
+      if (email) formData.append("email", email);
+      if (contact) formData.append("contact", contact);
+      if (volume) formData.append("volume", volume);
+
+      // Add JSON arrays
+      if (authors.length > 0) formData.append("authors", JSON.stringify(authors));
+      if (tags.length > 0) formData.append("tags", JSON.stringify(tags));
+      if (pengurus.length > 0) formData.append("pengurus", JSON.stringify(pengurus));
+
+      // ✅ HANDLE FILE UPLOAD
+      const fileInput = document.getElementById("editFileInput");
+      if (fileInput && fileInput.files[0]) {
+        formData.append("file", fileInput.files[0]);
+        console.log("📄 Uploading new file:", fileInput.files[0].name);
+      }
+
+      // ✅ HANDLE COVER UPLOAD
+      const coverInput = document.getElementById("editCoverInput");
+      if (coverInput && coverInput.files[0]) {
+        formData.append("cover", coverInput.files[0]);
+        console.log("🖼️ Uploading new cover:", coverInput.files[0].name);
+      }
+
+      // Show loading
+      this.showLoading("Menyimpan perubahan...");
+
+      // ✅ SEND REQUEST KE update_journal.php
+      const response = await fetch("/ksmaja/api/update_journal.php", {
         method: "POST",
-        body: JSON.stringify({
-          id: this.currentJournalId,
-          title: judul,
-          abstract: abstrak,
-          authors: authors,
-          email: email,
-          contact: contact,
-          volume: volume, // TAMBAH INI
-        }),
+        body: formData, // ← FormData, bukan JSON!
+        // ❌ JANGAN SET Content-Type header!
       });
 
       const result = await response.json();
 
-      // Cek apakah update berhasil
+      this.hideLoading();
+
       if (!result.ok) {
         throw new Error(result.message || "Failed to update journal");
       }
 
-      // Berhasil - tampilkan notifikasi
-      alert("Jurnal berhasil diupdate!");
-
-      // Reload data journal dari database untuk sync UI
-      if (window.journalManager) {
-        await window.journalManager.loadJournals();
-        window.journalManager.renderJournals();
-      }
-
-      // Tutup modal edit
+      alert("✅ Jurnal berhasil diupdate!");
       this.closeEditModal();
 
-      // Trigger event untuk komponen lain yang mungkin perlu update
-      window.dispatchEvent(
-        new CustomEvent("journals:changed", {
-          detail: { id: this.currentJournalId, action: "updated" },
-        })
-      );
+      // Clear cache & reload
+      if ("caches" in window) {
+        caches.keys().then((names) => {
+          names.forEach((name) => caches.delete(name));
+        });
+      }
+
+      window.location.href = window.location.href.split("?")[0] + "?nocache=" + Date.now();
     } catch (error) {
-      // Handle error dan tampilkan ke user
       console.error("Edit journal error:", error);
-      alert("Gagal update jurnal: " + error.message);
+      this.hideLoading();
+      alert("❌ Gagal update jurnal: " + error.message);
     }
+  }
+
+  // ✅ TAMBAH METHOD LOADING
+  showLoading(message) {
+    let overlay = document.getElementById("editLoadingOverlay");
+    if (!overlay) {
+      overlay = document.createElement("div");
+      overlay.id = "editLoadingOverlay";
+      overlay.innerHTML = `
+      <div class="loading-spinner"></div>
+      <p class="loading-message">${message}</p>
+    `;
+      overlay.style.cssText = `
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8); display: flex; flex-direction: column;
+      justify-content: center; align-items: center; z-index: 10000; color: white;
+    `;
+      document.body.appendChild(overlay);
+    } else {
+      overlay.querySelector(".loading-message").textContent = message;
+      overlay.style.display = "flex";
+    }
+  }
+
+  hideLoading() {
+    const overlay = document.getElementById("editLoadingOverlay");
+    if (overlay) {
+      overlay.style.display = "none";
+    }
+  }
+
+  getTags() {
+    const tagElements = this.tagsContainer.querySelectorAll(".tag-item");
+    const tags = [];
+    tagElements.forEach((tagEl) => {
+      const text = tagEl.textContent.replace("×", "").trim();
+      if (text) tags.push(text);
+    });
+    return tags;
+  }
+
+  getPengurus() {
+    const pengurusInputs = this.pengurusContainer.querySelectorAll(".pengurus-input");
+    const pengurus = [];
+    pengurusInputs.forEach((input) => {
+      const value = input.value.trim();
+      if (value) pengurus.push(value);
+    });
+    return pengurus;
   }
 
   getAuthors() {
@@ -534,6 +744,18 @@ class EditJournalManager {
       if (value) authors.push(value);
     });
     return authors;
+  }
+
+  closeEditModal() {
+    this.modal.classList.remove("active");
+    document.body.style.overflow = "auto";
+    this.currentJournalId = null;
+    this.form.reset();
+
+    // Clear dynamic fields
+    if (this.tagsContainer) this.tagsContainer.innerHTML = "";
+    if (this.pengurusContainer) this.pengurusContainer.innerHTML = "";
+    if (this.authorsContainer) this.authorsContainer.innerHTML = "";
   }
 }
 
@@ -565,6 +787,10 @@ window.addEventListener("adminLoginStatusChanged", syncLoginStatusUI);
 
 // ===== INITIALIZE ALL SYSTEMS =====
 document.addEventListener("DOMContentLoaded", () => {
+  // ===== CLEAR OLD LOCALSTORAGE =====
+  localStorage.removeItem("journals");
+  localStorage.removeItem("opinions");
+
   // INITIALIZE UNIFIED DROPDOWN MANAGER FIRST
   if (typeof UnifiedDropdownManager !== "undefined") {
     if (!window.unifiedDropdownManager) {
@@ -604,7 +830,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // UNTUK HALAMAN dashboard_admin.html DAN index.html
   if (typeof StatisticsManager !== "undefined") window.statsManager = new StatisticsManager();
-  if (typeof JournalManager !== "undefined") window.journalManager = new JournalManager();
+
+  // ===== COMMENT INI - JOURNALMANAGER UDAH AUTO-INIT DI JURNAL.JS =====
+  // if (typeof JournalManager !== "undefined") window.journalManager = new JournalManager();
+
   if (typeof OpinionManager !== "undefined") window.opinionManager = new OpinionManager();
   if (typeof SearchManager !== "undefined") window.searchManager = new SearchManager();
   if (typeof UploadTabsManager !== "undefined") window.uploadTabsManager = new UploadTabsManager();
@@ -617,11 +846,22 @@ document.addEventListener("DOMContentLoaded", () => {
     window.loginManager.syncLoginStatus();
   }
 
-  if (window.statsManager) {
-    setTimeout(() => {
-      window.statsManager.updateArticleCount();
-      window.statsManager.startCounterAnimation();
-    }, 100);
+  // Stats manager - safely initialize
+  try {
+    if (window.statsManager && typeof window.statsManager.updateArticleCount === "function") {
+      setTimeout(() => {
+        try {
+          window.statsManager.updateArticleCount();
+          if (typeof window.statsManager.startCounterAnimation === "function") {
+            window.statsManager.startCounterAnimation();
+          }
+        } catch (e) {
+          console.warn("Stats manager error (safe to ignore):", e);
+        }
+      }, 100);
+    }
+  } catch (e) {
+    console.warn("Stats manager not available");
   }
 
   // SYNC LOGIN STATUS UNTUK RENDER TOMBOL DI ADMIN

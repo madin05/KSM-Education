@@ -22,33 +22,46 @@ try {
     $title = $input['title'] ?? '';
     $abstract = $input['abstract'] ?? '';
     $authors = $input['authors'] ?? [];
+    $tags = $input['tags'] ?? [];         // ✅ TAMBAH
+    $pengurus = $input['pengurus'] ?? []; // ✅ TAMBAH
     $email = $input['email'] ?? '';
     $contact = $input['contact'] ?? '';
+    $volume = $input['volume'] ?? '';
 
     if (empty($title) || empty($abstract)) {
         throw new Exception('Title and abstract are required');
     }
 
+    // ✅ Encode to JSON
     $authorsJson = json_encode($authors);
-
-    $volume = $input['volume'] ?? '';
+    $tagsJson = json_encode($tags);
+    $pengurusJson = json_encode($pengurus);
 
     $stmt = $pdo->prepare("
-    UPDATE journals 
-    SET title = ?, abstract = ?, authors = ?, email = ?, contact = ?, volume = ?, updated_at = NOW()
-    WHERE id = ?
-");
+        UPDATE journals 
+        SET title = ?, 
+            abstract = ?, 
+            authors = ?, 
+            tags = ?,         -- ✅ TAMBAH
+            pengurus = ?,     -- ✅ TAMBAH
+            email = ?, 
+            contact = ?, 
+            volume = ?, 
+            updated_at = NOW()
+        WHERE id = ?
+    ");
 
     $stmt->execute([
         $title,
         $abstract,
         $authorsJson,
+        $tagsJson,
+        $pengurusJson,
         $email,
         $contact,
-        $volume,  // TAMBAH
+        $volume,
         $id
     ]);
-
 
     echo json_encode([
         'ok' => true,

@@ -1,21 +1,39 @@
-// ===== STATISTICS MANAGER - DATABASE VERSION =====
+// ===== STATISTICS MANAGER - DATABASE VERSION (NO CACHE) =====
 class StatisticsManager {
   constructor() {
+    console.log("🔧 StatisticsManager constructor called");
+
     this.articleCountElement = document.getElementById("articleCount");
     this.visitorCountElement = document.getElementById("visitorCount");
+
+    console.log("📍 Elements found:", {
+      articleCount: this.articleCountElement ? "✅" : "❌",
+      visitorCount: this.visitorCountElement ? "✅" : "❌",
+    });
+
     this.currentArticles = 0;
     this.currentVisitors = 0;
     this.init();
   }
 
   async init() {
-    if (!this.articleCountElement && !this.visitorCountElement) return;
+    if (!this.articleCountElement && !this.visitorCountElement) {
+      console.error("❌ No stat elements found! Aborting StatisticsManager init.");
+      return;
+    }
+
+    console.log("🚀 StatisticsManager initializing...");
 
     if (this.articleCountElement) this.articleCountElement.textContent = "0";
     if (this.visitorCountElement) this.visitorCountElement.textContent = "0";
 
     await this.loadStatisticsFromDatabase();
     await this.trackVisitorToDatabase();
+
+    console.log("📊 Starting animation with values:", {
+      articles: this.currentArticles,
+      visitors: this.currentVisitors,
+    });
 
     requestAnimationFrame(() => {
       this.startCounterAnimation();
@@ -29,26 +47,38 @@ class StatisticsManager {
 
   async loadStatisticsFromDatabase() {
     try {
-      const response = await fetch("/ksmaja/api/get_stats.php");
+      const timestamp = Date.now();
+      console.log(`📥 Fetching stats from API... (t=${timestamp})`);
+
+      const response = await fetch(`/ksmaja/api/get_stats.php?t=${timestamp}`, {
+        cache: "no-store",
+        headers: {
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          Pragma: "no-cache",
+        },
+      });
+
       const data = await response.json();
+      console.log("📦 Stats API response:", data);
 
       if (data.ok && data.stats) {
         this.currentArticles = data.stats.total_articles || 0;
         this.currentVisitors = data.stats.total_visitors || 0;
-        this.saveToLocalCache(data.stats);
-        console.log("✅ Stats loaded from database:", data.stats);
+        console.log("✅ Stats loaded:", {
+          articles: this.currentArticles,
+          visitors: this.currentVisitors,
+        });
       } else {
-        this.loadFromLocalCache();
+        console.warn("⚠️ Stats API returned not OK");
       }
     } catch (error) {
-      console.error("Error loading stats:", error);
-      this.loadFromLocalCache();
+      console.error("❌ Error loading stats:", error);
     }
   }
 
   async trackVisitorToDatabase() {
     if (sessionStorage.getItem("visitorTracked")) {
-      console.log("Visitor already tracked this session");
+      console.log("👁️ Visitor already tracked this session");
       return;
     }
 
@@ -63,11 +93,11 @@ class StatisticsManager {
 
       if (data.ok) {
         sessionStorage.setItem("visitorTracked", "1");
-        console.log("✅ Visitor tracked:", data.message);
+        console.log("✅ Visitor tracked");
         if (data.new) await this.refreshStatistics();
       }
     } catch (error) {
-      console.error("Error tracking visitor:", error);
+      console.error("❌ Error tracking visitor:", error);
     }
   }
 
@@ -86,41 +116,24 @@ class StatisticsManager {
     }
   }
 
-  saveToLocalCache(stats) {
-    const cache = {
-      articles: stats.total_articles || 0,
-      visitors: stats.total_visitors || 0,
-      cached_at: new Date().toISOString(),
-    };
-    localStorage.setItem("siteStatisticsCache", JSON.stringify(cache));
-  }
-
-  loadFromLocalCache() {
-    try {
-      const cached = localStorage.getItem("siteStatisticsCache");
-      if (cached) {
-        const data = JSON.parse(cached);
-        this.currentArticles = data.articles || 0;
-        this.currentVisitors = data.visitors || 0;
-        console.log("📦 Stats loaded from cache (fallback)");
-      }
-    } catch (error) {
-      this.currentArticles = 0;
-      this.currentVisitors = 0;
-    }
-  }
-
   startCounterAnimation() {
+    console.log("🎬 Starting counter animation");
+
     if (this.articleCountElement) {
+      console.log(`   → Animating articles: 0 → ${this.currentArticles}`);
       this.animateCounter(this.articleCountElement, 0, this.currentArticles, 700);
     }
+
     if (this.visitorCountElement) {
+      console.log(`   → Animating visitors: 0 → ${this.currentVisitors}`);
       this.animateCounter(this.visitorCountElement, 0, this.currentVisitors, 900);
     }
   }
 
   animateCounter(element, start, end, duration) {
     if (!element) return;
+
+    console.log(`🔄 Animating ${element.id}: ${start} → ${end}`);
 
     element.classList.add("counting");
     const startTime = performance.now();
@@ -139,6 +152,7 @@ class StatisticsManager {
       } else {
         element.textContent = String(end);
         element.classList.remove("counting");
+        console.log(`✅ Animation complete for ${element.id}: ${end}`);
       }
     };
 
@@ -155,9 +169,18 @@ class StatisticsManager {
   }
 }
 
-// Auto init
-document.addEventListener("DOMContentLoaded", () => {
+// Auto init with MORE aggressive DOM checking
+if (document.readyState === "loading") {
+  console.log("⏳ DOM still loading, waiting for DOMContentLoaded...");
+  document.addEventListener("DOMContentLoaded", () => {
+    console.log("✅ DOM ready, initializing StatisticsManager");
+    localStorage.removeItem("siteStatisticsCache");
+    window.statisticsManager = new StatisticsManager();
+  });
+} else {
+  console.log("✅ DOM already ready, initializing StatisticsManager immediately");
+  localStorage.removeItem("siteStatisticsCache");
   window.statisticsManager = new StatisticsManager();
-});
+}
 
-console.log("✅ statistic.js loaded (Database Mode)");
+console.log("✅ statistic.js loaded (Database Mode - No Cache)");

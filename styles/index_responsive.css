@@ -3,7 +3,7 @@
    KSM EDUCATION
    ======================================== */
 
-/* Hamburger Menu Button */
+/* Hamburger Menu Button
 .hamburger-menu {
   display: none;
   flex-direction: column;
@@ -35,7 +35,7 @@
 
 .hamburger-menu.active span:nth-child(3) {
   transform: rotate(-45deg) translate(7px, -7px);
-}
+} */
 
 /* Mobile Navigation Overlay */
 .nav-overlay {
@@ -82,12 +82,12 @@ body.menu-open {
     height: auto;
   }
 
-  /* Show hamburger */
+  /* Show hamburger
   .hamburger-menu {
     display: flex;
     order: 2;
     margin-left: auto;
-  }
+  } */
 
   /* Mobile Navigation */
   nav {
@@ -561,9 +561,9 @@ body.menu-open {
     width: 45px;
   }
 
-  .hamburger-menu span {
+  /* .hamburger-menu span {
     width: 22px;
-  }
+  } */
 
   .btn-user-login,
   .btn-register {
@@ -614,10 +614,10 @@ body.menu-open {
 
 /* Focus styles for keyboard navigation */
 @media (max-width: 768px) {
-  .hamburger-menu:focus {
+  /* .hamburger-menu:focus {
     outline: 2px solid #2c5f7d;
     outline-offset: 2px;
-  }
+  } */
 
   nav a:focus,
   .nav-link.has-caret:focus {

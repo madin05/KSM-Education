@@ -1,9 +1,16 @@
 <?php
-error_reporting(0);
-ini_set('display_errors', 0);
+// ===== FORCE NO CACHE (ANTI DELAY STATISTIK) =====
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+header("Expires: 0");
 
+// Headers lainnya
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
+
+error_reporting(0);
+ini_set('display_errors', 0);
 
 try {
     require_once __DIR__ . '/db.php';

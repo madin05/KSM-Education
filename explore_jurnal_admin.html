@@ -4,15 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Detail Artikel - KSM Education</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="shortcut icon" type="image/x-icon" href="./assets/favicon.ico" />
+    
     <script src="https://unpkg.com/feather-icons"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
     <style>
+      /* ===== RESET & GLOBAL STYLES ===== */
       * {
         margin: 0;
         padding: 0;
@@ -26,7 +26,7 @@
         line-height: 1.6;
       }
 
-      /* ===== HEADER ===== */
+      /* ===== HEADER & NAVIGASI ===== */
       header {
         background: white;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -67,6 +67,7 @@
         color: #1e293b;
       }
 
+      /* Dropdown Menu */
       .nav-dropdown {
         position: relative;
       }
@@ -126,24 +127,6 @@
         color: #1e293b;
       }
 
-      .search-box {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 16px;
-        border-radius: 8px;
-        border: 1px solid #e2e8f0;
-        background: #f8fafc;
-      }
-
-      .search-box input {
-        border: none;
-        outline: none;
-        font-size: 14px;
-        width: 200px;
-        background: transparent;
-      }
-
       /* ===== BREADCRUMB ===== */
       .breadcrumb {
         max-width: 900px;
@@ -166,7 +149,7 @@
         color: #1e293b;
       }
 
-      /* ===== MAIN CONTAINER ===== */
+      /* ===== MAIN LAYOUT ===== */
       .container {
         max-width: 900px;
         margin: 0 auto 60px;
@@ -181,12 +164,12 @@
         overflow: hidden;
       }
 
-      /* ===== ARTICLE HEADER ===== */
       .article-header {
         padding: 48px 48px 32px;
         text-align: left;
       }
 
+      /* Badge Kategori */
       .article-badge {
         display: inline-flex;
         align-items: center;
@@ -216,6 +199,7 @@
         margin-bottom: 20px;
       }
 
+      /* Meta Informasi Artikel */
       .article-meta {
         display: flex;
         gap: 20px;
@@ -237,7 +221,6 @@
         height: 16px;
       }
 
-      /* ===== COVER IMAGE ===== */
       .article-cover {
         width: 100%;
         max-height: 500px;
@@ -269,6 +252,7 @@
         color: #3b82f6;
       }
 
+      /* Abstrak */
       .abstract-box {
         background: #f8fafc;
         border-left: 4px solid #3b82f6;
@@ -279,33 +263,7 @@
         color: #475569;
       }
 
-      .article-body {
-        font-size: 1.05rem;
-        line-height: 1.9;
-        color: #334155;
-      }
-
-      .article-body p {
-        margin-bottom: 20px;
-      }
-
-      .article-body h4 {
-        font-size: 1.4rem;
-        color: #1e293b;
-        margin: 32px 0 16px;
-        font-weight: 700;
-      }
-
-      .article-body ul,
-      .article-body ol {
-        margin: 16px 0 20px 28px;
-      }
-
-      .article-body li {
-        margin-bottom: 8px;
-      }
-
-      /* ===== TAGS ===== */
+      /* Tags */
       .tags-container {
         display: flex;
         flex-wrap: wrap;
@@ -321,14 +279,14 @@
         font-weight: 500;
       }
 
-      /* ===== AUTHORS ===== */
-      .authors-grid {
+      /* Authors & Pengurus Grid */
+      .authors-grid, .contact-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         gap: 16px;
       }
 
-      .author-card {
+      .author-card, .contact-item {
         display: flex;
         align-items: center;
         gap: 12px;
@@ -338,30 +296,7 @@
         border: 1px solid #e2e8f0;
       }
 
-      .author-card svg {
-        width: 20px;
-        height: 20px;
-        color: #3b82f6;
-      }
-
-      /* ===== CONTACT ===== */
-      .contact-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 16px;
-      }
-
-      .contact-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 16px;
-        background: #f8fafc;
-        border-radius: 12px;
-        border: 1px solid #e2e8f0;
-      }
-
-      .contact-item svg {
+      .author-card svg, .contact-item svg {
         width: 20px;
         height: 20px;
         color: #3b82f6;
@@ -427,17 +362,6 @@
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
       }
 
-      .btn-view {
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
-        border: 2px solid white;
-      }
-
-      .btn-view:hover {
-        background: white;
-        color: #667eea;
-      }
-
       .pdf-viewer {
         margin-top: 24px;
         border-radius: 12px;
@@ -484,11 +408,6 @@
         align-items: center;
       }
 
-      .search-modal-header h3 {
-        font-size: 1.5rem;
-        color: #1e293b;
-      }
-
       .close-btn {
         background: #f1f5f9;
         border: none;
@@ -499,11 +418,6 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: all 0.2s;
-      }
-
-      .close-btn:hover {
-        background: #e2e8f0;
       }
 
       .search-results {
@@ -526,55 +440,8 @@
         box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
       }
 
-      .search-result-type {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        padding: 4px 12px;
-        border-radius: 12px;
-        font-size: 12px;
-        font-weight: 600;
-        margin-bottom: 8px;
-      }
-
-      .result-type-jurnal {
-        background: #dbeafe;
-        color: #1e40af;
-      }
-
-      .result-type-opini {
-        background: #fed7aa;
-        color: #c2410c;
-      }
-
-      .search-result-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #1e293b;
-        margin-bottom: 8px;
-      }
-
-      .search-result-abstract {
-        color: #64748b;
-        font-size: 14px;
-        line-height: 1.6;
-        margin-bottom: 12px;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-
-      .search-result-meta {
-        display: flex;
-        gap: 16px;
-        font-size: 13px;
-        color: #94a3b8;
-      }
-
       /* ===== LOADING & ERROR ===== */
-      .loading,
-      .error-message {
+      .loading, .error-message {
         text-align: center;
         padding: 60px 24px;
       }
@@ -590,9 +457,7 @@
       }
 
       @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
+        to { transform: rotate(360deg); }
       }
 
       /* ===== RESPONSIVE ===== */
@@ -608,20 +473,12 @@
           font-size: 14px;
         }
 
-        .article-header {
-          padding: 32px 24px 24px;
+        .article-header, .article-content {
+          padding: 32px 24px;
         }
 
         .article-title {
           font-size: 1.8rem;
-        }
-
-        .article-content {
-          padding: 32px 24px;
-        }
-
-        .section-title {
-          font-size: 1.3rem;
         }
 
         .pdf-actions {
@@ -636,7 +493,6 @@
     </style>
   </head>
   <body>
-    <!-- Header -->
     <header>
       <div class="header-container">
         <div class="logo">
@@ -657,7 +513,6 @@
       </div>
     </header>
 
-    <!-- Breadcrumb -->
     <div class="breadcrumb">
       <a href="dashboard_user.html">Home</a>
       <span>/</span>
@@ -666,7 +521,6 @@
       <span id="breadcrumbTitle">Blog</span>
     </div>
 
-    <!-- Search Modal -->
     <div id="searchModal" class="search-modal" style="display: none">
       <div class="search-modal-content">
         <div class="search-modal-header">
@@ -679,23 +533,21 @@
       </div>
     </div>
 
-    <!-- Main Container -->
     <div class="container">
-      <!-- Loading State -->
+      
       <div id="loadingState" class="loading">
         <div class="loading-spinner"></div>
         <p>Memuat artikel...</p>
       </div>
 
-      <!-- Error State -->
       <div id="errorState" class="error-message" style="display: none">
         <i data-feather="alert-circle"></i>
         <h3>Artikel tidak ditemukan</h3>
         <p>Artikel yang Anda cari tidak tersedia atau telah dihapus.</p>
       </div>
 
-      <!-- Article Detail -->
       <div id="articleDetail" class="article-card" style="display: none">
+        
         <div class="article-header">
           <span id="articleBadge" class="article-badge badge-jurnal">
             <i data-feather="book-open"></i>
@@ -727,7 +579,7 @@
         <img id="articleCover" class="article-cover" style="display: none" />
 
         <div class="article-content">
-          <!-- Abstract -->
+          
           <div class="content-section">
             <h2 class="section-title">
               <i data-feather="file-text"></i>
@@ -738,7 +590,6 @@
             </div>
           </div>
 
-          <!-- Volume -->
           <div class="content-section" id="volumeSection" style="display: none">
             <h2 class="section-title">
               <i data-feather="book-open"></i>
@@ -752,7 +603,6 @@
             </div>
           </div>
 
-          <!-- Tags -->
           <div class="content-section" id="tagsSection" style="display: none">
             <h2 class="section-title">
               <i data-feather="tag"></i>
@@ -761,7 +611,6 @@
             <div class="tags-container" id="articleTags"></div>
           </div>
 
-          <!-- Authors -->
           <div class="content-section">
             <h2 class="section-title">
               <i data-feather="users"></i>
@@ -770,7 +619,6 @@
             <div class="authors-grid" id="articleAuthors"></div>
           </div>
 
-          <!-- Pengurus -->
           <div class="content-section" id="pengurusSection" style="display: none">
             <h2 class="section-title">
               <i data-feather="briefcase"></i>
@@ -779,7 +627,6 @@
             <div class="authors-grid" id="articlePengurus"></div>
           </div>
 
-          <!-- Contact -->
           <div class="content-section">
             <h2 class="section-title">
               <i data-feather="phone"></i>
@@ -797,7 +644,6 @@
             </div>
           </div>
 
-          <!-- PDF Section -->
           <div class="content-section" id="pdfSection">
             <div class="pdf-section">
               <h3>

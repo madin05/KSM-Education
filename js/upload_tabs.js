@@ -1,13 +1,11 @@
-// Class untuk mengelola navigasi tab pada halaman upload
+// ===== UPLOAD TABS MANAGER =====
 class UploadTabsManager {
-  // Konstruktor untuk mengambil elemen DOM yang diperlukan
   constructor() {
     this.tabs = document.querySelectorAll(".upload-tab");
     this.containers = document.querySelectorAll(".upload-form-container");
     this.init();
   }
 
-  // Menginisialisasi event listener klik pada setiap tab
   init() {
     if (this.tabs.length === 0) return;
 
@@ -21,23 +19,24 @@ class UploadTabsManager {
     console.log("Upload Tabs initialized");
   }
 
-  // Menangani logika perpindahan tampilan antar tab
   switchTab(targetTab) {
-    // Menghapus kelas active dari semua tombol tab
+    // Remove active class from all tabs
     this.tabs.forEach((tab) => tab.classList.remove("active"));
 
-    // Menambahkan kelas active hanya pada tab yang diklik
-    const activeTab = document.querySelector(`.upload-tab[data-tab="${targetTab}"]`);
+    // Add active class to clicked tab
+    const activeTab = document.querySelector(
+      `.upload-tab[data-tab="${targetTab}"]`
+    );
     if (activeTab) {
       activeTab.classList.add("active");
     }
 
-    // Menyembunyikan semua container form
+    // Hide all containers
     this.containers.forEach((container) => {
       container.classList.remove("active");
     });
 
-    // Menampilkan container form yang sesuai dengan tab yang dipilih
+    // Show target container
     const targetContainer = document.getElementById(`form-${targetTab}`);
     if (targetContainer) {
       targetContainer.classList.add("active");

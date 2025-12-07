@@ -1,26 +1,24 @@
-// Kelas untuk mengatur paginasi, pencarian, dan penyortiran data dari database
-// Terintegrasi penuh dengan MySQL
+// ===== PAGINATION MANAGER - DATABASE VERSION =====
+//  Fully integrated with MySQL database, all features preserved
+
 class PaginationManager {
   constructor(options = {}) {
-    // Definisi selector elemen HTML
     this.containerSelector = options.containerSelector || "#journalContainer";
     this.paginationSelector = options.paginationSelector || "#pagination";
     this.searchInputSelector = options.searchInputSelector || "#searchInput";
     this.sortSelectSelector = options.sortSelectSelector || "#sortSelect";
     this.filterSelectSelector = options.filterSelectSelector || "#filterSelect";
 
-    // Konfigurasi dasar
     this.itemsPerPage = options.itemsPerPage || 9;
     this.currentPage = 1;
     this.dataType = options.dataType || "jurnal";
 
-    // Penyimpanan data lokal
     this.allItems = [];
     this.filteredItems = [];
     this.currentSort = "newest";
     this.currentFilter = "all";
 
-    console.log(`PaginationManager inisialisasi untuk ${this.dataType} (Mode Database)...`);
+    console.log(`PaginationManager initializing for ${this.dataType} (Database Mode)...`);
     this.init();
   }
 
@@ -32,25 +30,22 @@ class PaginationManager {
     this.setupIconSort();
     this.applyFiltersAndSort();
 
-    // Event listener untuk memuat ulang data jika ada perubahan
     window.addEventListener(`${this.dataType}s:changed`, async () => {
-      console.log(`Event perubahan ${this.dataType} diterima`);
+      console.log(`${this.dataType}s changed event received`);
       await this.loadData();
       this.applyFiltersAndSort();
     });
 
-    console.log(`PaginationManager siap dengan ${this.allItems.length} data`);
+    console.log(` PaginationManager initialized with ${this.allItems.length} ${this.dataType}s`);
   }
 
-  // Memuat data dari database melalui API
+  // ===== LOAD DATA FROM DATABASE =====
   async loadData() {
     try {
-      console.log(`Memuat ${this.dataType} dari database...`);
+      console.log(`📥 Loading ${this.dataType}s from database...`);
 
-      // Timestamp untuk mencegah cache browser
       const timestamp = Date.now();
 
-      // Menentukan endpoint berdasarkan tipe data
       const endpoint =
         this.dataType === "jurnal"
           ? `/ksmaja/api/list_journals.php?limit=100&offset=0&t=${timestamp}`
@@ -67,21 +62,19 @@ class PaginationManager {
       const data = await response.json();
 
       if (data.ok && data.results) {
-        // Transformasi data API ke format aplikasi
         this.allItems = data.results.map((item) => this.transformItem(item));
         this.filteredItems = [...this.allItems];
 
-        console.log(`Berhasil memuat ${this.allItems.length} data dari database`);
+        console.log(`✅ Loaded ${this.allItems.length} ${this.dataType}s from database`);
       } else {
-        console.warn(`Tidak ada data ditemukan di database`);
+        console.warn(`⚠️ No ${this.dataType}s found in database`);
         this.allItems = [];
         this.filteredItems = [];
       }
     } catch (error) {
-      console.error(`Error memuat data:`, error);
+      console.error(`❌ Error loading ${this.dataType}s:`, error);
 
-      // Fallback ke localStorage jika API gagal
-      console.warn("Menggunakan data dari localStorage sebagai cadangan...");
+      console.warn("⚠️ Falling back to localStorage...");
       const storageKey = this.dataType === "jurnal" ? "journals" : "opinions";
       const stored = localStorage.getItem(storageKey);
 
@@ -89,9 +82,9 @@ class PaginationManager {
         try {
           this.allItems = JSON.parse(stored);
           this.filteredItems = [...this.allItems];
-          console.log(`Memuat ${this.allItems.length} data dari localStorage`);
+          console.log(`📦 Loaded ${this.allItems.length} ${this.dataType}s from localStorage`);
         } catch (e) {
-          console.error("Gagal parsing localStorage:", e);
+          console.error("Failed to parse localStorage:", e);
           this.allItems = [];
           this.filteredItems = [];
         }
@@ -102,7 +95,7 @@ class PaginationManager {
     }
   }
 
-  // Mengubah format data database ke format aplikasi
+  // ===== TRANSFORM DATABASE ITEM TO APP FORMAT =====
   transformItem(item) {
     const parseJsonField = (field) => {
       if (!field) return [];
@@ -152,32 +145,30 @@ class PaginationManager {
     }
   }
 
-  // Merender item ke halaman
+  // ===== RENDER ITEMS =====
   render() {
     const container = document.querySelector(this.containerSelector);
     if (!container) {
-      console.warn("Container tidak ditemukan:", this.containerSelector);
+      console.warn("Container not found:", this.containerSelector);
       return;
     }
 
     container.innerHTML = "";
 
-    // Update jumlah total data di UI
+    // ✅ UPDATE COUNTER
     this.updateTotalCount();
 
-    // Tampilan jika data kosong
     if (this.filteredItems.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
           <div class="empty-state-icon">${this.dataType === "jurnal" ? "📚" : "📝"}</div>
           <h3>Tidak Ada ${this.dataType === "jurnal" ? "Jurnal" : "Opini"}</h3>
-          <p>Belum ada ${this.dataType} yang tersedia saat ini</p>
+          <p>Belum ada ${this.dataType} yang tersedia</p>
         </div>
       `;
       return;
     }
 
-    // Logika slicing array untuk pagination
     const start = (this.currentPage - 1) * this.itemsPerPage;
     const end = start + this.itemsPerPage;
     const itemsToShow = this.filteredItems.slice(start, end);
@@ -194,7 +185,9 @@ class PaginationManager {
     }
   }
 
-  // Membuat elemen kartu HTML
+
+  
+  // ===== CREATE CARD =====
   createCard(item) {
     const card = document.createElement("div");
     card.className = this.dataType === "jurnal" ? "journal-card" : "opinion-card";
@@ -291,7 +284,7 @@ class PaginationManager {
     return card;
   }
 
-  // Merender tombol navigasi halaman
+  // ===== RENDER PAGINATION =====
   renderPagination() {
     const paginationContainer = document.querySelector(this.paginationSelector);
     if (!paginationContainer) return;
@@ -305,7 +298,6 @@ class PaginationManager {
 
     paginationContainer.innerHTML = "";
 
-    // Tombol Previous
     const prevBtn = document.createElement("button");
     prevBtn.textContent = "Previous";
     prevBtn.className = "pagination-btn";
@@ -313,7 +305,6 @@ class PaginationManager {
     prevBtn.onclick = () => this.goToPage(this.currentPage - 1);
     paginationContainer.appendChild(prevBtn);
 
-    // Logika menampilkan nomor halaman dengan ellipsis
     const maxVisible = 5;
     let startPage = Math.max(1, this.currentPage - Math.floor(maxVisible / 2));
     let endPage = Math.min(totalPages, startPage + maxVisible - 1);
@@ -351,7 +342,6 @@ class PaginationManager {
       paginationContainer.appendChild(lastBtn);
     }
 
-    // Tombol Next
     const nextBtn = document.createElement("button");
     nextBtn.textContent = "Next";
     nextBtn.className = "pagination-btn";
@@ -374,7 +364,7 @@ class PaginationManager {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  // Update counter jumlah data secara dinamis
+  // ===== UPDATE TOTAL COUNT (DYNAMIC) ===== ✅ CUMA 1 INI YANG DIPAKE
   updateTotalCount() {
     const possibleIds = [
       "totalJournals", // journals_user.html
@@ -386,15 +376,15 @@ class PaginationManager {
       const element = document.getElementById(id);
       if (element) {
         element.textContent = this.filteredItems.length;
-        console.log(`Total count updated (${id}): ${this.filteredItems.length}`);
+        console.log(`✅ Total count updated (${id}): ${this.filteredItems.length}`);
         return;
       }
     }
 
-    console.warn("Elemen counter tidak ditemukan");
+    console.warn("⚠️ Total count element not found");
   }
 
-  // Inisialisasi fitur pencarian
+  // ===== SETUP SEARCH =====
   setupSearch() {
     const searchInput = document.querySelector(this.searchInputSelector);
     if (!searchInput) return;
@@ -405,7 +395,7 @@ class PaginationManager {
     });
   }
 
-  // Inisialisasi fitur sorting (dropdown standard)
+  // ===== SETUP SORT =====
   setupSort() {
     const sortSelect = document.querySelector(this.sortSelectSelector);
     if (sortSelect) {
@@ -421,7 +411,7 @@ class PaginationManager {
     });
   }
 
-  // Inisialisasi fitur filter
+  // ===== SETUP FILTER =====
   setupFilter() {
     const filterSelect = document.querySelector(this.filterSelectSelector);
     if (!filterSelect) return;
@@ -432,14 +422,15 @@ class PaginationManager {
     });
   }
 
-  // Inisialisasi fitur sorting (dropdown icon custom)
+  // ===== SETUP ICON SORT DROPDOWN =====
   setupIconSort() {
     const btnSort = document.getElementById("btnSort");
+    const sortMenu = document.getElementById("sortMenu");
     const sortItems = document.querySelectorAll(".sort-item");
     const dropdown = document.querySelector(".sort-dropdown");
 
-    if (!btnSort) {
-      console.log("Dropdown sort icon tidak ditemukan, melewati...");
+    if (!btnSort || !sortMenu) {
+      console.log("⚠️ Icon sort dropdown not found, skipping...");
       return;
     }
 
@@ -460,20 +451,20 @@ class PaginationManager {
         this.currentSort = sortValue;
         this.applyFiltersAndSort();
 
-        console.log(`Sorting diubah ke: ${sortValue}`);
+        console.log(`✅ Sort changed to: ${sortValue}`);
       });
     });
 
     document.addEventListener("click", (e) => {
-      if (dropdown && !dropdown.contains(e.target)) {
+      if (!dropdown.contains(e.target)) {
         dropdown.classList.remove("active");
       }
     });
 
-    console.log("Dropdown sort icon diinisialisasi");
+    console.log("✅ Icon sort dropdown initialized");
   }
 
-  // Logika utama filter dan sorting data
+  // ===== APPLY FILTERS AND SORT =====
   applyFiltersAndSort(searchQuery = null) {
     let items = [...this.allItems];
 
@@ -482,7 +473,6 @@ class PaginationManager {
         ? searchQuery
         : document.querySelector(this.searchInputSelector)?.value.toLowerCase().trim() || "";
 
-    // Filter Pencarian
     if (query) {
       items = items.filter((item) => {
         if (this.dataType === "jurnal") {
@@ -504,7 +494,6 @@ class PaginationManager {
       });
     }
 
-    // Filter Kategori/Tag
     if (this.currentFilter !== "all") {
       items = items.filter((item) => {
         if (this.dataType === "jurnal") {
@@ -515,7 +504,6 @@ class PaginationManager {
       });
     }
 
-    // Sorting
     if (this.currentSort === "newest") {
       items.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
     } else if (this.currentSort === "oldest") {
@@ -532,17 +520,16 @@ class PaginationManager {
   }
 }
 
-// Auto-Initialize saat DOM siap
+// ===== AUTO-INITIALIZE =====
 let paginationManager;
 
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("DOM siap, menginisialisasi...");
+  console.log(" DOM ready, initializing...");
 
   let container = document.getElementById("journalContainer");
 
-  // Membuat container jika belum ada
   if (!container) {
-    console.warn("Container tidak ditemukan, membuat container baru...");
+    console.warn("⚠️ Container not found, creating one...");
 
     const main =
       document.querySelector("main") || document.querySelector(".container") || document.body;
@@ -572,13 +559,12 @@ document.addEventListener("DOMContentLoaded", () => {
       main.appendChild(pagination);
     }
 
-    console.log("Container berhasil dibuat");
+    console.log(" Containers created");
   }
 
-  // Deteksi tipe halaman (Jurnal atau Opini)
   const isOpinionsPage = window.location.pathname.includes("opinions");
 
-  console.log("Halaman terdeteksi:", isOpinionsPage ? "Opini" : "Jurnal");
+  console.log("📍 Page detected:", isOpinionsPage ? "Opinions" : "Journals");
 
   paginationManager = new PaginationManager({
     containerSelector: "#journalContainer",
@@ -590,8 +576,8 @@ document.addEventListener("DOMContentLoaded", () => {
     dataType: isOpinionsPage ? "opini" : "jurnal",
   });
 
-  console.log("PaginationManager diinisialisasi (Mode Database)");
+  console.log(" PaginationManager initialized (Database Mode)");
   window.paginationManager = paginationManager;
 });
 
-console.log("pagination.js dimuat");
+console.log("pagination.js loaded (Database Mode)");

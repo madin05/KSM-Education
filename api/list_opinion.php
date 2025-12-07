@@ -1,18 +1,16 @@
 <?php
-
-// Atur header cache agar browser selalu mengambil data terbaru
+// ===== FORCE NO CACHE (ANTI DATA HANTU) =====
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 header("Expires: 0");
 
-// Konfigurasi header konten dan CORS
+// Headers lainnya
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
-// Tangani request pre-flight OPTIONS
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
@@ -21,16 +19,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 require_once 'db.php';
 
 try {
-    // Ambil parameter dari URL dengan nilai default
     $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 100;
     $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
     $category = isset($_GET['category']) ? $_GET['category'] : null;
 
-    // Catat log request untuk debugging
     error_log("=== LIST OPINIONS API ===");
     error_log("Limit: $limit, Offset: $offset, Category: " . ($category ?? 'all'));
 
-    // Siapkan query dasar dengan JOIN ke tabel uploads
+    // ✅ FIX: JOIN with uploads table to get file URLs
     $sql = "
         SELECT 
             o.*,
@@ -43,16 +39,13 @@ try {
 
     $params = [];
 
-    // Jika ada filter kategori, tambahkan klausa WHERE
     if ($category && $category !== 'all') {
         $sql .= " WHERE o.category = ?";
         $params[] = $category;
     }
 
-    // Tambahkan pengurutan dan pembatasan jumlah data
     $sql .= " ORDER BY o.created_at DESC LIMIT $limit OFFSET $offset";
 
-    // Eksekusi query utama
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
 
@@ -60,9 +53,8 @@ try {
 
     error_log("Found " . count($opinions) . " opinions");
 
-    // Hitung total data keseluruhan untuk keperluan pagination
+    // Get total count
     $countSql = "SELECT COUNT(*) as total FROM opinions";
-
     if ($category && $category !== 'all') {
         $countSql .= " WHERE category = ?";
         $countStmt = $pdo->prepare($countSql);
@@ -75,7 +67,6 @@ try {
 
     error_log("Total opinions in DB: $total");
 
-    // Kirim hasil dalam format JSON
     echo json_encode([
         'ok' => true,
         'results' => $opinions,
@@ -84,8 +75,7 @@ try {
         'offset' => $offset
     ]);
 } catch (Exception $e) {
-    // Tangani error dan catat ke log server
-    error_log('List opinions error: ' . $e->getMessage());
+    error_log('❌ List opinions error: ' . $e->getMessage());
     error_log('Stack trace: ' . $e->getTraceAsString());
 
     http_response_code(500);

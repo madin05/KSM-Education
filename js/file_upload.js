@@ -1,13 +1,12 @@
-// Variabel pengunci global untuk mencegah dialog file terbuka ganda
+// GLOBAL LOCK
 let _fileDialogLock = false;
 let _coverDialogLock = false;
 
-// Set untuk melacak elemen yang sudah diinisialisasi agar tidak terjadi duplikasi event listener
+// TRACKING initialized elements
 const _initializedDropzones = new Set();
 const _initializedCovers = new Set();
 
 class FileUploadManager {
-  // Konstruktor untuk menginisialisasi elemen DOM dan properti dasar
   constructor(suffix = "") {
     this.suffix = suffix;
     this.dropZone = document.getElementById(`dropZone${suffix}`);
@@ -16,12 +15,10 @@ class FileUploadManager {
     this.removeFileBtn = document.getElementById(`removeFile${suffix}`);
     this.uploadedFile = null;
 
-    // Konfigurasi batasan file
     this.maxFileSize = 10 * 1024 * 1024;
     this.allowedTypes = ["application/pdf"];
     this.allowedExtensions = [".pdf"];
 
-    // Cek apakah elemen ada dan belum diinisialisasi sebelumnya
     if (this.dropZone && this.fileInput) {
       const elementId = this.dropZone.id;
       if (_initializedDropzones.has(elementId)) {
@@ -33,9 +30,7 @@ class FileUploadManager {
     }
   }
 
-  // Mengatur event listener untuk interaksi user
   init() {
-    // Fungsi internal untuk menangani pembukaan dialog file dengan locking mechanism
     const openDialog = () => {
       if (_fileDialogLock) {
         console.log("BLOCKED: Dialog already opening");
@@ -48,7 +43,6 @@ class FileUploadManager {
       console.log("Opening file dialog at:", Date.now());
       this.fileInput.click();
 
-      // Reset lock setelah delay singkat
       setTimeout(() => {
         this.dropZone.style.pointerEvents = "auto";
         _fileDialogLock = false;
@@ -57,33 +51,28 @@ class FileUploadManager {
 
     this.dropZone.onclick = openDialog;
 
-    // Event saat file dipilih melalui dialog
     this.fileInput.onchange = (e) => {
       this.handleFiles(e.target.files);
       _fileDialogLock = false;
       this.dropZone.style.pointerEvents = "auto";
     };
 
-    // Event saat file di-drag ke area dropzone
     this.dropZone.ondragover = (e) => {
       e.preventDefault();
       this.dropZone.classList.add("dragover");
     };
 
-    // Event saat file keluar dari area dropzone
     this.dropZone.ondragleave = (e) => {
       e.preventDefault();
       this.dropZone.classList.remove("dragover");
     };
 
-    // Event saat file di-drop ke area dropzone
     this.dropZone.ondrop = (e) => {
       e.preventDefault();
       this.dropZone.classList.remove("dragover");
       this.handleFiles(e.dataTransfer.files);
     };
 
-    // Event untuk tombol hapus file
     if (this.removeFileBtn) {
       this.removeFileBtn.onclick = (e) => {
         e.stopPropagation();
@@ -94,7 +83,6 @@ class FileUploadManager {
     console.log("FileUploadManager initialized:", this.suffix);
   }
 
-  // Memproses file yang masuk baik dari input maupun drag-drop
   handleFiles(files) {
     if (files.length === 0) return;
     const file = files[0];
@@ -104,10 +92,12 @@ class FileUploadManager {
     this.dropZone.style.display = "none";
   }
 
-  // Memvalidasi tipe dan ukuran file
   validateFile(file) {
     const fileExtension = "." + file.name.split(".").pop().toLowerCase();
-    if (!this.allowedTypes.includes(file.type) && !this.allowedExtensions.includes(fileExtension)) {
+    if (
+      !this.allowedTypes.includes(file.type) &&
+      !this.allowedExtensions.includes(fileExtension)
+    ) {
       alert("File harus berformat PDF!");
       return false;
     }
@@ -118,7 +108,6 @@ class FileUploadManager {
     return true;
   }
 
-  // Menampilkan preview nama dan ukuran file di UI
   showFilePreview(file) {
     const fileName = document.getElementById(`fileName${this.suffix}`);
     const fileSize = document.getElementById(`fileSize${this.suffix}`);
@@ -127,7 +116,6 @@ class FileUploadManager {
     if (this.filePreview) this.filePreview.style.display = "block";
   }
 
-  // Mengubah ukuran file dari bytes ke format yang mudah dibaca (KB, MB)
   formatFileSize(bytes) {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
@@ -136,7 +124,6 @@ class FileUploadManager {
     return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
   }
 
-  // Menghapus file yang sudah diupload dan mereset UI
   removeFile() {
     this.uploadedFile = null;
     this.fileInput.value = "";
@@ -144,12 +131,10 @@ class FileUploadManager {
     this.dropZone.style.display = "block";
   }
 
-  // Getter untuk mengambil object file
   getUploadedFile() {
     return this.uploadedFile;
   }
 
-  // Mengubah file menjadi Data URL (base64) menggunakan Promise
   getFileDataURL() {
     return new Promise((resolve, reject) => {
       if (!this.uploadedFile) {
@@ -165,7 +150,6 @@ class FileUploadManager {
 }
 
 class CoverUploadManager {
-  // Konstruktor untuk inisialisasi elemen upload cover image
   constructor(suffix = "") {
     this.suffix = suffix;
     this.coverDropZone = document.getElementById(`coverDropZone${suffix}`);
@@ -175,11 +159,9 @@ class CoverUploadManager {
     this.removeCoverBtn = document.getElementById(`removeCover${suffix}`);
     this.uploadedCover = null;
 
-    // Konfigurasi batasan file gambar
     this.maxFileSize = 2 * 1024 * 1024;
     this.allowedTypes = ["image/jpeg", "image/png", "image/gif"];
 
-    // Cek inisialisasi ganda
     if (this.coverDropZone && this.coverInput) {
       const elementId = this.coverDropZone.id;
       if (_initializedCovers.has(elementId)) {
@@ -191,7 +173,6 @@ class CoverUploadManager {
     }
   }
 
-  // Mengatur event listener untuk cover upload
   init() {
     const openDialog = () => {
       if (_coverDialogLock) {
@@ -229,7 +210,7 @@ class CoverUploadManager {
       this.coverDropZone.classList.remove("dragover");
     };
 
-    this.coverDropZone.ondragdrop = (e) => {
+    this.coverDropZone.ondrop = (e) => {
       e.preventDefault();
       this.coverDropZone.classList.remove("dragover");
       this.handleFiles(e.dataTransfer.files);
@@ -245,7 +226,6 @@ class CoverUploadManager {
     console.log("CoverUploadManager initialized:", this.suffix);
   }
 
-  // Memproses file gambar yang dipilih
   handleFiles(files) {
     if (files.length === 0) return;
     const file = files[0];
@@ -254,7 +234,6 @@ class CoverUploadManager {
     this.showCoverPreview(file);
   }
 
-  // Validasi format dan ukuran gambar
   validateFile(file) {
     if (!this.allowedTypes.includes(file.type)) {
       alert("File harus berformat JPG, PNG, atau GIF!");
@@ -267,7 +246,6 @@ class CoverUploadManager {
     return true;
   }
 
-  // Menampilkan preview gambar menggunakan FileReader
   showCoverPreview(file) {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -278,7 +256,6 @@ class CoverUploadManager {
     reader.readAsDataURL(file);
   }
 
-  // Menghapus cover dan reset UI
   removeCover() {
     this.uploadedCover = null;
     this.coverInput.value = "";
@@ -287,17 +264,14 @@ class CoverUploadManager {
     this.coverDropZone.style.display = "block";
   }
 
-  // Getter file cover
   getCoverFile() {
     return this.uploadedCover;
   }
 
-  // Alias untuk getter file cover
   getUploadedCover() {
     return this.uploadedCover;
   }
 
-  // Mendapatkan data URL dari gambar cover
   getCoverDataURL() {
     if (this.coverImage && this.coverImage.src) {
       return this.coverImage.src;

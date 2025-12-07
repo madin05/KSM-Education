@@ -1,6 +1,7 @@
-// Class untuk mengelola halaman opini dengan integrasi database MySQL
+// ===== OPINIONS PAGE MANAGER - DATABASE VERSION =====
+//  All features preserved, fully integrated with MySQL database
+
 class OpinionsPageManager {
-  // Konstruktor inisialisasi properti dasar dan state
   constructor() {
     this.container = document.getElementById("opinionsContainer");
     this.opinionsPerPage = 12;
@@ -9,30 +10,29 @@ class OpinionsPageManager {
     this.filteredOpinions = [];
     this.currentFilter = "all";
     this.currentSort = "newest";
-
+    
     console.log("OpinionsPageManager initializing (Database Mode)...");
     this.init();
   }
 
-  // Inisialisasi event listener dan memuat data awal
   async init() {
     if (!this.container) {
       console.warn("Opinions container not found!");
       return;
     }
 
-    // Memuat data opini dari database
+    //  Load opinions from database
     await this.loadOpinions();
-
+    
     console.log("OpinionsPageManager initialized with", this.opinions.length, "opinions");
 
-    // Render antarmuka pengguna
+    //  FEATURE: Render UI
     this.render();
     this.setupSort();
     this.setupSearch();
     this.renderPagination();
 
-    // Event listener untuk sinkronisasi antar tab browser via storage
+    //  FEATURE: Listen to storage changes (fallback compatibility)
     window.addEventListener("storage", async (e) => {
       if (e.key === "opinions") {
         console.log("Storage changed, reloading opinions...");
@@ -41,7 +41,7 @@ class OpinionsPageManager {
       }
     });
 
-    // Event listener custom untuk trigger manual
+    //  FEATURE: Listen to custom events
     window.addEventListener("opinions:changed", async () => {
       console.log("Opinions changed event triggered");
       await this.loadOpinions();
@@ -49,55 +49,51 @@ class OpinionsPageManager {
     });
   }
 
-  // Mengambil data opini dari endpoint API
+  // ===== LOAD OPINIONS FROM DATABASE =====
   async loadOpinions() {
     try {
-      console.log("[INFO] Loading opinions from database...");
-
-      const response = await fetch("/ksmaja/api/list_opinions.php?limit=100&offset=0");
+      console.log('📥 Loading opinions from database...');
+      
+      const response = await fetch('/ksmaja/api/list_opinions.php?limit=100&offset=0');
       const data = await response.json();
-
+      
       if (data.ok && data.results) {
-        // Transformasi data dari format database ke format aplikasi
-        this.opinions = data.results.map((o) => {
+        //  Transform database format to app format
+        this.opinions = data.results.map(o => {
           return {
-            id: String(o.id),
-            title: o.title || "Untitled",
-            description: o.description || "",
-            category: o.category || "opini",
-            author_name: o.author_name || "Anonymous",
+            id: String(o.id), // Ensure string ID for consistency
+            title: o.title || 'Untitled',
+            description: o.description || '',
+            category: o.category || 'opini',
+            author_name: o.author_name || 'Anonymous',
             date: o.created_at,
             uploadDate: o.created_at,
-            coverImage:
-              o.cover_url ||
-              "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500&h=400&fit=crop",
+            coverImage: o.cover_url || 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500&h=400&fit=crop',
             fileUrl: o.file_url,
             file: o.file_url,
-            views: parseInt(o.views) || 0,
+            views: parseInt(o.views) || 0
           };
         });
-
+        
         this.filteredOpinions = [...this.opinions];
-        console.log(`[SUCCESS] Loaded ${this.opinions.length} opinions from database`);
+        console.log(` Loaded ${this.opinions.length} opinions from database`);
       } else {
-        console.warn("[WARN] No opinions found in database response");
+        console.warn('⚠️ No opinions found in database response');
         this.opinions = [];
         this.filteredOpinions = [];
       }
     } catch (error) {
-      console.error("[ERROR] Error loading opinions from database:", error);
-
-      // Fallback ke localStorage jika koneksi database gagal
-      console.warn("[WARN] Falling back to localStorage...");
+      console.error('❌ Error loading opinions from database:', error);
+      
+      //  FEATURE: Fallback to localStorage if database fails
+      console.warn('⚠️ Falling back to localStorage...');
       const stored = localStorage.getItem("opinions");
       if (stored) {
         try {
           const data = JSON.parse(stored);
           this.opinions = data;
           this.filteredOpinions = [...this.opinions];
-          console.log(
-            `[INFO] Loaded ${this.opinions.length} opinions from localStorage (fallback)`
-          );
+          console.log(`📦 Loaded ${this.opinions.length} opinions from localStorage (fallback)`);
         } catch (e) {
           console.error("Error parsing opinions:", e);
           this.opinions = [];
@@ -111,11 +107,11 @@ class OpinionsPageManager {
     }
   }
 
-  // Merender tampilan kartu opini ke dalam kontainer
+  // ===== RENDER OPINIONS =====
   render() {
     if (!this.container) return;
 
-    // Menampilkan state kosong jika tidak ada data
+    //  FEATURE: Empty state UI
     if (this.filteredOpinions.length === 0) {
       this.container.innerHTML = `
         <div class="empty-state">
@@ -127,62 +123,63 @@ class OpinionsPageManager {
       return;
     }
 
-    // Kalkulasi pagination
+    //  FEATURE: Pagination calculation
     const start = (this.currentPage - 1) * this.opinionsPerPage;
     const end = start + this.opinionsPerPage;
     const opinionsToShow = this.filteredOpinions.slice(start, end);
 
     this.container.innerHTML = "";
-
-    // Loop untuk membuat kartu opini
+    
+    //  FEATURE: Render opinion cards
     opinionsToShow.forEach((opinion) => {
       const card = this.createOpinionCard(opinion);
       this.container.appendChild(card);
     });
 
-    // Inisialisasi ulang icon feather
-    if (typeof feather !== "undefined") {
+    //  FEATURE: Refresh feather icons
+    if (typeof feather !== 'undefined') {
       feather.replace();
     }
   }
 
-  // Membuat elemen HTML untuk satu kartu opini
+  // ===== CREATE OPINION CARD =====
   createOpinionCard(opinion) {
     const card = document.createElement("div");
     card.className = "opinion-card";
     card.setAttribute("data-opinion-id", opinion.id);
 
-    // Fungsi helper untuk memotong teks yang terlalu panjang
+    //  FEATURE: Helper function for text truncation
     const truncateText = (text, maxLength) => {
-      if (!text) return "";
-      return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+      if (!text) return '';
+      return text.length > maxLength 
+        ? text.substring(0, maxLength) + "..." 
+        : text;
     };
 
-    // Fungsi helper untuk format tanggal Indonesia
+    //  FEATURE: Format date nicely
     const formatDate = (dateString) => {
       try {
-        return new Date(dateString).toLocaleDateString("id-ID", {
-          day: "numeric",
-          month: "short",
-          year: "numeric",
+        return new Date(dateString).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric'
         });
       } catch (e) {
         return dateString;
       }
     };
 
-    // Menentukan kelas CSS berdasarkan kategori
+    //  FEATURE: Category badge color
     const getCategoryClass = (category) => {
       const categories = {
-        opini: "category-opini",
-        artikel: "category-artikel",
-        berita: "category-berita",
-        editorial: "category-editorial",
+        'opini': 'category-opini',
+        'artikel': 'category-artikel',
+        'berita': 'category-berita',
+        'editorial': 'category-editorial'
       };
-      return categories[category] || "category-default";
+      return categories[category] || 'category-default';
     };
 
-    // Template literal HTML untuk kartu
     card.innerHTML = `
       <div class="opinion-cover">
         <img src="${opinion.coverImage}" 
@@ -193,9 +190,7 @@ class OpinionsPageManager {
         </div>
       </div>
       <div class="opinion-content">
-        <span class="opinion-category ${getCategoryClass(opinion.category)}">${
-      opinion.category
-    }</span>
+        <span class="opinion-category ${getCategoryClass(opinion.category)}">${opinion.category}</span>
         <h3 class="opinion-title">${truncateText(opinion.title, 60)}</h3>
         <p class="opinion-description">${truncateText(opinion.description, 150)}</p>
         <div class="opinion-meta">
@@ -210,9 +205,7 @@ class OpinionsPageManager {
           <button class="btn-view" onclick="opinionsManager.viewOpinion('${opinion.id}')">
             <i data-feather="eye"></i> Lihat Detail
           </button>
-          <button class="btn-delete" onclick="opinionsManager.deleteOpinion('${
-            opinion.id
-          }', '${opinion.title.replace(/'/g, "\\'")}')">
+          <button class="btn-delete" onclick="opinionsManager.deleteOpinion('${opinion.id}', '${opinion.title.replace(/'/g, "\\'")}')">
             <i data-feather="trash-2"></i> Hapus
           </button>
         </div>
@@ -222,116 +215,120 @@ class OpinionsPageManager {
     return card;
   }
 
-  // Menangani aksi klik tombol lihat detail
+  // ===== VIEW OPINION DETAIL =====
   viewOpinion(id) {
-    console.log("[INFO] Viewing opinion:", id);
-
-    // Update jumlah views di database
+    console.log('👁️ Viewing opinion:', id);
+    
+    //  FEATURE: Update views count in database
     this.updateViews(id);
-
-    // Redirect ke halaman detail
+    
+    //  FEATURE: Navigate to detail page
     window.location.href = `explore_jurnal_user.html?id=${id}&type=opini`;
   }
 
-  // Menangani penghapusan data opini dari database
+  // ===== DELETE OPINION FROM DATABASE =====
   async deleteOpinion(id, title) {
-    // Konfirmasi sebelum menghapus
+    //  FEATURE: Confirmation dialog
     if (!confirm(`Yakin ingin menghapus opini "${title}"?`)) {
       return;
     }
 
     try {
-      console.log(`[INFO] Deleting opinion ID: ${id}`);
-
-      // Efek visual loading pada kartu
+      console.log(`🗑️ Deleting opinion ID: ${id}`);
+      
+      //  Show loading indicator
       const card = document.querySelector(`[data-opinion-id="${id}"]`);
       if (card) {
-        card.style.opacity = "0.5";
-        card.style.pointerEvents = "none";
+        card.style.opacity = '0.5';
+        card.style.pointerEvents = 'none';
       }
 
-      // Request hapus ke API
+      //  Delete from database via API
       const response = await fetch(`/ksmaja/api/delete_opinion.php?id=${id}`, {
-        method: "DELETE",
+        method: 'DELETE',
         headers: {
-          "Content-Type": "application/json",
-        },
+          'Content-Type': 'application/json'
+        }
       });
-
+      
       const result = await response.json();
-
+      
       if (result.ok) {
-        console.log("[SUCCESS] Opinion deleted from database");
-
-        alert("Opini berhasil dihapus!");
-
-        // Hapus dari state lokal
-        this.opinions = this.opinions.filter((o) => o.id !== id && o.id !== String(id));
-        this.filteredOpinions = this.filteredOpinions.filter(
-          (o) => o.id !== id && o.id !== String(id)
-        );
-
-        // Render ulang UI
+        console.log(' Opinion deleted from database successfully');
+        
+        //  FEATURE: Success notification
+        alert(' Opini berhasil dihapus!');
+        
+        //  FEATURE: Remove from local arrays
+        this.opinions = this.opinions.filter(o => o.id !== id && o.id !== String(id));
+        this.filteredOpinions = this.filteredOpinions.filter(o => o.id !== id && o.id !== String(id));
+        
+        //  FEATURE: Re-render UI
         this.render();
         this.renderPagination();
-
-        // Trigger event custom
-        window.dispatchEvent(
-          new CustomEvent("opinions:changed", {
-            detail: {
-              action: "deleted",
-              id: id,
-            },
-          })
-        );
+        
+        //  FEATURE: Trigger event for other components
+        window.dispatchEvent(new CustomEvent('opinions:changed', {
+          detail: { 
+            action: 'deleted',
+            id: id 
+          }
+        }));
+        
+        console.log(' Opinion deleted and UI updated');
       } else {
-        throw new Error(result.message || "Gagal menghapus opini dari database");
+        throw new Error(result.message || 'Gagal menghapus opini dari database');
       }
     } catch (error) {
-      console.error("[ERROR] Delete error:", error);
-
-      alert("Gagal menghapus opini: " + error.message);
-
-      // Kembalikan tampilan kartu jika gagal
+      console.error('❌ Delete error:', error);
+      
+      //  FEATURE: Error notification
+      alert('❌ Gagal menghapus opini: ' + error.message);
+      
+      //  Restore card UI on error
       const card = document.querySelector(`[data-opinion-id="${id}"]`);
       if (card) {
-        card.style.opacity = "1";
-        card.style.pointerEvents = "auto";
+        card.style.opacity = '1';
+        card.style.pointerEvents = 'auto';
       }
     }
   }
 
-  // Mengupdate jumlah view counter ke API
+  // ===== UPDATE VIEWS COUNT =====
   async updateViews(id) {
     try {
-      console.log("[INFO] Updating views for opinion:", id);
-
+      console.log('👁️ Updating views for opinion:', id);
+      
+      //  Update views in database
       const response = await fetch(`/ksmaja/api/update_views.php`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           id: id,
-          type: "opinion",
-        }),
+          type: 'opinion'
+        })
       });
-
+      
       const result = await response.json();
-
+      
       if (result.ok) {
-        // Update data lokal
-        const opinion = this.opinions.find((o) => o.id === id || o.id === String(id));
+        console.log(' Views updated in database');
+        
+        //  FEATURE: Update local data
+        const opinion = this.opinions.find(o => o.id === id || o.id === String(id));
         if (opinion) {
           opinion.views = (opinion.views || 0) + 1;
         }
       }
     } catch (error) {
-      console.warn("[WARN] Failed to update views:", error);
+      console.warn('⚠️ Failed to update views:', error);
+      //  FEATURE: Silent fail - don't break user experience
     }
   }
 
-  // Mengatur event listener untuk dropdown sorting
+  // ===== SETUP SORT =====
   setupSort() {
     const sortSelect = document.getElementById("sortSelect");
     if (sortSelect) {
@@ -342,13 +339,13 @@ class OpinionsPageManager {
     }
   }
 
-  // Mengatur event listener untuk input pencarian realtime
+  // ===== SETUP SEARCH =====
   setupSearch() {
     const searchInput = document.getElementById("searchInput");
     if (searchInput) {
       searchInput.addEventListener("input", (e) => {
         const query = e.target.value.toLowerCase().trim();
-
+        
         if (!query) {
           this.filteredOpinions = [...this.opinions];
         } else {
@@ -360,7 +357,7 @@ class OpinionsPageManager {
               o.category.toLowerCase().includes(query)
           );
         }
-
+        
         this.currentPage = 1;
         this.render();
         this.renderPagination();
@@ -368,18 +365,27 @@ class OpinionsPageManager {
     }
   }
 
-  // Menerapkan logika sorting dan filtering pada data
+  // ===== APPLY FILTERS AND SORT =====
   applyFiltersAndSort() {
     this.filteredOpinions = [...this.opinions];
 
+    //  FEATURE: Apply sorting
     if (this.currentSort === "newest") {
-      this.filteredOpinions.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
+      this.filteredOpinions.sort((a, b) => 
+        new Date(b.uploadDate) - new Date(a.uploadDate)
+      );
     } else if (this.currentSort === "oldest") {
-      this.filteredOpinions.sort((a, b) => new Date(a.uploadDate) - new Date(b.uploadDate));
+      this.filteredOpinions.sort((a, b) => 
+        new Date(a.uploadDate) - new Date(b.uploadDate)
+      );
     } else if (this.currentSort === "title") {
-      this.filteredOpinions.sort((a, b) => a.title.localeCompare(b.title));
+      this.filteredOpinions.sort((a, b) => 
+        a.title.localeCompare(b.title)
+      );
     } else if (this.currentSort === "views") {
-      this.filteredOpinions.sort((a, b) => (b.views || 0) - (a.views || 0));
+      this.filteredOpinions.sort((a, b) => 
+        (b.views || 0) - (a.views || 0)
+      );
     }
 
     this.currentPage = 1;
@@ -387,25 +393,29 @@ class OpinionsPageManager {
     this.renderPagination();
   }
 
-  // Memfilter data berdasarkan kategori tertentu
+  // ===== FILTER BY CATEGORY =====
   filterByCategory(category) {
-    if (category === "all") {
+    if (category === 'all') {
       this.filteredOpinions = [...this.opinions];
     } else {
-      this.filteredOpinions = this.opinions.filter((o) => o.category === category);
+      this.filteredOpinions = this.opinions.filter(o => 
+        o.category === category
+      );
     }
-
+    
     this.currentPage = 1;
     this.render();
     this.renderPagination();
   }
 
-  // Merender tombol navigasi pagination
+  // ===== RENDER PAGINATION =====
   renderPagination() {
-    const totalPages = Math.ceil(this.filteredOpinions.length / this.opinionsPerPage);
-
+    const totalPages = Math.ceil(
+      this.filteredOpinions.length / this.opinionsPerPage
+    );
+    
     const paginationContainer = document.getElementById("pagination");
-
+    
     if (!paginationContainer || totalPages <= 1) {
       if (paginationContainer) paginationContainer.innerHTML = "";
       return;
@@ -413,7 +423,7 @@ class OpinionsPageManager {
 
     paginationContainer.innerHTML = "";
 
-    // Tombol Previous
+    //  FEATURE: Previous button
     const prevBtn = document.createElement("button");
     prevBtn.textContent = "Previous";
     prevBtn.className = "pagination-btn";
@@ -423,25 +433,25 @@ class OpinionsPageManager {
         this.currentPage--;
         this.render();
         this.renderPagination();
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     });
     paginationContainer.appendChild(prevBtn);
 
-    // Logika menampilkan nomor halaman (max 5 tombol terlihat)
+    //  FEATURE: Page number buttons
     const maxVisiblePages = 5;
     let startPage = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2));
     let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
+    
     if (endPage - startPage < maxVisiblePages - 1) {
       startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
 
-    // Tombol halaman pertama jika tidak terlihat
+    // First page button if needed
     if (startPage > 1) {
       const firstBtn = this.createPageButton(1);
       paginationContainer.appendChild(firstBtn);
-
+      
       if (startPage > 2) {
         const ellipsis = document.createElement("span");
         ellipsis.textContent = "...";
@@ -450,13 +460,13 @@ class OpinionsPageManager {
       }
     }
 
-    // Loop tombol halaman
+    // Page number buttons
     for (let i = startPage; i <= endPage; i++) {
       const pageBtn = this.createPageButton(i);
       paginationContainer.appendChild(pageBtn);
     }
 
-    // Tombol halaman terakhir jika tidak terlihat
+    // Last page button if needed
     if (endPage < totalPages) {
       if (endPage < totalPages - 1) {
         const ellipsis = document.createElement("span");
@@ -464,12 +474,12 @@ class OpinionsPageManager {
         ellipsis.className = "pagination-ellipsis";
         paginationContainer.appendChild(ellipsis);
       }
-
+      
       const lastBtn = this.createPageButton(totalPages);
       paginationContainer.appendChild(lastBtn);
     }
 
-    // Tombol Next
+    //  FEATURE: Next button
     const nextBtn = document.createElement("button");
     nextBtn.textContent = "Next";
     nextBtn.className = "pagination-btn";
@@ -479,13 +489,13 @@ class OpinionsPageManager {
         this.currentPage++;
         this.render();
         this.renderPagination();
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     });
     paginationContainer.appendChild(nextBtn);
   }
 
-  // Helper membuat elemen tombol pagination
+  // ===== CREATE PAGE BUTTON =====
   createPageButton(pageNum) {
     const pageBtn = document.createElement("button");
     pageBtn.textContent = pageNum;
@@ -494,35 +504,37 @@ class OpinionsPageManager {
       this.currentPage = pageNum;
       this.render();
       this.renderPagination();
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
     return pageBtn;
   }
 
-  // Mengambil satu objek opini berdasarkan ID
+  // ===== GET OPINION BY ID =====
   getOpinionById(id) {
-    return this.opinions.find((o) => o.id === id || o.id === String(id));
+    return this.opinions.find(o => o.id === id || o.id === String(id));
   }
 
-  // Mendapatkan total jumlah opini
+  // ===== GET TOTAL OPINIONS COUNT =====
   getTotalCount() {
     return this.opinions.length;
   }
 
-  // Mendapatkan akumulasi total views dari semua opini
+  // ===== GET TOTAL VIEWS =====
   getTotalViews() {
-    return this.opinions.reduce((total, opinion) => total + (opinion.views || 0), 0);
+    return this.opinions.reduce((total, opinion) => 
+      total + (opinion.views || 0), 0
+    );
   }
 }
 
-// Inisialisasi manager saat DOM siap
+// ===== INITIALIZE WHEN DOM IS READY =====
 let opinionsManager;
 document.addEventListener("DOMContentLoaded", () => {
   opinionsManager = new OpinionsPageManager();
-  console.log("OpinionsPageManager initialized (Full Database Integration)");
-
-  // Expose instance ke window agar bisa diakses di console
+  console.log(' OpinionsPageManager initialized (Full Database Integration)');
+  
+  //  FEATURE: Expose to window for console access
   window.opinionsManager = opinionsManager;
 });
 
-console.log("opinions.js loaded (Database Mode)");
+console.log('📝 opinions.js loaded (Database Mode)');

@@ -1,25 +1,30 @@
-// mobile_menu.js
+/**
+ * MOBILE_MENU.JS
+ * Mobile Menu & Responsive Functionality for Dashboard User
+ * KSM EDUCATION
+ */
 
 document.addEventListener("DOMContentLoaded", function () {
   console.log("Initializing mobile menu...");
 
-  // Ambil elemen yang dibutuhkan dari DOM
+  // Get elements
   const header = document.querySelector(".header-container");
   const nav = document.querySelector("nav");
   const hamburger = document.querySelector(".hamburger-menu");
 
-  // Cek apakah elemen ada
   if (!header || !nav || !hamburger) {
     console.error("Required elements not found");
     return;
   }
 
-  // Buat elemen overlay untuk background menu mobile
+  // Create overlay for mobile menu
   const overlay = document.createElement("div");
   overlay.className = "nav-overlay";
   document.body.appendChild(overlay);
 
-  // Fungsi membuka menu mobile
+  /**
+   * Open mobile menu
+   */
   function openMenu() {
     hamburger.classList.add("active");
     hamburger.setAttribute("aria-expanded", "true");
@@ -28,7 +33,9 @@ document.addEventListener("DOMContentLoaded", function () {
     document.body.classList.add("menu-open");
   }
 
-  // Fungsi menutup menu mobile
+  /**
+   * Close mobile menu
+   */
   function closeMenu() {
     hamburger.classList.remove("active");
     hamburger.setAttribute("aria-expanded", "false");
@@ -36,16 +43,18 @@ document.addEventListener("DOMContentLoaded", function () {
     overlay.classList.remove("active");
     document.body.classList.remove("menu-open");
 
-    // Tutup juga dropdown jika sedang terbuka
+    // Close any open dropdowns
     closeDropdown();
   }
 
-  // Fungsi menutup dropdown
+  /**
+   * Close dropdown
+   */
   function closeDropdown() {
     const dropdown = document.querySelector(".nav-dropdown");
     if (dropdown) {
       dropdown.classList.remove("active");
-      dropdown.classList.remove("open");
+      dropdown.classList.remove("open"); // For desktop
       const dropdownButton = dropdown.querySelector(".nav-link.has-caret");
       if (dropdownButton) {
         dropdownButton.setAttribute("aria-expanded", "false");
@@ -53,7 +62,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Fungsi toggle (buka/tutup) menu
+  /**
+   * Toggle mobile menu
+   */
   function toggleMenu() {
     const isActive = hamburger.classList.contains("active");
     if (isActive) {
@@ -63,18 +74,18 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Event listener klik tombol hamburger
+  // Hamburger click event
   hamburger.addEventListener("click", function (e) {
     e.stopPropagation();
     toggleMenu();
   });
 
-  // Event listener klik overlay (tutup menu)
+  // Overlay click event - close menu
   overlay.addEventListener("click", function () {
     closeMenu();
   });
 
-  // Tutup menu saat salah satu link navigasi diklik
+  // Handle navigation links - close menu when clicked
   const navLinks = document.querySelectorAll("nav > a");
   navLinks.forEach(function (link) {
     link.addEventListener("click", function (e) {
@@ -87,18 +98,18 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // Handle logika dropdown (berjalan di mobile dan desktop)
+  // Handle dropdown toggle (WORKS FOR BOTH MOBILE & DESKTOP)
   const dropdownButton = document.querySelector(".nav-link.has-caret");
   const dropdown = document.querySelector(".nav-dropdown");
 
   if (dropdownButton && dropdown) {
-    // Event klik tombol dropdown
+    // Click event for dropdown button
     dropdownButton.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
 
       if (window.innerWidth <= 768) {
-        // Logika Mobile: Toggle class active
+        // MOBILE: Toggle active class
         const isActive = dropdown.classList.contains("active");
 
         if (isActive) {
@@ -109,7 +120,7 @@ document.addEventListener("DOMContentLoaded", function () {
           this.setAttribute("aria-expanded", "true");
         }
       } else {
-        // Logika Desktop: Toggle class open
+        // DESKTOP: Toggle open class
         const isOpen = dropdown.classList.contains("open");
 
         if (isOpen) {
@@ -122,7 +133,16 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-    // Tutup menu saat link di dalam dropdown diklik (khusus mobile)
+    // Close button inside dropdown (mobile only)
+    // const closeButton = dropdown.querySelector(".dropdown-close");
+    // if (closeButton) {
+    //   closeButton.addEventListener("click", function (e) {
+    //     e.stopPropagation();
+    //     closeDropdown();
+    //   });
+    // }
+
+    // Close dropdown when clicking dropdown links
     const dropdownLinks = dropdown.querySelectorAll(".dropdown-menu a");
     dropdownLinks.forEach(function (link) {
       link.addEventListener("click", function () {
@@ -131,14 +151,14 @@ document.addEventListener("DOMContentLoaded", function () {
             closeMenu();
           }, 100);
         } else {
-          // Desktop: hanya tutup dropdown
+          // Desktop: just close dropdown
           closeDropdown();
         }
       });
     });
   }
 
-  // Tutup dropdown saat klik di luar elemen menu
+  // Close dropdown when clicking outside (desktop & mobile)
   document.addEventListener("click", function (e) {
     if (
       dropdown &&
@@ -153,7 +173,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Tutup dropdown saat klik area navigasi tapi bukan dropdown
+  // Close dropdown when clicking inside nav (but outside dropdown)
   nav.addEventListener("click", function (e) {
     if (window.innerWidth <= 768) {
       const dropdown = document.querySelector(".nav-dropdown");
@@ -171,7 +191,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Tutup menu otomatis saat layar di-resize ke ukuran desktop
+  // Close menu when window is resized to desktop
   let resizeTimer;
   window.addEventListener("resize", function () {
     clearTimeout(resizeTimer);
@@ -182,7 +202,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 250);
   });
 
-  // Handle tombol escape untuk menutup menu/dropdown
+  // Handle escape key to close menu and dropdown
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") {
       if (window.innerWidth <= 768) {
@@ -193,7 +213,7 @@ document.addEventListener("DOMContentLoaded", function () {
           closeMenu();
         }
       } else {
-        // Desktop: tutup dropdown
+        // Desktop: close dropdown
         const dropdown = document.querySelector(".nav-dropdown");
         if (dropdown && dropdown.classList.contains("open")) {
           closeDropdown();

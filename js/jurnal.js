@@ -1,54 +1,58 @@
-// Kelas untuk pengelolaan Jurnal terintegrasi dengan database MySQL
+// ===== JOURNAL MANAGEMENT - DATABASE VERSION =====
+//  All features preserved, fully integrated with MySQL database
+
 class JournalManager {
   constructor() {
-    // Container utama yang digunakan di beberapa halaman
+    // Container utama (dipakai di beberapa halaman)
     this.journalContainer =
       document.getElementById("journalContainer") || document.getElementById("articlesGrid");
 
     this.journals = [];
 
-    // Mencegah script berjalan di halaman dashboard user karena sudah ditangani dashboard_user.js
+    // ===== 1) JANGAN JALAN DI HALAMAN USER DASHBOARD =====
+    // Biarkan dashboard_user.js yang handle render untuk user
     if (window.location.pathname.includes("dashboard_user.html")) {
-      console.warn(
-        "Halaman dashboard user - JournalManager dinonaktifkan (ditangani oleh dashboard_user.js)"
-      );
+      console.warn("User dashboard page - JournalManager DISABLED (handled by dashboard_user.js)");
       return;
     }
 
-    // Inisialisasi hanya jika container ditemukan
+    // ===== FIX: BLOK STOP ADMIN DIHAPUS SUPAYA TOMBOL MUNCUL =====
+    // Kita biarkan JournalManager jalan di admin biar card dengan 3 tombol ke-render
+
+    // Hanya jalan kalau ada container
     if (this.journalContainer) {
       this.init();
     } else {
-      console.warn("Container jurnal tidak ditemukan pada halaman ini");
+      console.warn("⚠️ Journal container not found on this page - skipping init");
     }
   }
 
   async init() {
-    console.log("JournalManager dimulai (Mode Database)...");
+    console.log("🚀 JournalManager initializing (Database Mode)...");
 
-    // Membersihkan data lama di localStorage
+    // Clear old localStorage data
     localStorage.removeItem("journals");
 
     await this.loadJournals();
     this.renderJournals();
 
-    // Event listener untuk reload data jika ada perubahan
     window.addEventListener("journals:changed", async () => {
-      console.log("Event perubahan jurnal diterima, memuat ulang...");
+      console.log("📡 Journals changed event received, reloading...");
       await this.loadJournals();
       this.renderJournals();
     });
   }
 
-  // Memuat data jurnal dari database melalui API
+  // ===== LOAD JOURNALS FROM DATABASE =====
+  // ===== LOAD JOURNALS FROM DATABASE =====
   async loadJournals() {
     try {
-      console.log("Memuat jurnal dari database...");
+      console.log("Loading journals from database...");
 
-      // Menambahkan timestamp untuk mencegah caching browser
+      // Add timestamp to prevent caching (THIS IS THE FIX)
       const timestamp = Date.now();
       const response = await fetch(
-        `/ksmaja/api/list_journals.php?limit=100&offset=0&_=${timestamp}`,
+        `/ksmaja/api/list_journals.php?limit=100&offset=0&_=${timestamp}`, // <--- Changed here
         {
           cache: "no-store",
           headers: {
@@ -61,9 +65,9 @@ class JournalManager {
       const data = await response.json();
 
       if (data.ok && data.results) {
-        // Transformasi data API ke format internal object
+        // ... transformation logic remains the same ...
         this.journals = data.results.map((j) => {
-          // Fungsi bantu untuk parsing field JSON
+          // ... keep your existing mapping logic here ...
           const parseJsonField = (field) => {
             if (!field) return [];
             if (Array.isArray(field)) return field;
@@ -95,40 +99,38 @@ class JournalManager {
             views: parseInt(j.views) || 0,
           };
         });
-        console.log(`Berhasil memuat ${this.journals.length} jurnal dari database`);
+        console.log(`✅ Loaded ${this.journals.length} journals from database`);
       } else {
-        console.warn("Tidak ada jurnal ditemukan atau database kosong");
-        this.journals = [];
+        console.warn("⚠️ No journals found or database empty");
+        this.journals = []; // Clear array if database is empty
       }
     } catch (error) {
-      console.error("Error memuat jurnal dari database:", error);
+      console.error("❌ Error loading journals from database:", error);
       this.journals = [];
     }
   }
 
-  // Merender daftar jurnal ke HTML
+  // ===== RENDER JOURNALS =====
   renderJournals() {
     if (!this.journalContainer) {
-      console.warn("Container jurnal tidak ditemukan!");
+      console.warn("Journal container not found!");
       return;
     }
 
     this.journalContainer.innerHTML = "";
 
-    // Tampilan jika data kosong
     if (this.journals.length === 0) {
       this.journalContainer.innerHTML = `
         <div class="empty-state">
-          <div class="empty-state-icon" style="font-size: 48px; margin-bottom: 10px;">📚</div>
+          <div class="empty-state-icon">📚</div>
           <h3>Belum Ada Jurnal</h3>
           <p>Upload jurnal pertama kamu di form di bawah!</p>
         </div>
       `;
-      updateLatestNav(this.journals);
+      updateLatestNav(this.journals); // ← panggil nav
       return;
     }
 
-    // Loop data jurnal dan buat kartu
     this.journals.forEach((journal) => {
       const card = this.createJournalCard(journal);
       this.journalContainer.appendChild(card);
@@ -138,13 +140,14 @@ class JournalManager {
       feather.replace();
     }
 
-    // Update navigasi lihat semua
+    // ← panggil nav setiap kali render
     updateLatestNav(this.journals);
   }
 
-  // Membuat elemen kartu jurnal HTML
+  // ===== CREATE JOURNAL CARD =====
   createJournalCard(journal) {
-    // Cek apakah user adalah admin untuk menampilkan tombol aksi
+    // ===== CEK ADMIN MODE =====
+    // Paksa true jika di halaman admin, biar tombol selalu muncul
     const isAdmin =
       sessionStorage.getItem("userType") === "admin" ||
       window.location.pathname.includes("dashboard_admin.html") ||
@@ -154,7 +157,7 @@ class JournalManager {
     card.className = isAdmin ? "journal-card" : "article-card";
     card.setAttribute("data-journal-id", journal.id);
 
-    // Styling inline untuk layout grid
+    // Style Inline biar layout Grid Admin rapi
     card.style.cssText = `
       display: flex; 
       flex-direction: column; 
@@ -171,13 +174,11 @@ class JournalManager {
       card.onclick = () => this.viewJournal(journal.id);
     }
 
-    // Fungsi bantu memotong teks panjang
     const truncateText = (text, maxLength) => {
       if (!text) return "";
       return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
     };
 
-    // Fungsi bantu format tanggal
     const formatDate = (dateString) => {
       try {
         return new Date(dateString).toLocaleDateString("id-ID", {
@@ -190,7 +191,6 @@ class JournalManager {
       }
     };
 
-    // Fungsi ambil penulis pertama
     const getFirstAuthor = (authors) => {
       if (Array.isArray(authors) && authors.length > 0) {
         return authors[0];
@@ -198,7 +198,6 @@ class JournalManager {
       return "Unknown Author";
     };
 
-    // Template HTML kartu jurnal
     card.innerHTML = `
       <div style="width: 100%; height: 200px; overflow: hidden; position: relative;">
         <img src="${journal.coverImage}" 
@@ -297,17 +296,15 @@ class JournalManager {
     return card;
   }
 
-  // Navigasi ke halaman detail jurnal
   viewJournal(id) {
-    console.log("Melihat jurnal:", id);
+    console.log("👁️ Viewing journal:", id);
     this.updateViews(id);
     window.location.href = `explore_jurnal_admin.html?id=${id}&type=jurnal`;
   }
 
-  // Menghapus jurnal dari database
   async deleteJournal(id, title = "") {
     if (!id) {
-      alert("ID journal tidak valid");
+      alert("❌ ID journal tidak valid");
       return;
     }
     const confirmMsg = title
@@ -317,7 +314,6 @@ class JournalManager {
     if (!confirm(confirmMsg)) return;
 
     try {
-      // Efek visual loading pada kartu
       const card = document.querySelector(`[data-journal-id="${id}"]`);
       if (card) {
         card.style.opacity = "0.5";
@@ -331,7 +327,7 @@ class JournalManager {
 
       const result = await response.json();
       if (result.ok) {
-        alert("Jurnal berhasil dihapus!");
+        alert("✅ Jurnal berhasil dihapus!");
         this.journals = this.journals.filter((j) => String(j.id) !== String(id));
         this.renderJournals();
         window.dispatchEvent(
@@ -350,7 +346,7 @@ class JournalManager {
         throw new Error(result.message || "Gagal menghapus jurnal dari database");
       }
     } catch (error) {
-      alert("Gagal menghapus jurnal: " + error.message);
+      alert("❌ Gagal menghapus jurnal: " + error.message);
       const card = document.querySelector(`[data-journal-id="${id}"]`);
       if (card) {
         card.style.opacity = "1";
@@ -359,7 +355,6 @@ class JournalManager {
     }
   }
 
-  // Update jumlah views artikel
   async updateViews(id) {
     try {
       const response = await fetch(`/ksmaja/api/update_views.php`, {
@@ -373,11 +368,10 @@ class JournalManager {
         if (journal) journal.views = (journal.views || 0) + 1;
       }
     } catch (error) {
-      console.warn("Gagal update views:", error);
+      console.warn("⚠️ Failed to update views:", error);
     }
   }
 
-  // Fitur pencarian jurnal
   searchJournals(query) {
     if (!query || query.trim() === "") {
       this.renderJournals();
@@ -397,12 +391,11 @@ class JournalManager {
     this.renderFilteredJournals(filtered, query);
   }
 
-  // Render hasil pencarian
   renderFilteredJournals(filtered, query) {
     if (!this.journalContainer) return;
     this.journalContainer.innerHTML = "";
     if (filtered.length === 0) {
-      this.journalContainer.innerHTML = `<div class="empty-state"><div class="empty-state-icon" style="font-size: 48px;">🔍</div><h3>Tidak Ada Hasil</h3><p>Tidak ditemukan jurnal dengan kata kunci "${query}"</p></div>`;
+      this.journalContainer.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🔍</div><h3>Tidak Ada Hasil</h3><p>Tidak ditemukan jurnal dengan kata kunci "${query}"</p></div>`;
       return;
     }
     filtered.forEach((journal) => {
@@ -412,7 +405,6 @@ class JournalManager {
     if (typeof feather !== "undefined") feather.replace();
   }
 
-  // Fitur sorting jurnal
   sortJournals(sortBy) {
     let sorted = [...this.journals];
     switch (sortBy) {
@@ -433,7 +425,6 @@ class JournalManager {
     this.renderJournals();
   }
 
-  // Helper getters
   getJournalById(id) {
     return this.journals.find((j) => j.id === id || j.id === String(id));
   }
@@ -445,11 +436,11 @@ class JournalManager {
   }
 }
 
-// Fungsi untuk navigasi tombol lihat semua
+// ===== NAV "LIHAT SEMUA" UNTUK DASHBOARD USER & ADMIN =====
 function updateLatestNav(journals) {
   if (!Array.isArray(journals)) journals = [];
 
-  // Navigasi untuk dashboard user
+  // Dashboard user (home / dashboard_user.html)
   const navUser = document.getElementById("latestArticlesNavUser");
   if (navUser) {
     if (journals.length > 6) {
@@ -463,7 +454,7 @@ function updateLatestNav(journals) {
     }
   }
 
-  // Navigasi untuk dashboard admin
+  // Dashboard admin (dashboard_admin.html)
   const navAdmin = document.getElementById("latestArticlesNavAdmin");
   if (navAdmin) {
     if (journals.length > 6) {
@@ -478,16 +469,16 @@ function updateLatestNav(journals) {
   }
 }
 
-// Inisialisasi saat DOM siap
+// ===== INITIALIZE WHEN DOM IS READY =====
 let journalManager;
 document.addEventListener("DOMContentLoaded", () => {
   if (window.journalManager) {
-    console.warn("JournalManager sudah diinisialisasi, melewati proses...");
+    console.warn("⚠️ JournalManager already initialized, skipping...");
     return;
   }
   journalManager = new JournalManager();
-  console.log("JournalManager terinisialisasi (Integrasi Database)");
+  console.log("✅ JournalManager initialized (Full Database Integration)");
   window.journalManager = journalManager;
 });
 
-console.log("jurnal.js dimuat");
+console.log("📚 jurnal.js loaded (Database Mode)");

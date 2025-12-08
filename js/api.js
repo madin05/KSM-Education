@@ -1,10 +1,10 @@
 // js/api.js
-// Fungsi pembungkus API untuk komunikasi dengan backend
+// API wrapper functions untuk komunikasi dengan backend
 
-// Mengatur URL dasar API jika belum didefinisikan
+// Set base API URL
 window.API_BASE = window.API_BASE || "/ksmaja/api";
 
-// Fungsi untuk mengunggah file ke server dengan pelacakan progress
+// ===== FILE UPLOAD =====
 async function uploadFileToServer(file, onProgress) {
   const endpoint = window.API_BASE + "/upload.php";
   const form = new FormData();
@@ -14,7 +14,7 @@ async function uploadFileToServer(file, onProgress) {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", endpoint, true);
 
-    // Pelacakan progress upload
+    // Progress tracking
     if (typeof onProgress === "function") {
       xhr.upload.onprogress = function (e) {
         if (e.lengthComputable) {
@@ -28,7 +28,7 @@ async function uploadFileToServer(file, onProgress) {
       };
     }
 
-    // Pembungkus Promise untuk XMLHttpRequest agar bisa menggunakan await
+    // Promise wrapper untuk XMLHttpRequest
     const res = await new Promise((resolve, reject) => {
       xhr.onreadystatechange = function () {
         if (xhr.readyState !== 4) return;
@@ -58,7 +58,7 @@ async function uploadFileToServer(file, onProgress) {
   }
 }
 
-// Fungsi membuat jurnal baru
+// ===== JOURNAL API =====
 async function createJournal(metadata) {
   const endpoint = window.API_BASE + "/create_journal.php";
   try {
@@ -75,7 +75,6 @@ async function createJournal(metadata) {
   }
 }
 
-// Fungsi mengambil daftar jurnal dengan pagination
 async function listJournals(limit = 50, offset = 0) {
   const endpoint = `${window.API_BASE}/list_journals.php?limit=${encodeURIComponent(
     limit
@@ -89,7 +88,6 @@ async function listJournals(limit = 50, offset = 0) {
   }
 }
 
-// Fungsi mengambil detail satu jurnal berdasarkan ID
 async function getJournal(id) {
   const endpoint = `${window.API_BASE}/get_journal.php?id=${encodeURIComponent(id)}`;
   try {
@@ -101,7 +99,6 @@ async function getJournal(id) {
   }
 }
 
-// Fungsi memperbarui data jurnal
 async function updateJournal(payload) {
   const endpoint = window.API_BASE + "/update_journal.php";
   try {
@@ -118,7 +115,6 @@ async function updateJournal(payload) {
   }
 }
 
-// Fungsi menghapus jurnal
 async function deleteJournal(id) {
   const endpoint = window.API_BASE + "/delete_journal.php";
   try {
@@ -135,9 +131,9 @@ async function deleteJournal(id) {
   }
 }
 
-// Fungsi mengambil daftar opini
-// Menggunakan endpoint list_opinion.php bentuk tunggal sesuai struktur file
+// ===== OPINION API =====
 async function listOpinions(limit = 50, offset = 0) {
+  // FIX: endpoint yang benar adalah list_opinion.php (singular)
   const endpoint = `${window.API_BASE}/list_opinion.php?limit=${encodeURIComponent(
     limit
   )}&offset=${encodeURIComponent(offset)}`;
@@ -151,7 +147,6 @@ async function listOpinions(limit = 50, offset = 0) {
   }
 }
 
-// Fungsi membuat opini baru
 async function createOpinion(opinion) {
   const endpoint = window.API_BASE + "/create_opinion.php";
   try {
@@ -169,7 +164,6 @@ async function createOpinion(opinion) {
   }
 }
 
-// Fungsi mengambil detail opini berdasarkan ID
 async function getOpinion(id) {
   const endpoint = `${window.API_BASE}/get_opinion.php?id=${encodeURIComponent(id)}`;
   try {
@@ -181,9 +175,8 @@ async function getOpinion(id) {
   }
 }
 
-// Fungsi menghapus opini
-// Menggunakan query parameter id untuk penghapusan
 async function deleteOpinion(id) {
+  // FIX: gunakan query parameter atau JSON body, bukan URLSearchParams
   const endpoint = `${window.API_BASE}/delete_opinion.php?id=${encodeURIComponent(id)}`;
   try {
     const res = await fetch(endpoint, {
@@ -199,7 +192,7 @@ async function deleteOpinion(id) {
   }
 }
 
-// Fungsi mengirim data perubahan lokal ke server (Sync Push)
+// ===== SYNC API =====
 async function syncPush(changes) {
   const endpoint = window.API_BASE + "/sync_push.php";
   try {
@@ -216,7 +209,6 @@ async function syncPush(changes) {
   }
 }
 
-// Fungsi mengambil data perubahan dari server (Sync Pull)
 async function syncPull(since) {
   const endpoint =
     window.API_BASE + "/sync_pull.php" + (since ? `?since=${encodeURIComponent(since)}` : "");
@@ -229,7 +221,7 @@ async function syncPull(since) {
   }
 }
 
-// Fungsi memperbarui jumlah tayangan (views)
+// ===== UPDATE VIEWS =====
 async function updateViews(id, type) {
   const endpoint = window.API_BASE + "/update_views.php";
   try {
@@ -246,8 +238,8 @@ async function updateViews(id, type) {
   }
 }
 
-// Mengekspos fungsi secara global ke objek window
-// Bagian Jurnal
+// ===== EXPOSE GLOBALLY =====
+// Journals
 window.uploadFileToServer = uploadFileToServer;
 window.createJournal = createJournal;
 window.listJournals = listJournals;
@@ -255,17 +247,17 @@ window.getJournal = getJournal;
 window.updateJournal = updateJournal;
 window.deleteJournal = deleteJournal;
 
-// Bagian Opini
+// Opinions
 window.listOpinions = listOpinions;
 window.createOpinion = createOpinion;
 window.getOpinion = getOpinion;
 window.deleteOpinion = deleteOpinion;
 
-// Bagian Sinkronisasi
+// Sync
 window.syncPush = syncPush;
 window.syncPull = syncPull;
 
-// Bagian Views
+// Views
 window.updateViews = updateViews;
 
-console.log("Modul API berhasil dimuat");
+console.log("API module loaded successfully");

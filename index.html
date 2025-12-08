@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>KSM Education - Beranda</title>
-
+    <title>KSM Education</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <link rel="shortcut icon" type="image/x-icon" href="./assets/favicon.ico" />
-    <link rel="stylesheet" href="./styles/dashboard_user.css" />
+
+    <link rel="stylesheet" href="./styles/dashboard_user.css?v=20251130" />
     <link rel="stylesheet" href="./styles/journal.css" />
     <link rel="stylesheet" href="./styles/user.css" />
 
@@ -20,7 +20,7 @@
     <header>
       <div class="header-container">
         <div class="logo">
-          <a href="#"><img src="./assets/main_logo.png" alt="Logo KSM" /></a>
+          <a href="#"><img src="./assets/main_logo.png" alt="Logo" /></a>
         </div>
 
         <button class="hamburger-menu" aria-label="Toggle menu" aria-expanded="false" type="button">
@@ -34,24 +34,37 @@
           <div class="nav-dropdown">
             <button class="nav-link has-caret" type="button">
               Artikel
-              <i data-feather="chevron-down" class="caret-icon"></i>
+              <svg
+                class="caret"
+                viewBox="0 0 24 24"
+                width="14"
+                height="14"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
             </button>
             <div class="dropdown-menu">
               <button type="button" class="dropdown-close" aria-label="Close dropdown">
-                <i data-feather="x"></i>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
               </button>
               <a href="./journals_user.html">Daftar Artikel</a>
 
               <a
                 href="#"
-                onclick="alert('Fitur Opini sedang dalam pengembangan!\n\nComing Soon 🚀'); return false;"
-                style="
-                  opacity: 0.6;
-                  cursor: not-allowed;
-                  display: flex;
-                  align-items: center;
-                  justify-content: space-between;
-                "
+                onclick="alert('Fitur Opini sedang dalam pengembangan!\n\nSegera Hadir.'); return false;"
+                style="opacity: 0.6; cursor: not-allowed"
               >
                 Daftar Opini
                 <span
@@ -61,7 +74,7 @@
                     padding: 2px 6px;
                     border-radius: 4px;
                     font-size: 10px;
-                    font-weight: bold;
+                    margin-left: 8px;
                   "
                   >SOON</span
                 >
@@ -78,14 +91,14 @@
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-icon">
-              <i data-feather="file-text"></i>
+              <i data-feather="bar-chart-2"></i>
             </div>
             <div class="stat-number" id="articleCount">0</div>
             <div class="stat-label">Artikel</div>
           </div>
           <div class="stat-card">
             <div class="stat-icon">
-              <i data-feather="users"></i>
+              <i data-feather="eye"></i>
             </div>
             <div class="stat-number" id="visitorCount">0</div>
             <div class="stat-label">Pengunjung</div>
@@ -94,37 +107,9 @@
       </section>
 
       <section class="articles-section">
-        <div
-          style="
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-          "
-        >
-          <h2>Artikel Terbaru</h2>
-          <div id="latestArticlesNavUser"></div>
-        </div>
-
-        <div class="articles-grid" id="articlesGrid">
-          <div
-            class="loading-state"
-            style="grid-column: 1/-1; text-align: center; padding: 40px; color: #666"
-          >
-            <div
-              style="
-                width: 40px;
-                height: 40px;
-                border: 3px solid #eee;
-                border-top: 3px solid #3498db;
-                border-radius: 50%;
-                animation: spin 1s linear infinite;
-                margin: 0 auto 15px;
-              "
-            ></div>
-            <p>Memuat artikel...</p>
-          </div>
-        </div>
+        <h2>Artikel Terbaru</h2>
+        <div class="articles-grid" id="articlesGrid"></div>
+        <div id="latestArticlesNavUser"></div>
       </section>
 
       <section class="categories-section">
@@ -167,42 +152,29 @@
 
       <section class="newsletter-section">
         <h3>Stay Tuned</h3>
-        <p>Berlangganan newsletter kami dan jangan lewatkan berita terbaru!</p>
+        <p>Subscribe to our latest newsletter and never miss the latest news!</p>
         <div class="newsletter-form">
           <input
             type="email"
             class="newsletter-input"
-            placeholder="Masukkan email anda..."
+            placeholder="Enter your email..."
             id="newsletterEmail"
           />
-          <button class="submit-btn" id="subscribeBtn">Langganan</button>
+          <button class="submit-btn" id="subscribeBtn">Submit</button>
         </div>
       </section>
     </div>
 
-    <script src="./js/api.js"></script>
-
-    <script src="./js/script.js"></script>
-    <script src="./js/statistic.js"></script>
-
-    <script src="./js/jurnal.js"></script>
+    <script src="./js/script.js?v=2025112910"></script>
+    <script src="./js/statistic.js?v=20251130"></script>
+    <script src="./js/jurnal.js?bust=29112025v3"></script>
     <script src="./js/opinions_manager.js"></script>
-
-    <script src="./js/dashboard_user.js"></script>
-
-    <script src="./js/mobile_menu.js"></script>
+    <script src="./js/file_upload.js"></script>
+    <script src="./js/dashboard_user.js?v=finalfix999"></script>
+    <script src="./js/mobile_menu.js?v=20251130"></script>
 
     <script>
-      // Inisialisasi Icon Feather & Animasi Loading
-      document.addEventListener("DOMContentLoaded", () => {
-        feather.replace();
-
-        const style = document.createElement("style");
-        style.textContent = `
-          @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        `;
-        document.head.appendChild(style);
-      });
+      feather.replace();
     </script>
   </body>
 </html>

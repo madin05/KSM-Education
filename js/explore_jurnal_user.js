@@ -1,13 +1,14 @@
+// ===== EXPLORE JURNAL USER - DATABASE VERSION =====
 console.log("Starting explore_jurnal_user.js (Database Mode)");
 
-// Inisialisasi Feather Icons jika library tersedia
+// Initialize Feather Icons
 if (typeof feather !== "undefined") {
   feather.replace();
 } else {
   console.warn("Feather icons not loaded");
 }
 
-// Inisialisasi PDF Extractor jika tersedia
+// Initialize PDF Extractor
 let pdfExtractor = null;
 if (typeof PDFTextExtractor !== "undefined") {
   pdfExtractor = new PDFTextExtractor();
@@ -16,21 +17,21 @@ if (typeof PDFTextExtractor !== "undefined") {
   console.warn("PDF Extractor not available - text extraction disabled");
 }
 
-// Ambil data artikel dari database berdasarkan ID dan tipe
+// ===== GET ARTICLE BY ID FROM DATABASE =====
 async function getArticleById(id, type) {
-  console.log("Getting article from database:", id, type);
+  console.log("📥 Getting article from database:", id, type);
 
   try {
     if (type === "jurnal") {
       const response = await fetch(`/ksmaja/api/get_journal.php?id=${id}`);
       const data = await response.json();
 
-      console.log("API Response:", data);
+      console.log("📦 API Response:", data);
 
       if (data.ok && data.journal) {
         const j = data.journal;
 
-        // Parsing field JSON karena dari database bentuknya string
+        // Parse JSON fields
         let authors = j.authors;
         if (typeof authors === "string") {
           try {
@@ -85,14 +86,14 @@ async function getArticleById(id, type) {
           type: "jurnal",
         };
       } else {
-        console.error("Journal not found:", data);
+        console.error("❌ Journal not found:", data);
         return null;
       }
     } else if (type === "opini") {
       const response = await fetch(`/ksmaja/api/get_opinion.php?id=${id}`);
       const data = await response.json();
 
-      console.log("Opinion Response:", data);
+      console.log("📦 Opinion Response:", data);
 
       const o = data.opinion || data.result;
 
@@ -120,17 +121,17 @@ async function getArticleById(id, type) {
           type: "opini",
         };
       } else {
-        console.error("Opinion not found:", data);
+        console.error("❌ Opinion not found:", data);
         return null;
       }
     }
   } catch (error) {
-    console.error("Error fetching article:", error);
+    console.error("❌ Error fetching article:", error);
     return null;
   }
 }
 
-// Fungsi utama untuk memuat detail artikel
+// ===== LOAD ARTICLE DETAIL =====
 async function loadArticleDetail() {
   console.log("Loading article detail...");
 
@@ -173,7 +174,7 @@ async function loadArticleDetail() {
       return;
     }
 
-    console.log("Article loaded:", article);
+    console.log("✅ Article loaded:", article);
 
     if (loadingState) {
       loadingState.style.display = "none";
@@ -181,12 +182,12 @@ async function loadArticleDetail() {
 
     if (articleDetail) {
       articleDetail.style.display = "block";
-      console.log("Article detail shown");
+      console.log("✅ Article detail shown");
     }
 
     await displayArticle(article, articleType);
   } catch (error) {
-    console.error("Error loading article:", error);
+    console.error("❌ Error loading article:", error);
     showError(
       "Failed to load article\n\nDebug Info:\nArticle ID: " +
         articleId +
@@ -198,17 +199,17 @@ async function loadArticleDetail() {
   }
 }
 
-// Render data artikel ke HTML
+// ===== DISPLAY ARTICLE =====
 async function displayArticle(article, type) {
-  console.log("Displaying article:", article.title);
+  console.log("📄 Displaying article:", article.title);
 
-  // Set Judul
+  // Title
   const titleElement = document.getElementById("articleTitle");
   if (titleElement) {
     titleElement.textContent = article.title || article.judul || "Untitled";
   }
 
-  // Set Gambar Cover
+  // Cover Image
   const coverImg = document.getElementById("articleCover");
   if (coverImg) {
     const coverUrl =
@@ -223,10 +224,10 @@ async function displayArticle(article, type) {
         "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=1200&h=400&fit=crop";
     };
 
-    console.log("Cover image set:", coverUrl);
+    console.log("✅ Cover image set:", coverUrl);
   }
 
-  // Set Tanggal dan Views
+  // Meta info
   const dateElement = document.getElementById("articleDate");
   if (dateElement) {
     const date = new Date(article.date || article.uploadDate);
@@ -242,13 +243,13 @@ async function displayArticle(article, type) {
     viewsElement.textContent = article.views || 0;
   }
 
-  // Set Abstrak
+  // Abstract
   const abstractElement = document.getElementById("articleAbstract");
   if (abstractElement) {
     abstractElement.textContent = article.abstract || article.abstrak || "No abstract available";
   }
 
-  // Set Tags
+  // Tags
   const tagsSection = document.getElementById("tagsSection");
   const tagsContainer = document.getElementById("articleTags");
   if (tagsSection && tagsContainer) {
@@ -257,13 +258,13 @@ async function displayArticle(article, type) {
       tagsContainer.innerHTML = article.tags
         .map((tag) => `<span class="tag">${tag}</span>`)
         .join("");
-      console.log("Tags displayed:", article.tags.length);
+      console.log("✅ Tags displayed:", article.tags.length);
     } else {
       tagsSection.style.display = "none";
     }
   }
 
-  // Set Penulis
+  // Authors
   const authorsContainer = document.getElementById("articleAuthors");
   if (authorsContainer) {
     if (article.authors && Array.isArray(article.authors) && article.authors.length > 0) {
@@ -277,7 +278,7 @@ async function displayArticle(article, type) {
         `
         )
         .join("");
-      console.log("Authors displayed:", article.authors);
+      console.log("✅ Authors displayed:", article.authors);
     } else {
       const singleAuthor = article.author || article.penulis || "Unknown Author";
       authorsContainer.innerHTML = `
@@ -289,7 +290,7 @@ async function displayArticle(article, type) {
     }
   }
 
-  // Set Pengurus khusus Jurnal
+  // Pengurus (only for jurnal)
   const pengurusSection = document.getElementById("pengurusSection");
   const pengurusContainer = document.getElementById("articlePengurus");
   if (pengurusSection && pengurusContainer) {
@@ -305,13 +306,13 @@ async function displayArticle(article, type) {
         `
         )
         .join("");
-      console.log("Pengurus displayed:", article.pengurus.length);
+      console.log("✅ Pengurus displayed:", article.pengurus.length);
     } else {
       pengurusSection.style.display = "none";
     }
   }
 
-  // Set Kontak Email dan Telepon
+  // Contact
   const emailLink = document.getElementById("articleEmail");
   const phoneEl = document.getElementById("articlePhone");
 
@@ -325,7 +326,7 @@ async function displayArticle(article, type) {
     phoneEl.textContent = article.phone || article.contact?.phone || article.kontak || "-";
   }
 
-  // Set Volume khusus Jurnal
+  // Volume
   const volumeSection = document.getElementById("volumeSection");
   const volumeElement = document.getElementById("articleVolume");
 
@@ -333,13 +334,13 @@ async function displayArticle(article, type) {
     if (type === "jurnal" && article.volume) {
       volumeSection.style.display = "block";
       volumeElement.textContent = article.volume;
-      console.log("Volume displayed:", article.volume);
+      console.log("✅ Volume displayed:", article.volume);
     } else {
       volumeSection.style.display = "none";
     }
   }
 
-  // PDF Viewer
+  // PDF VIEWER
   const pdfSection = document.getElementById("pdfSection");
   if (pdfSection) {
     const pdfUrl = article.file_url || article.fileData || article.file || article.pdfUrl;
@@ -349,7 +350,7 @@ async function displayArticle(article, type) {
 
       const pdfIframe = document.getElementById("pdfIframe");
       if (pdfIframe) {
-        pdfIframe.src = pdfUrl;
+        pdfIframe.src = pdfUrl; // sekarang: /ksmaja/serve_pdf.php?file=/ksmaja/uploads/xxx.pdf
       }
 
       const downloadLink = document.getElementById("pdfDownload");
@@ -362,16 +363,17 @@ async function displayArticle(article, type) {
     }
   }
 
+  // Replace feather icons
   if (typeof feather !== "undefined") {
     feather.replace();
   }
 
-  console.log("Article displayed successfully");
+  console.log("✅ Article displayed successfully");
 }
 
-// Fungsi helper untuk menampilkan error
+// ===== SHOW ERROR =====
 function showError(message) {
-  console.error("Showing error:", message);
+  console.error("❌ Showing error:", message);
 
   const loadingState = document.getElementById("loadingState");
   const errorState = document.getElementById("errorState");
@@ -390,7 +392,7 @@ function showError(message) {
   }
 }
 
-// Setup navigasi dropdown
+// ===== SETUP NAV DROPDOWN =====
 function setupNavDropdown() {
   document.querySelectorAll(".nav-dropdown").forEach((dd) => {
     const btn = dd.querySelector(".nav-link.has-caret");
@@ -415,7 +417,7 @@ function setupNavDropdown() {
   });
 }
 
-// Fitur pencarian
+// ===== SEARCH FUNCTIONALITY =====
 const searchInput = document.getElementById("searchInput");
 const searchModal = document.getElementById("searchModal");
 const closeSearchModal = document.getElementById("closeSearchModal");
@@ -479,7 +481,7 @@ async function performSearch(query) {
 
     displaySearchResults(results, query);
   } catch (error) {
-    console.error("Search error:", error);
+    console.error("❌ Search error:", error);
   }
 }
 
@@ -516,9 +518,9 @@ function displaySearchResults(results, query) {
     .join("");
 }
 
-// Inisialisasi saat halaman dimuat
+// ===== INITIALIZE =====
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("Explore Jurnal User initialized (Database Mode)");
+  console.log("🚀 Explore Jurnal User initialized (Database Mode)");
 
   setupNavDropdown();
   loadArticleDetail();
@@ -526,4 +528,4 @@ document.addEventListener("DOMContentLoaded", () => {
   if (typeof feather !== "undefined") feather.replace();
 });
 
-console.log("explore_jurnal_user.js loaded (Database Mode)");
+console.log("✅ explore_jurnal_user.js loaded (Database Mode)");

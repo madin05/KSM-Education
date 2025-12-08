@@ -13,14 +13,14 @@
     <script src="https://unpkg.com/feather-icons"></script>
   </head>
   <body>
+    <!-- Header (sama seperti journals.html) -->
     <header>
       <div class="header-container">
         <div class="logo">
-          <a href="./dashboard_admin.html">
-            <img src="./assets/main_logo.png" alt="Logo" />
-          </a>
+          <a href="./dashboard_admin.html"
+            ><img src="./assets/main_logo.png" alt="Logo"
+          /></a>
         </div>
-
         <nav>
           <a href="./dashboard_admin.html">HOME</a>
           <div class="nav-dropdown">
@@ -43,9 +43,8 @@
               <a href="opinions.html" class="active">Artikel Opini</a>
             </div>
           </div>
-          <a href="./dashboard_admin.html#upload">UPLOAD</a>
+          <a href="./dashboard_admin.html">UPLOAD</a>
         </nav>
-
         <div class="auth-section">
           <a href="./login_user.html" class="btn-user-login">
             <svg
@@ -64,19 +63,23 @@
           </a>
           <div class="search-box">
             <i data-feather="search"></i>
-            <input type="text" placeholder="cari artikel opini..." id="searchOpiniInput" />
+            <input type="text" placeholder="cari artikel opini..." />
           </div>
         </div>
       </div>
     </header>
 
+    <!-- Main Content -->
     <div class="container">
       <section class="opinions-section">
         <div class="section-header">
           <h2>ARTIKEL OPINI</h2>
-          <p class="section-subtitle">Koleksi artikel opini & perspektif pendidikan Islam</p>
+          <p class="section-subtitle">
+            Koleksi artikel opini & perspektif pendidikan Islam
+          </p>
         </div>
 
+        <!-- Filter & Sort -->
         <div class="filter-bar">
           <div class="sort-group">
             <label for="sortOpinions">Urutkan:</label>
@@ -88,12 +91,19 @@
           </div>
         </div>
 
-        <div id="opinionsContainer" class="opinions-grid"></div>
+        <!-- Opinions Grid -->
+        <div id="opinionsContainer" class="opinions-grid">
+          <!-- Opinions will be rendered here by JavaScript -->
+        </div>
 
-        <div id="paginationContainer" class="pagination"></div>
+        <!-- Pagination -->
+        <div id="paginationContainer" class="pagination">
+          <!-- Pagination will be rendered here -->
+        </div>
       </section>
     </div>
 
+    <!-- Preview Modal -->
     <div id="previewModal" class="modal">
       <div class="modal-overlay"></div>
       <div class="modal-content preview-container">
@@ -110,12 +120,11 @@
       </div>
     </div>
 
-    <script src="./js/api.js"></script>
-    <script src="./js/storage.js"></script>
-
-    <script src="./js/opinions.js"></script>
+    <!-- Scripts -->
     <script src="./js/script.js"></script>
-
+    <script src="./js/opinions.js"></script>
+    <script src="/js/api.js"></script> 
+    <script src="/js/storage.js"></script>
     <script>
       feather.replace();
     </script>

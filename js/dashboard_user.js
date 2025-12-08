@@ -1,23 +1,22 @@
-// Mengganti icon feather saat script dimuat
+// ===== DASHBOARD USER - DATABASE MIGRATION VERSION =====
+
 feather.replace();
 
-// Memeriksa status login pengguna dari session storage
+// ===== LOGIN STATUS CHECK =====
 function checkLoginStatus() {
   return sessionStorage.getItem("userLoggedIn") === "true";
 }
 
-// Variabel global untuk menampung artikel
-let articles = [];
+// ===== LOAD ARTICLES FROM DATABASE =====
 
-// Fungsi asinkronus untuk mengambil data artikel dari database
 async function loadArticles() {
   try {
-    console.log("Memuat artikel dari database...");
+    console.log("📥 Loading articles from database...");
 
-    // Membuat timestamp untuk mencegah cache browser
+    // Anti-cache timestamp
     const timestamp = Date.now();
 
-    // Mengambil data jurnal dari API
+    // Fetch journals with timestamp
     const journalsResponse = await fetch(
       `/ksmaja/api/list_journals.php?limit=50&offset=0&t=${timestamp}`,
       {
@@ -27,7 +26,7 @@ async function loadArticles() {
     );
     const journalsData = await journalsResponse.json();
 
-    // Mengambil data opini dari API
+    // Fetch opinions with timestamp
     let opinionsData = { ok: false, results: [] };
     try {
       const opinionsResponse = await fetch(
@@ -39,26 +38,24 @@ async function loadArticles() {
       );
       opinionsData = await opinionsResponse.json();
     } catch (e) {
-      console.warn("Endpoint opini tidak ditemukan atau error, melewati proses ini...");
+      console.warn("No opinions endpoint, skipping...");
     }
 
     let journals = [];
     let opinions = [];
 
-    // Memproses data jurnal jika request berhasil
+    // ... rest of the processing logic remains exactly the same ...
+    // (Copy the rest of your existing processing logic here)
+
+    // Process journals from database
     if (journalsData.ok && journalsData.results) {
       journals = journalsData.results.map((j) => {
-        // Parsing data authors jika bentuknya string JSON
         const authors = j.authors
           ? typeof j.authors === "string"
             ? JSON.parse(j.authors)
             : j.authors
           : [];
-
-        // Parsing data tags
         const tags = j.tags ? (typeof j.tags === "string" ? JSON.parse(j.tags) : j.tags) : [];
-
-        // Normalisasi struktur data jurnal
         return {
           id: j.id,
           title: j.title,
@@ -82,10 +79,9 @@ async function loadArticles() {
       });
     }
 
-    // Memproses data opini jika request berhasil
+    // Process opinions from database
     if (opinionsData.ok && opinionsData.results) {
       opinions = opinionsData.results.map((o) => {
-        // Normalisasi struktur data opini
         return {
           id: o.id,
           title: o.title,
@@ -111,50 +107,47 @@ async function loadArticles() {
       });
     }
 
-    // Menggabungkan jurnal dan opini lalu mengurutkan berdasarkan tanggal terbaru
-    const allArticles = [...journals, ...opinions].sort((a, b) => {
+    const articles = [...journals, ...opinions].sort((a, b) => {
       const dateA = new Date(a.uploadDate || a.date || 0);
       const dateB = new Date(b.uploadDate || b.date || 0);
       return dateB - dateA;
     });
 
-    console.log(`Total artikel dari database: ${allArticles.length}`);
-    return allArticles;
+    console.log(`📊 Total articles from database: ${articles.length}`);
+    return articles;
   } catch (error) {
-    console.error("Error memuat artikel dari database:", error);
+    console.error("❌ Error loading articles from database:", error);
     return [];
   }
 }
 
-// Fungsi navigasi ke halaman detail artikel
+let articles = []; // Initialize empty, will be loaded async
+
+// ===== NAVIGATE TO ARTICLE DETAIL =====
 function openArticleDetail(articleId, articleType) {
-  console.log("Membuka artikel:", articleId, articleType);
+  console.log("Opening article:", articleId, articleType);
   window.location.href = `explore_jurnal_user.html?id=${articleId}&type=${articleType}`;
 }
 
-// Fungsi utama untuk merender artikel ke dalam grid HTML
 async function renderArticles() {
   const grid = document.getElementById("articlesGrid");
   const navUser = document.getElementById("latestArticlesNavUser");
 
-  // Menampilkan animasi loading
   grid.innerHTML = `
     <div class="loading-state" style="text-align: center; padding: 60px 20px; color: #666;">
       <div style="width: 50px; height: 50px; border: 4px solid rgba(0,0,0,0.1); border-top: 4px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px;"></div>
       <p>MEMUAT ARTIKEL...</p>
     </div>
   `;
+  if (navUser) navUser.innerHTML = ""; // kosongin dulu
 
-  if (navUser) navUser.innerHTML = "";
-
-  // Mengambil data terbaru
+  // DATA DARI DATABASE
   articles = await loadArticles();
 
-  // Menampilkan pesan jika tidak ada artikel
   if (articles.length === 0) {
     grid.innerHTML = `
       <div class="empty-state">
-        <div class="empty-state-icon" style="font-size: 48px; margin-bottom: 16px;">📄</div>
+        <div class="empty-state-icon">📄</div>
         <h3>BELUM ADA ARTIKEL</h3>
         <p>ARTIKEL AKAN MUNCUL DI SINI SETELAH ADMIN MENGUPLOAD JURNAL</p>
       </div>
@@ -162,11 +155,9 @@ async function renderArticles() {
     return;
   }
 
-  // Merender 6 artikel terbaru ke dalam grid
   grid.innerHTML = articles
     .slice(0, 6)
     .map((article) => {
-      // Penentuan judul, penulis, dan tanggal dengan fallback value
       const title = article.title || article.judul || "UNTITLED";
       const author = Array.isArray(article.authors)
         ? article.authors[0]
@@ -191,11 +182,9 @@ async function renderArticles() {
       const truncatedAbstract =
         abstract.length > 100 ? abstract.substring(0, 100) + "..." : abstract;
 
-      // Penentuan label tipe artikel (Jurnal atau Opini)
       const typeLabel = article.type === "opini" ? "OPINI" : "JURNAL";
       const typeClass = article.type === "opini" ? "badge-opini" : "badge-jurnal";
 
-      // Template literal HTML untuk kartu artikel
       return `
         <div class="article-card" onclick="openArticleDetail('${article.id}', '${
         article.type
@@ -219,7 +208,7 @@ async function renderArticles() {
     })
     .join("");
 
-  // Menambahkan tombol Lihat Semua jika artikel lebih dari 6
+  // ====== TOMBOL LIHAT SEMUA ======
   if (navUser) {
     if (articles.length > 6) {
       navUser.innerHTML = `
@@ -232,17 +221,30 @@ async function renderArticles() {
     }
   }
 
-  // Refresh icon feather agar muncul di elemen baru
   feather.replace();
 }
 
-// Menyiapkan event listener untuk tombol logout
+// // ===== SYNC VISITOR COUNT =====
+// function syncVisitorCount() {
+//   const oldVisitorKey = parseInt(localStorage.getItem("visitorCount") || "0");
+//   if (oldVisitorKey > 0) {
+//     const stats = JSON.parse(localStorage.getItem("siteStatistics") || "{}");
+//     stats.visitors = Math.max(stats.visitors || 0, oldVisitorKey);
+//     stats.lastVisit = new Date().toISOString();
+//     stats.uniqueVisitorId =
+//       stats.uniqueVisitorId ||
+//       "visitor_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+//     localStorage.setItem("siteStatistics", JSON.stringify(stats));
+//     localStorage.removeItem("visitorCount");
+//   }
+// }
+
+// ===== LOGOUT HANDLER =====
 function setupLogout() {
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
       if (confirm("YAKIN INGIN LOGOUT?")) {
-        // Menghapus sesi login dari storage
         sessionStorage.removeItem("userLoggedIn");
         sessionStorage.removeItem("userEmail");
         sessionStorage.removeItem("userType");
@@ -254,7 +256,7 @@ function setupLogout() {
   }
 }
 
-// Menyiapkan fungsi berlangganan newsletter
+// ===== NEWSLETTER SUBSCRIPTION =====
 function setupNewsletter() {
   const subscribeBtn = document.getElementById("subscribeBtn");
   const newsletterEmail = document.getElementById("newsletterEmail");
@@ -262,7 +264,6 @@ function setupNewsletter() {
   if (subscribeBtn && newsletterEmail) {
     subscribeBtn.addEventListener("click", () => {
       const email = newsletterEmail.value.trim();
-      // Validasi format email sederhana
       if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         alert("TERIMA KASIH! ANDA TELAH BERHASIL SUBSCRIBE NEWSLETTER");
         newsletterEmail.value = "";
@@ -273,7 +274,7 @@ function setupNewsletter() {
   }
 }
 
-// Mengatur tampilan nama user di navbar
+// ===== SET USER NAME =====
 function setUserName() {
   const userEmail = sessionStorage.getItem("userEmail");
   if (userEmail) {
@@ -285,7 +286,7 @@ function setUserName() {
   }
 }
 
-// Mengatur mode tamu (Guest) jika belum login
+// ===== GUEST MODE SETUP =====
 function setupGuestMode() {
   const isLoggedIn = checkLoginStatus();
 
@@ -296,12 +297,12 @@ function setupGuestMode() {
   ];
 
   if (!isLoggedIn) {
-    // Mode Tamu: sembunyikan elemen khusus member
+    // GUEST MODE
     loggedInElements.forEach((el) => {
       if (el) el.style.display = "none";
     });
 
-    // Menambahkan tombol login di navbar
+    // Show login button in navbar
     const navbar = document.querySelector(".navbar");
     if (navbar && !document.getElementById("guestLoginBtn")) {
       const loginBtn = document.createElement("a");
@@ -317,18 +318,16 @@ function setupGuestMode() {
       navbar.appendChild(loginBtn);
     }
 
-    // Set nama profil default tamu
     const userNameEl = document.querySelector(".user-name");
     const userAvatarEl = document.querySelector(".user-avatar");
     if (userNameEl) userNameEl.textContent = "GUEST";
     if (userAvatarEl) userAvatarEl.textContent = "G";
   } else {
-    // Mode Member: tampilkan elemen member
+    // LOGGED IN MODE
     loggedInElements.forEach((el) => {
       if (el) el.style.display = "block";
     });
 
-    // Hapus tombol login tamu jika ada
     const guestBtn = document.getElementById("guestLoginBtn");
     if (guestBtn) guestBtn.remove();
 
@@ -336,7 +335,25 @@ function setupGuestMode() {
   }
 }
 
-// Menyiapkan fitur pencarian artikel
+// // ===== REAL-TIME SYNC =====
+// function startRealTimeSync() {
+//   setInterval(async () => {
+//     const currentCount = articles.length;
+//     const newArticles = await loadArticles();
+
+//     if (newArticles.length !== currentCount) {
+//       console.log(`📊 Article count changed: ${currentCount} → ${newArticles.length}`);
+//       articles = newArticles;
+//       await renderArticles();
+
+//       if (window.statsManager) {
+//         window.statsManager.updateArticleCount();
+//       }
+//     }
+//   }, 10000); // Check every 10 seconds (reduced from 5s to avoid too many requests)
+// }
+
+// ===== SEARCH FUNCTIONALITY =====
 function setupSearch() {
   const searchInput = document.querySelector(".search-box input");
 
@@ -352,9 +369,7 @@ function setupSearch() {
   }
 }
 
-// Melakukan logika pencarian dan redirect ke halaman jurnal
 async function performSearch(query) {
-  // Memuat data terbaru sebelum filter
   const articles = await loadArticles();
   const results = articles.filter((article) => {
     const title = (article.title || article.judul || "").toLowerCase();
@@ -369,33 +384,33 @@ async function performSearch(query) {
     );
   });
 
-  // Redirect ke halaman daftar jurnal dengan parameter query
+  // Redirect to journals page with search query
   window.location.href = `journals_user.html?search=${encodeURIComponent(query)}`;
 }
 
-// Inisialisasi utama saat DOM siap
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("Inisialisasi Dashboard User (Mode Database)...");
+  console.log("🚀 Initializing User Dashboard (Database Mode)...");
 
-  // Inisialisasi manajer statistik jika tersedia
+  // Boleh matiin kalau bikin error
+  // syncVisitorCount();
+
   if (typeof StatisticsManager !== "undefined" && !window.statsManager) {
     window.statsManager = new StatisticsManager();
   }
 
-  // Menjalankan fungsi-fungsi setup
   setupGuestMode();
   setupLogout();
   setupNewsletter();
   setupSearch();
 
-  // Render artikel utama
+  // INI YANG PENTING UNTUK UI USER
   await renderArticles();
 
   feather.replace();
-  console.log("Dashboard User siap");
+  console.log("✅ User Dashboard ready");
 });
 
-// Menambahkan CSS untuk animasi loading secara dinamis
+// Add CSS for loading animation
 const style = document.createElement("style");
 style.textContent = `
   @keyframes spin {

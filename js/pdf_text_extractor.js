@@ -1,13 +1,11 @@
-// pdf_extractor.js
-
-// Pastikan library PDF.js sudah dimuat di file HTML sebelum script ini dijalankan
+// ===== PDF TEXT EXTRACTOR USING PDF.js =====
+// Add this at the top of your HTML file:
 // <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
 class PDFTextExtractor {
   constructor() {
-    // Cek apakah library PDF.js sudah tersedia
+    // Set PDF.js worker
     if (typeof pdfjsLib !== "undefined") {
-      // Konfigurasi worker source untuk PDF.js
       pdfjsLib.GlobalWorkerOptions.workerSrc =
         "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
       console.log("PDF.js initialized");
@@ -16,12 +14,10 @@ class PDFTextExtractor {
     }
   }
 
-  // Fungsi utama untuk mengekstrak teks mentah dari URL PDF
   async extractTextFromPDF(pdfUrl) {
     try {
       console.log("Loading PDF:", pdfUrl);
 
-      // Memuat dokumen PDF
       const loadingTask = pdfjsLib.getDocument(pdfUrl);
       const pdf = await loadingTask.promise;
 
@@ -29,12 +25,12 @@ class PDFTextExtractor {
 
       let fullText = "";
 
-      // Loop untuk mengambil teks dari setiap halaman
+      // Extract text from all pages
       for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
         const page = await pdf.getPage(pageNum);
         const textContent = await page.getTextContent();
 
-        // Gabungkan item teks pada halaman tersebut
+        // Combine text items
         const pageText = textContent.items.map((item) => item.str).join(" ");
 
         fullText += pageText + "\n\n";
@@ -48,23 +44,22 @@ class PDFTextExtractor {
     }
   }
 
-  // Fungsi untuk memformat teks mentah menjadi paragraf yang rapi
   formatExtractedText(text) {
-    // Bersihkan teks dari spasi berlebih dan baris baru yang tidak perlu
+    // Clean up the text
     let formatted = text
-      .replace(/\s+/g, " ") // Hapus spasi ganda
-      .replace(/\n{3,}/g, "\n\n") // Hapus enter berlebih
+      .replace(/\s+/g, " ") // Remove extra spaces
+      .replace(/\n{3,}/g, "\n\n") // Remove excessive line breaks
       .trim();
 
-    // Pecah menjadi array paragraf
-    const paragraphs = formatted.split(/\n\n+/).filter((p) => p.trim().length > 50); // Hapus segmen teks yang terlalu pendek
+    // Split into paragraphs
+    const paragraphs = formatted
+      .split(/\n\n+/)
+      .filter((p) => p.trim().length > 50); // Filter out very short segments
 
     return paragraphs;
   }
 
-  // Fungsi untuk merender teks PDF ke dalam elemen HTML
   async renderPDFContent(pdfUrl, targetElement) {
-    // Helper untuk menampilkan status loading
     const showLoading = () => {
       targetElement.innerHTML = `
         <div style="text-align: center; padding: 2rem; color: #666;">
@@ -74,7 +69,6 @@ class PDFTextExtractor {
       `;
     };
 
-    // Helper untuk menampilkan pesan error
     const showError = () => {
       targetElement.innerHTML = `
         <div style="text-align: center; padding: 2rem; color: #d32f2f;">
@@ -82,26 +76,23 @@ class PDFTextExtractor {
           <p>Gagal memuat konten PDF. Silakan gunakan tombol Download PDF.</p>
         </div>
       `;
-      // Refresh icon jika menggunakan feather icons
       if (typeof feather !== "undefined") feather.replace();
     };
 
     try {
       showLoading();
 
-      // Jalankan ekstraksi teks
       const paragraphs = await this.extractTextFromPDF(pdfUrl);
 
-      // Jika gagal atau tidak ada teks
       if (!paragraphs || paragraphs.length === 0) {
         showError();
         return;
       }
 
-      // Render paragraf ke dalam HTML
+      // Render formatted content
       targetElement.innerHTML = paragraphs
         .map((para, index) => {
-          // Cek jika paragraf terlihat seperti judul (pendek dan sedikit kata)
+          // Check if paragraph looks like a heading
           if (para.length < 100 && para.split(" ").length < 15) {
             return `<h4>${para}</h4>`;
           }
@@ -117,6 +108,6 @@ class PDFTextExtractor {
   }
 }
 
-// Ekspor class agar bisa diakses secara global
+// Export for use
 window.PDFTextExtractor = PDFTextExtractor;
 console.log("PDF Text Extractor loaded");

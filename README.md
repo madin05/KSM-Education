@@ -32,7 +32,7 @@ Web-based application for managing academic journals and opinion articles for ed
 - Responsive interface
 
 
-## Tech Stack | native :)
+## Tech Stack
 - **Frontend**: HTML5, CSS3, Vanilla JavaScript
 - **Backend**: PHP
 - **Database**: MySQL

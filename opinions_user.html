@@ -8,8 +8,9 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <!-- PAKAI CSS YANG SAMA KAYAK JOURNALS USER -->
     <link rel="stylesheet" href="./styles/admin.css" />
-    <link rel="stylesheet" href="./styles/opinion.css" />
+    <link rel="stylesheet" href="./styles/journals_user.css" />
     <link rel="shortcut icon" type="image/x-icon" href="./assets/favicon.ico" />
     <script src="https://unpkg.com/feather-icons"></script>
   </head>
@@ -18,11 +19,18 @@
     <header>
       <div class="header-container">
         <div class="logo">
-          <a href="./dashboard_user.html"><img src="./assets/main_logo.png" alt="Logo" /></a>
+          <a href="./dashboard_user.html">
+            <img src="./assets/main_logo.png" alt="Logo" />
+          </a>
         </div>
 
         <!-- Hamburger Button (Mobile Only) -->
-        <button class="hamburger-menu" aria-label="Toggle menu" aria-expanded="false" type="button">
+        <button
+          class="hamburger-menu"
+          aria-label="Toggle menu"
+          aria-expanded="false"
+          type="button"
+        >
           <span></span>
           <span></span>
           <span></span>
@@ -66,7 +74,9 @@
       <section class="opinions-section">
         <div class="section-header">
           <h2>ARTIKEL OPINI</h2>
-          <p class="section-subtitle">Koleksi artikel opini & perspektif pendidikan Islam</p>
+          <p class="section-subtitle">
+            Koleksi artikel opini & perspektif pendidikan Islam
+          </p>
         </div>
 
         <!-- Filter & Sort -->
@@ -90,9 +100,9 @@
           </div>
         </div>
 
-        <!-- Opinions Grid -->
+        <!-- Opinions Grid - PAKAI ID YANG SAMA: journalContainer -->
         <div id="journalContainer" class="opinions-grid">
-          <!-- Opinions will be rendered here by pagination.js -->
+          <!-- Opinions will be rendered here -->
         </div>
 
         <!-- Pagination -->
@@ -103,14 +113,9 @@
     </div>
 
     <!-- Scripts -->
+    <script src="./js/api.js"></script>
     <script src="./js/pagination.js"></script>
     <script src="./js/mobile_menu.js"></script>
-
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        feather.replace();
-        console.log(" Opinions page loaded (Database Mode)");
-      });
-    </script>
+    <script src="./js/script.js"></script>
   </body>
 </html>

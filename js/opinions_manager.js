@@ -1,108 +1,202 @@
+// opinions_manager.js - Database-focused Opinion Manager
 class OpinionManager {
   constructor() {
-    this.opinions = this.loadOpinions();
-    console.log(
-      "OpinionManager initialized with " + this.opinions.length + " opinions"
-    );
+    this.apiBase = "/ksmaja/api";
+    console.log("OpinionManager initialized (Database Mode)");
   }
 
-  loadOpinions() {
-    const stored = localStorage.getItem("opinions");
-    if (stored) {
-      try {
-        return JSON.parse(stored);
-      } catch (e) {
-        console.error("Error parsing opinions:", e);
-        return [];
+  async uploadOpinionToDatabase(opinionData) {
+    try {
+      console.log("Uploading opinion to database...");
+
+      const formData = new FormData();
+
+      formData.append("title", opinionData.judulJurnal);
+      formData.append("description", opinionData.abstrak);
+      formData.append("category", "opini");
+      formData.append("author_name", opinionData.namaPenulis.join(", "));
+      formData.append("email", opinionData.email);
+      formData.append("contact", opinionData.kontak);
+
+      if (opinionData.tags && opinionData.tags.length > 0) {
+        formData.append("tags", JSON.stringify(opinionData.tags));
       }
+
+      if (opinionData.fileData) {
+        if (opinionData.fileData instanceof File) {
+          formData.append("file_pdf", opinionData.fileData);
+        } else if (opinionData.fileData instanceof Blob) {
+          formData.append(
+            "file_pdf",
+            opinionData.fileData,
+            opinionData.fileName || "opinion.pdf"
+          );
+        }
+      }
+
+      if (opinionData.coverImage) {
+        if (opinionData.coverImage instanceof File) {
+          formData.append("cover_image", opinionData.coverImage);
+        } else if (
+          typeof opinionData.coverImage === "string" &&
+          opinionData.coverImage.startsWith("data:")
+        ) {
+          const blob = this.base64ToBlob(opinionData.coverImage);
+          formData.append("cover_image", blob, "cover.jpg");
+        }
+      }
+
+      const response = await fetch(`${this.apiBase}/create_opinion.php`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (result.ok) {
+        console.log("Opinion uploaded successfully, ID:", result.id);
+
+        window.dispatchEvent(
+          new CustomEvent("opinions:changed", {
+            detail: {
+              action: "uploaded",
+              id: result.id,
+            },
+          })
+        );
+
+        return result;
+      } else {
+        throw new Error(result.message || "Upload failed");
+      }
+    } catch (error) {
+      console.error("❌ Upload error:", error);
+      throw error;
     }
-    return [];
   }
 
-  saveOpinions() {
-    localStorage.setItem("opinions", JSON.stringify(this.opinions));
-    console.log("Opinions saved: " + this.opinions.length + " total");
-    window.dispatchEvent(new Event("opinions:changed"));
+  base64ToBlob(base64) {
+    const parts = base64.split(";base64,");
+    const contentType = parts[0].split(":")[1];
+    const raw = window.atob(parts[1]);
+    const rawLength = raw.length;
+    const uInt8Array = new Uint8Array(rawLength);
+
+    for (let i = 0; i < rawLength; ++i) {
+      uInt8Array[i] = raw.charCodeAt(i);
+    }
+
+    return new Blob([uInt8Array], { type: contentType });
   }
 
   async addOpinion(opinionData) {
-    const capitalize = (str) => {
-      return str
-        .toLowerCase()
-        .split(" ")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ");
-    };
-
     console.log("Adding opinion:", opinionData.judulJurnal);
 
-    const newOpinion = {
-      id: Date.now(),
-      kategori: "opini",
-      coverImage:
-        opinionData.coverImage ||
-        "https://via.placeholder.com/150x200/4a5568/ffffff?text=No+Cover",
-      date: this.getCurrentDate(),
-      title: capitalize(opinionData.judulJurnal),
-      description: capitalize(opinionData.abstrak.substring(0, 100)) + "...",
-      fileName: opinionData.fileName,
-      fileData: opinionData.fileData,
-      author: opinionData.namaPenulis.map((a) => capitalize(a)),
-      email: opinionData.email,
-      contact: opinionData.kontak,
-      fullAbstract: capitalize(opinionData.abstrak),
-      tags: opinionData.tags || [], // Tambah ini
-    };
-
-    this.opinions.unshift(newOpinion);
-    this.saveOpinions();
-
-    console.log("Opinion added successfully!");
-    console.log("Total opinions now: " + this.opinions.length);
-  }
-
-  deleteOpinion(id) {
-    const index = this.opinions.findIndex((o) => o.id === id);
-    if (index > -1) {
-      const deleted = this.opinions.splice(index, 1)[0];
-      this.saveOpinions();
-      console.log("Opinion deleted:", deleted.title);
-      return true;
+    try {
+      const dbResult = await this.uploadOpinionToDatabase(opinionData);
+      console.log("Opinion saved to database with ID:", dbResult.id);
+      return dbResult;
+    } catch (error) {
+      console.error("Database upload failed:", error);
+      throw error;
     }
-    return false;
   }
 
-  getOpinionById(id) {
-    return this.opinions.find((o) => o.id === id) || null;
-  }
+  async deleteOpinion(id) {
+    try {
+      const response = await fetch(
+        `${this.apiBase}/delete_opinion.php?id=${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-  updateOpinion(id, updatedData) {
-    const capitalize = (str) => {
-      return str
-        .toLowerCase()
-        .split(" ")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ");
-    };
+      const result = await response.json();
 
-    const index = this.opinions.findIndex((o) => o.id === id);
-    if (index > -1) {
-      this.opinions[index] = {
-        ...this.opinions[index],
-        title: capitalize(updatedData.title),
-        author: Array.isArray(updatedData.author)
-          ? updatedData.author.map((a) => capitalize(a))
-          : [capitalize(updatedData.author)],
-        fullAbstract: capitalize(updatedData.fullAbstract),
-        description: capitalize(updatedData.description),
-        email: updatedData.email,
-        contact: updatedData.contact,
-      };
-      this.saveOpinions();
-      console.log("Opinion updated:", this.opinions[index].title);
-      return true;
+      if (result.ok) {
+        console.log("Opinion deleted:", id);
+
+        window.dispatchEvent(
+          new CustomEvent("opinions:changed", {
+            detail: {
+              action: "deleted",
+              id: id,
+            },
+          })
+        );
+
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Delete error:", error);
+      return false;
     }
-    return false;
+  }
+
+  async getOpinionById(id) {
+    try {
+      const response = await fetch(`${this.apiBase}/get_opinion.php?id=${id}`);
+      const result = await response.json();
+
+      if (result.ok && result.result) {
+        return result.result;
+      }
+      return null;
+    } catch (error) {
+      console.error("Get opinion error:", error);
+      return null;
+    }
+  }
+
+  async updateOpinion(id, updatedData) {
+    try {
+      const formData = new FormData();
+      formData.append("id", id);
+
+      for (const key in updatedData) {
+        if (updatedData[key] instanceof File) {
+          formData.append(key, updatedData[key]);
+        } else if (typeof updatedData[key] === "object") {
+          formData.append(key, JSON.stringify(updatedData[key]));
+        } else {
+          formData.append(key, updatedData[key]);
+        }
+      }
+
+      const response = await fetch(`${this.apiBase}/update_opinion.php`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (result.ok) {
+        console.log("Opinion updated:", id);
+
+        window.dispatchEvent(
+          new CustomEvent("opinions:changed", {
+            detail: {
+              action: "updated",
+              id: id,
+            },
+          })
+        );
+
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Update error:", error);
+      return false;
+    }
   }
 
   getCurrentDate() {
@@ -140,4 +234,4 @@ class OpinionManager {
   }
 }
 
-console.log("opinions_manager.js loaded");
+console.log("opinions_manager.js loaded (Database Mode)");

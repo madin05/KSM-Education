@@ -217,7 +217,7 @@ class OpinionsPageManager {
 
   // ===== VIEW OPINION DETAIL =====
   viewOpinion(id) {
-    console.log('👁️ Viewing opinion:', id);
+    console.log(' Viewing opinion:', id);
     
     //  FEATURE: Update views count in database
     this.updateViews(id);
@@ -297,7 +297,7 @@ class OpinionsPageManager {
   // ===== UPDATE VIEWS COUNT =====
   async updateViews(id) {
     try {
-      console.log('👁️ Updating views for opinion:', id);
+      console.log('Updating views for opinion:', id);
       
       //  Update views in database
       const response = await fetch(`/ksmaja/api/update_views.php`, {

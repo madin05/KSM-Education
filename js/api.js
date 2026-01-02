@@ -76,7 +76,9 @@ async function createJournal(metadata) {
 }
 
 async function listJournals(limit = 50, offset = 0) {
-  const endpoint = `${window.API_BASE}/list_journals.php?limit=${encodeURIComponent(
+  const endpoint = `${
+    window.API_BASE
+  }/list_journals.php?limit=${encodeURIComponent(
     limit
   )}&offset=${encodeURIComponent(offset)}`;
   try {
@@ -89,7 +91,9 @@ async function listJournals(limit = 50, offset = 0) {
 }
 
 async function getJournal(id) {
-  const endpoint = `${window.API_BASE}/get_journal.php?id=${encodeURIComponent(id)}`;
+  const endpoint = `${window.API_BASE}/get_journal.php?id=${encodeURIComponent(
+    id
+  )}`;
   try {
     const res = await fetch(endpoint);
     return await res.json();
@@ -132,11 +136,17 @@ async function deleteJournal(id) {
 }
 
 // ===== OPINION API =====
-async function listOpinions(limit = 50, offset = 0) {
-  // FIX: endpoint yang benar adalah list_opinion.php (singular)
-  const endpoint = `${window.API_BASE}/list_opinion.php?limit=${encodeURIComponent(
+async function listOpinions(limit = 50, offset = 0, category = null) {
+  let endpoint = `${
+    window.API_BASE
+  }/list_opinions.php?limit=${encodeURIComponent(
     limit
   )}&offset=${encodeURIComponent(offset)}`;
+
+  if (category && category !== "all") {
+    endpoint += `&category=${encodeURIComponent(category)}`;
+  }
+
   try {
     const res = await fetch(endpoint);
     const data = await res.json();
@@ -147,15 +157,28 @@ async function listOpinions(limit = 50, offset = 0) {
   }
 }
 
-async function createOpinion(opinion) {
+// NEW: Support both JSON and FormData
+async function createOpinion(opinionData) {
   const endpoint = window.API_BASE + "/create_opinion.php";
+
   try {
-    const res = await fetch(endpoint, {
+    let requestConfig = {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       credentials: "same-origin",
-      body: JSON.stringify(opinion),
-    });
+    };
+
+    // Check if opinionData is FormData or plain object
+    if (opinionData instanceof FormData) {
+      // FormData with files
+      requestConfig.body = opinionData;
+      // Don't set Content-Type, let browser set it with boundary
+    } else {
+      // JSON metadata
+      requestConfig.headers = { "Content-Type": "application/json" };
+      requestConfig.body = JSON.stringify(opinionData);
+    }
+
+    const res = await fetch(endpoint, requestConfig);
     const data = await res.json();
     return data;
   } catch (err) {
@@ -165,7 +188,9 @@ async function createOpinion(opinion) {
 }
 
 async function getOpinion(id) {
-  const endpoint = `${window.API_BASE}/get_opinion.php?id=${encodeURIComponent(id)}`;
+  const endpoint = `${window.API_BASE}/get_opinion.php?id=${encodeURIComponent(
+    id
+  )}`;
   try {
     const res = await fetch(endpoint);
     return await res.json();
@@ -175,9 +200,40 @@ async function getOpinion(id) {
   }
 }
 
+async function updateOpinion(id, updatedData) {
+  const endpoint = window.API_BASE + "/update_opinion.php";
+
+  try {
+    let requestConfig = {
+      method: "POST",
+      credentials: "same-origin",
+    };
+
+    // Check if updatedData is FormData or plain object
+    if (updatedData instanceof FormData) {
+      // Ensure ID is in FormData
+      if (!updatedData.has("id")) {
+        updatedData.append("id", id);
+      }
+      requestConfig.body = updatedData;
+    } else {
+      // JSON payload
+      requestConfig.headers = { "Content-Type": "application/json" };
+      requestConfig.body = JSON.stringify({ id, ...updatedData });
+    }
+
+    const res = await fetch(endpoint, requestConfig);
+    return await res.json();
+  } catch (err) {
+    console.error("Update opinion error:", err);
+    return { ok: false, message: err.message };
+  }
+}
+
 async function deleteOpinion(id) {
-  // FIX: gunakan query parameter atau JSON body, bukan URLSearchParams
-  const endpoint = `${window.API_BASE}/delete_opinion.php?id=${encodeURIComponent(id)}`;
+  const endpoint = `${
+    window.API_BASE
+  }/delete_opinion.php?id=${encodeURIComponent(id)}`;
   try {
     const res = await fetch(endpoint, {
       method: "DELETE",
@@ -211,7 +267,9 @@ async function syncPush(changes) {
 
 async function syncPull(since) {
   const endpoint =
-    window.API_BASE + "/sync_pull.php" + (since ? `?since=${encodeURIComponent(since)}` : "");
+    window.API_BASE +
+    "/sync_pull.php" +
+    (since ? `?since=${encodeURIComponent(since)}` : "");
   try {
     const res = await fetch(endpoint);
     return await res.json();
@@ -251,6 +309,7 @@ window.deleteJournal = deleteJournal;
 window.listOpinions = listOpinions;
 window.createOpinion = createOpinion;
 window.getOpinion = getOpinion;
+window.updateOpinion = updateOpinion;
 window.deleteOpinion = deleteOpinion;
 
 // Sync

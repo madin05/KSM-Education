@@ -193,7 +193,6 @@ select:focus {
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: #666;
 }
 
 .btn-read-more {

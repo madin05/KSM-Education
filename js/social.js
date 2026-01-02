@@ -3,23 +3,31 @@ let currentShareUrl = "";
 let currentShareTitle = "";
 
 function openShareModal(id) {
-  // Aman kalau suatu halaman pakai journalManager, halaman lain pakai paginationManager
-  const journal =
+  const article =
     (window.journalManager && window.journalManager.getJournalById(id)) ||
     (window.paginationManager && window.paginationManager.getJournalById
       ? window.paginationManager.getJournalById(id)
       : null);
 
-  if (!journal) {
-    alert("Data jurnal tidak ditemukan.");
+  if (!article) {
+    alert("Data artikel tidak ditemukan.");
     return;
   }
 
   const baseUrl = window.location.origin;
-  const path = window.location.pathname.substring(0, window.location.pathname.lastIndexOf("/"));
+  const path = window.location.pathname.substring(
+    0,
+    window.location.pathname.lastIndexOf("/")
+  );
 
-  currentShareUrl = `${baseUrl}${path}/explore_jurnal_user.html?id=${id}&type=jurnal`;
-  currentShareTitle = journal.title || "Jurnal";
+  const articleType = article.type || "jurnal";
+  const explorePage =
+    articleType === "opini"
+      ? "explore_jurnal_user.html"
+      : "explore_jurnal_user.html";
+
+  currentShareUrl = `${baseUrl}${path}/${explorePage}?id=${id}&type=${articleType}`;
+  currentShareTitle = article.title || "Artikel";
 
   const input = document.getElementById("shareUrlInput");
   const modal = document.getElementById("shareModal");
@@ -40,21 +48,19 @@ function closeShareModal() {
 }
 
 function copyShareLink() {
-  function copyShareLink() {
-    if (!currentShareUrl) return;
-    navigator.clipboard
-      .writeText(currentShareUrl)
-      .then(() => {
-        if (typeof showToast === "function") {
-          showToast(" Link berhasil disalin!", "success");
-        } else {
-          alert("Link berhasil disalin!\n\n" + currentShareUrl);
-        }
-      })
-      .catch(() => {
-        alert("Gagal menyalin link, salin manual:\n\n" + currentShareUrl);
-      });
-  }
+  if (!currentShareUrl) return;
+  navigator.clipboard
+    .writeText(currentShareUrl)
+    .then(() => {
+      if (typeof showToast === "function") {
+        showToast("Link berhasil disalin!", "success");
+      } else {
+        alert("Link berhasil disalin!\n\n" + currentShareUrl);
+      }
+    })
+    .catch(() => {
+      alert("Gagal menyalin link, salin manual:\n\n" + currentShareUrl);
+    });
 }
 
 function shareToWhatsApp() {
@@ -66,7 +72,9 @@ function shareToWhatsApp() {
 function shareToFacebook() {
   if (!currentShareUrl) return;
   window.open(
-    `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentShareUrl)}`,
+    `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+      currentShareUrl
+    )}`,
     "_blank"
   );
 }
@@ -75,7 +83,9 @@ function shareToTwitter() {
   if (!currentShareUrl) return;
   const text = encodeURIComponent(currentShareTitle);
   window.open(
-    `https://twitter.com/intent/tweet?url=${encodeURIComponent(currentShareUrl)}&text=${text}`,
+    `https://twitter.com/intent/tweet?url=${encodeURIComponent(
+      currentShareUrl
+    )}&text=${text}`,
     "_blank"
   );
 }

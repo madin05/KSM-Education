@@ -5,14 +5,17 @@ class JournalManager {
   constructor() {
     // Container utama (dipakai di beberapa halaman)
     this.journalContainer =
-      document.getElementById("journalContainer") || document.getElementById("articlesGrid");
+      document.getElementById("journalContainer") ||
+      document.getElementById("articlesGrid");
 
     this.journals = [];
 
     // ===== 1) JANGAN JALAN DI HALAMAN USER DASHBOARD =====
     // Biarkan dashboard_user.js yang handle render untuk user
     if (window.location.pathname.includes("dashboard_user.html")) {
-      console.warn("User dashboard page - JournalManager DISABLED (handled by dashboard_user.js)");
+      console.warn(
+        "User dashboard page - JournalManager DISABLED (handled by dashboard_user.js)"
+      );
       return;
     }
 
@@ -23,12 +26,12 @@ class JournalManager {
     if (this.journalContainer) {
       this.init();
     } else {
-      console.warn("⚠️ Journal container not found on this page - skipping init");
+      console.warn("Journal container not found on this page - skipping init");
     }
   }
 
   async init() {
-    console.log("🚀 JournalManager initializing (Database Mode)...");
+    console.log("JournalManager initializing (Database Mode)...");
 
     // Clear old localStorage data
     localStorage.removeItem("journals");
@@ -37,13 +40,12 @@ class JournalManager {
     this.renderJournals();
 
     window.addEventListener("journals:changed", async () => {
-      console.log("📡 Journals changed event received, reloading...");
+      console.log("Journals changed event received, reloading...");
       await this.loadJournals();
       this.renderJournals();
     });
   }
 
-  // ===== LOAD JOURNALS FROM DATABASE =====
   // ===== LOAD JOURNALS FROM DATABASE =====
   async loadJournals() {
     try {
@@ -65,9 +67,7 @@ class JournalManager {
       const data = await response.json();
 
       if (data.ok && data.results) {
-        // ... transformation logic remains the same ...
         this.journals = data.results.map((j) => {
-          // ... keep your existing mapping logic here ...
           const parseJsonField = (field) => {
             if (!field) return [];
             if (Array.isArray(field)) return field;
@@ -101,8 +101,8 @@ class JournalManager {
         });
         console.log(` Loaded ${this.journals.length} journals from database`);
       } else {
-        console.warn("⚠️ No journals found or database empty");
-        this.journals = []; // Clear array if database is empty
+        console.warn("No journals found or database empty");
+        this.journals = [];
       }
     } catch (error) {
       console.error(" Error loading journals from database:", error);
@@ -176,7 +176,9 @@ class JournalManager {
 
     const truncateText = (text, maxLength) => {
       if (!text) return "";
-      return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+      return text.length > maxLength
+        ? text.substring(0, maxLength) + "..."
+        : text;
     };
 
     const formatDate = (dateString) => {
@@ -205,7 +207,9 @@ class JournalManager {
              style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s;"
              onerror="this.src='https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500&h=400&fit=crop'">
         <div style="position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.7); color: white; padding: 6px 10px; border-radius: 6px; font-size: 12px; display: flex; align-items: center; gap: 4px; font-weight: 600;">
-          <i data-feather="eye" style="width: 14px; height: 14px;"></i> ${journal.views}
+          <i data-feather="eye" style="width: 14px; height: 14px;"></i> ${
+            journal.views
+          }
         </div>
       </div>
       
@@ -297,7 +301,7 @@ class JournalManager {
   }
 
   viewJournal(id) {
-    console.log("👁️ Viewing journal:", id);
+    console.log(" Viewing journal:", id);
     this.updateViews(id);
     window.location.href = `explore_jurnal_admin.html?id=${id}&type=jurnal`;
   }
@@ -320,18 +324,25 @@ class JournalManager {
         card.style.pointerEvents = "none";
       }
 
-      const response = await fetch(`/ksmaja/api/delete_journal.php?id=${encodeURIComponent(id)}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-      });
+      const response = await fetch(
+        `/ksmaja/api/delete_journal.php?id=${encodeURIComponent(id)}`,
+        {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
       const result = await response.json();
       if (result.ok) {
         alert(" Jurnal berhasil dihapus!");
-        this.journals = this.journals.filter((j) => String(j.id) !== String(id));
+        this.journals = this.journals.filter(
+          (j) => String(j.id) !== String(id)
+        );
         this.renderJournals();
         window.dispatchEvent(
-          new CustomEvent("journals:changed", { detail: { action: "deleted", id: id } })
+          new CustomEvent("journals:changed", {
+            detail: { action: "deleted", id: id },
+          })
         );
 
         if (window.statisticManager) {
@@ -343,7 +354,9 @@ class JournalManager {
           window.location.reload();
         }, 1000);
       } else {
-        throw new Error(result.message || "Gagal menghapus jurnal dari database");
+        throw new Error(
+          result.message || "Gagal menghapus jurnal dari database"
+        );
       }
     } catch (error) {
       alert(" Gagal menghapus jurnal: " + error.message);
@@ -364,11 +377,13 @@ class JournalManager {
       });
       const result = await response.json();
       if (result.ok) {
-        const journal = this.journals.find((j) => j.id === id || j.id === String(id));
+        const journal = this.journals.find(
+          (j) => j.id === id || j.id === String(id)
+        );
         if (journal) journal.views = (journal.views || 0) + 1;
       }
     } catch (error) {
-      console.warn("⚠️ Failed to update views:", error);
+      console.warn("Failed to update views:", error);
     }
   }
 
@@ -383,7 +398,9 @@ class JournalManager {
         journal.title.toLowerCase().includes(searchQuery) ||
         journal.abstract.toLowerCase().includes(searchQuery) ||
         (Array.isArray(journal.authors) &&
-          journal.authors.some((author) => author.toLowerCase().includes(searchQuery))) ||
+          journal.authors.some((author) =>
+            author.toLowerCase().includes(searchQuery)
+          )) ||
         (Array.isArray(journal.tags) &&
           journal.tags.some((tag) => tag.toLowerCase().includes(searchQuery)))
       );
@@ -432,7 +449,10 @@ class JournalManager {
     return this.journals.length;
   }
   getTotalViews() {
-    return this.journals.reduce((total, journal) => total + (journal.views || 0), 0);
+    return this.journals.reduce(
+      (total, journal) => total + (journal.views || 0),
+      0
+    );
   }
 }
 
@@ -473,7 +493,7 @@ function updateLatestNav(journals) {
 let journalManager;
 document.addEventListener("DOMContentLoaded", () => {
   if (window.journalManager) {
-    console.warn("⚠️ JournalManager already initialized, skipping...");
+    console.warn("JournalManager already initialized, skipping...");
     return;
   }
   journalManager = new JournalManager();
@@ -481,4 +501,4 @@ document.addEventListener("DOMContentLoaded", () => {
   window.journalManager = journalManager;
 });
 
-console.log("📚 jurnal.js loaded (Database Mode)");
+console.log("jurnal.js loaded (Database Mode)");

@@ -109,6 +109,8 @@ async function getArticleById(id, type) {
           author: [o.author_name || "Anonymous"],
           authors: [o.author_name || "Anonymous"],
           penulis: o.author_name || "Anonymous",
+          email: o.email || "",
+          kontak: o.kontak || o.contact || "",
           date: o.created_at,
           uploadDate: o.created_at,
           coverImage: o.cover_url,
@@ -156,7 +158,10 @@ async function loadArticleDetail() {
   }
 
   if (!articleId) {
-    showError("Article ID missing from URL\n\nDebug Info:\nArticle ID: null\nType: " + articleType);
+    showError(
+      "Article ID missing from URL\n\nDebug Info:\nArticle ID: null\nType: " +
+        articleType
+    );
     return;
   }
 
@@ -246,7 +251,8 @@ async function displayArticle(article, type) {
   // Abstract
   const abstractElement = document.getElementById("articleAbstract");
   if (abstractElement) {
-    abstractElement.textContent = article.abstract || article.abstrak || "No abstract available";
+    abstractElement.textContent =
+      article.abstract || article.abstrak || "No abstract available";
   }
 
   // Tags
@@ -267,7 +273,11 @@ async function displayArticle(article, type) {
   // Authors
   const authorsContainer = document.getElementById("articleAuthors");
   if (authorsContainer) {
-    if (article.authors && Array.isArray(article.authors) && article.authors.length > 0) {
+    if (
+      article.authors &&
+      Array.isArray(article.authors) &&
+      article.authors.length > 0
+    ) {
       authorsContainer.innerHTML = article.authors
         .map(
           (author) => `
@@ -280,7 +290,8 @@ async function displayArticle(article, type) {
         .join("");
       console.log(" Authors displayed:", article.authors);
     } else {
-      const singleAuthor = article.author || article.penulis || "Unknown Author";
+      const singleAuthor =
+        article.author || article.penulis || "Unknown Author";
       authorsContainer.innerHTML = `
         <div class="author-card">
           <i data-feather="user"></i>
@@ -317,13 +328,16 @@ async function displayArticle(article, type) {
   const phoneEl = document.getElementById("articlePhone");
 
   if (emailLink) {
-    const email = article.email || article.contact?.email || "-";
+    const email = article.email || "-";
     emailLink.textContent = email;
     emailLink.href = email !== "-" ? `mailto:${email}` : "#";
+    console.log("Email set:", email);
   }
 
   if (phoneEl) {
-    phoneEl.textContent = article.phone || article.contact?.phone || article.kontak || "-";
+    const kontak = article.kontak || article.contact || article.phone || "-";
+    phoneEl.textContent = kontak;
+    console.log("Kontak set:", kontak);
   }
 
   // Volume
@@ -343,7 +357,8 @@ async function displayArticle(article, type) {
   // PDF VIEWER
   const pdfSection = document.getElementById("pdfSection");
   if (pdfSection) {
-    const pdfUrl = article.file_url || article.fileData || article.file || article.pdfUrl;
+    const pdfUrl =
+      article.file_url || article.fileData || article.file || article.pdfUrl;
 
     if (pdfUrl) {
       pdfSection.style.display = "block";
@@ -356,7 +371,9 @@ async function displayArticle(article, type) {
       const downloadLink = document.getElementById("pdfDownload");
       if (downloadLink) {
         downloadLink.href = pdfUrl;
-        downloadLink.download = `${article.title || article.judul || "artikel"}.pdf`;
+        downloadLink.download = `${
+          article.title || article.judul || "artikel"
+        }.pdf`;
       }
     } else {
       pdfSection.style.display = "none";
@@ -413,7 +430,9 @@ function setupNavDropdown() {
   });
 
   document.addEventListener("click", () => {
-    document.querySelectorAll(".nav-dropdown.open").forEach((x) => x.classList.remove("open"));
+    document
+      .querySelectorAll(".nav-dropdown.open")
+      .forEach((x) => x.classList.remove("open"));
   });
 }
 
@@ -456,10 +475,14 @@ if (searchModal) {
 
 async function performSearch(query) {
   try {
-    const journalsResp = await fetch("/ksmaja/api/list_journals.php?limit=50&offset=0");
+    const journalsResp = await fetch(
+      "/ksmaja/api/list_journals.php?limit=50&offset=0"
+    );
     const journalsData = await journalsResp.json();
 
-    const opinionsResp = await fetch("/ksmaja/api/list_opinion.php?limit=50&offset=0");
+    const opinionsResp = await fetch(
+      "/ksmaja/api/list_opinion.php?limit=50&offset=0"
+    );
     const opinionsData = await opinionsResp.json();
 
     const journals = journalsData.ok
@@ -473,7 +496,11 @@ async function performSearch(query) {
 
     const results = allArticles.filter((article) => {
       const title = (article.title || "").toLowerCase();
-      const abstract = (article.abstract || article.description || "").toLowerCase();
+      const abstract = (
+        article.abstract ||
+        article.description ||
+        ""
+      ).toLowerCase();
       const searchQuery = query.toLowerCase();
 
       return title.includes(searchQuery) || abstract.includes(searchQuery);
@@ -510,7 +537,9 @@ function displaySearchResults(results, query) {
         ""
       ).substring(0, 150)}...</div>
       <div class="search-result-meta">
-        <span class="badge">${article.type === "jurnal" ? "Jurnal" : "Opini"}</span>
+        <span class="badge">${
+          article.type === "jurnal" ? "Jurnal" : "Opini"
+        }</span>
       </div>
     </div>
   `

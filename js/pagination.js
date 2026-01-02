@@ -1,6 +1,4 @@
-// ===== PAGINATION MANAGER - DATABASE VERSION =====
-//  Fully integrated with MySQL database, all features preserved
-
+// ===== PAGINATION MANAGER - SUPPORT JOURNALS & OPINIONS =====
 class PaginationManager {
   constructor(options = {}) {
     this.containerSelector = options.containerSelector || "#journalContainer";
@@ -18,7 +16,9 @@ class PaginationManager {
     this.currentSort = "newest";
     this.currentFilter = "all";
 
-    console.log(`PaginationManager initializing for ${this.dataType} (Database Mode)...`);
+    console.log(
+      `📚 PaginationManager initializing for ${this.dataType} (Database Mode)...`
+    );
     this.init();
   }
 
@@ -36,20 +36,21 @@ class PaginationManager {
       this.applyFiltersAndSort();
     });
 
-    console.log(` PaginationManager initialized with ${this.allItems.length} ${this.dataType}s`);
+    console.log(
+      `PaginationManager initialized with ${this.allItems.length} ${this.dataType}s`
+    );
   }
 
   // ===== LOAD DATA FROM DATABASE =====
   async loadData() {
     try {
-      console.log(`📥 Loading ${this.dataType}s from database...`);
+      console.log(`Loading ${this.dataType}s from database...`);
 
       const timestamp = Date.now();
-
       const endpoint =
         this.dataType === "jurnal"
           ? `/ksmaja/api/list_journals.php?limit=100&offset=0&t=${timestamp}`
-          : `/ksmaja/api/list_opinion.php?limit=100&offset=0&t=${timestamp}`;
+          : `/ksmaja/api/list_opinions.php?limit=100&offset=0&t=${timestamp}`;
 
       const response = await fetch(endpoint, {
         cache: "no-store",
@@ -65,16 +66,18 @@ class PaginationManager {
         this.allItems = data.results.map((item) => this.transformItem(item));
         this.filteredItems = [...this.allItems];
 
-        console.log(`✅ Loaded ${this.allItems.length} ${this.dataType}s from database`);
+        console.log(
+          `Loaded ${this.allItems.length} ${this.dataType}s from database`
+        );
       } else {
-        console.warn(`⚠️ No ${this.dataType}s found in database`);
+        console.warn(`No ${this.dataType}s found in database`);
         this.allItems = [];
         this.filteredItems = [];
       }
     } catch (error) {
       console.error(` Error loading ${this.dataType}s:`, error);
 
-      console.warn("⚠️ Falling back to localStorage...");
+      console.warn("Falling back to localStorage...");
       const storageKey = this.dataType === "jurnal" ? "journals" : "opinions";
       const stored = localStorage.getItem(storageKey);
 
@@ -82,7 +85,9 @@ class PaginationManager {
         try {
           this.allItems = JSON.parse(stored);
           this.filteredItems = [...this.allItems];
-          console.log(`📦 Loaded ${this.allItems.length} ${this.dataType}s from localStorage`);
+          console.log(
+            `Loaded ${this.allItems.length} ${this.dataType}s from localStorage`
+          );
         } catch (e) {
           console.error("Failed to parse localStorage:", e);
           this.allItems = [];
@@ -124,6 +129,7 @@ class PaginationManager {
           "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500&h=400&fit=crop",
         email: item.email || "",
         contact: item.contact || "",
+        volume: item.volume || "",
         views: parseInt(item.views) || 0,
       };
     } else {
@@ -154,14 +160,14 @@ class PaginationManager {
     }
 
     container.innerHTML = "";
-
-    // ✅ UPDATE COUNTER
     this.updateTotalCount();
 
     if (this.filteredItems.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
-          <div class="empty-state-icon">${this.dataType === "jurnal" ? "📚" : "📝"}</div>
+          <div class="empty-state-icon">${
+            this.dataType === "jurnal" ? "📚" : "📝"
+          }</div>
           <h3>Tidak Ada ${this.dataType === "jurnal" ? "Jurnal" : "Opini"}</h3>
           <p>Belum ada ${this.dataType} yang tersedia</p>
         </div>
@@ -185,12 +191,11 @@ class PaginationManager {
     }
   }
 
-
-  
   // ===== CREATE CARD =====
   createCard(item) {
     const card = document.createElement("div");
-    card.className = this.dataType === "jurnal" ? "journal-card" : "opinion-card";
+    card.className =
+      this.dataType === "jurnal" ? "journal-card" : "opinion-card";
     card.setAttribute(`data-${this.dataType}-id`, item.id);
 
     const truncate = (text, max) => {
@@ -212,7 +217,9 @@ class PaginationManager {
 
     if (this.dataType === "jurnal") {
       const author =
-        Array.isArray(item.authors) && item.authors.length > 0 ? item.authors[0] : "Unknown";
+        Array.isArray(item.authors) && item.authors.length > 0
+          ? item.authors[0]
+          : "Unknown";
 
       card.innerHTML = `
         <div class="journal-cover">
@@ -240,14 +247,18 @@ class PaginationManager {
                 .map((tag) => `<span class="tag">${tag}</span>`)
                 .join("")}
               ${
-                item.tags.length > 3 ? `<span class="tag-more">+${item.tags.length - 3}</span>` : ""
+                item.tags.length > 3
+                  ? `<span class="tag-more">+${item.tags.length - 3}</span>`
+                  : ""
               }
             </div>
           `
               : ""
           }
           <div class="journal-actions">
-            <a href="explore_jurnal_user.html?id=${item.id}&type=jurnal" class="btn-view">
+            <a href="explore_jurnal_user.html?id=${
+              item.id
+            }&type=jurnal" class="btn-view">
               <i data-feather="eye"></i> Lihat Detail
             </a>
           </div>
@@ -267,13 +278,17 @@ class PaginationManager {
           <h3 class="opinion-title">${truncate(item.title, 60)}</h3>
           <p class="opinion-description">${truncate(item.description, 150)}</p>
           <div class="opinion-meta">
-            <span class="opinion-author"><i data-feather="user"></i> ${item.author_name}</span>
+            <span class="opinion-author"><i data-feather="user"></i> ${
+              item.author_name
+            }</span>
             <span class="opinion-date"><i data-feather="calendar"></i> ${formatDate(
               item.uploadDate
             )}</span>
           </div>
           <div class="opinion-actions">
-            <a href="explore_jurnal_user.html?id=${item.id}&type=opini" class="btn-view">
+            <a href="explore_opini_user.html?id=${
+              item.id
+            }&type=opini" class="btn-view">
               <i data-feather="eye"></i> Lihat Detail
             </a>
           </div>
@@ -353,7 +368,8 @@ class PaginationManager {
   createPageButton(pageNum) {
     const btn = document.createElement("button");
     btn.textContent = pageNum;
-    btn.className = pageNum === this.currentPage ? "pagination-btn active" : "pagination-btn";
+    btn.className =
+      pageNum === this.currentPage ? "pagination-btn active" : "pagination-btn";
     btn.onclick = () => this.goToPage(pageNum);
     return btn;
   }
@@ -364,19 +380,16 @@ class PaginationManager {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  // ===== UPDATE TOTAL COUNT (DYNAMIC) ===== ✅ CUMA 1 INI YANG DIPAKE
   updateTotalCount() {
-    const possibleIds = [
-      "totalJournals", // journals_user.html
-      "totalOpinions", // opinions_user.html
-      "totalCount", // generic fallback
-    ];
+    const possibleIds = ["totalJournals", "totalOpinions", "totalCount"];
 
     for (const id of possibleIds) {
       const element = document.getElementById(id);
       if (element) {
         element.textContent = this.filteredItems.length;
-        console.log(`✅ Total count updated (${id}): ${this.filteredItems.length}`);
+        console.log(
+          ` Total count updated (${id}): ${this.filteredItems.length}`
+        );
         return;
       }
     }
@@ -384,7 +397,6 @@ class PaginationManager {
     console.warn("⚠️ Total count element not found");
   }
 
-  // ===== SETUP SEARCH =====
   setupSearch() {
     const searchInput = document.querySelector(this.searchInputSelector);
     if (!searchInput) return;
@@ -395,7 +407,6 @@ class PaginationManager {
     });
   }
 
-  // ===== SETUP SORT =====
   setupSort() {
     const sortSelect = document.querySelector(this.sortSelectSelector);
     if (sortSelect) {
@@ -411,7 +422,6 @@ class PaginationManager {
     });
   }
 
-  // ===== SETUP FILTER =====
   setupFilter() {
     const filterSelect = document.querySelector(this.filterSelectSelector);
     if (!filterSelect) return;
@@ -422,7 +432,6 @@ class PaginationManager {
     });
   }
 
-  // ===== SETUP ICON SORT DROPDOWN =====
   setupIconSort() {
     const btnSort = document.getElementById("btnSort");
     const sortMenu = document.getElementById("sortMenu");
@@ -451,7 +460,7 @@ class PaginationManager {
         this.currentSort = sortValue;
         this.applyFiltersAndSort();
 
-        console.log(`✅ Sort changed to: ${sortValue}`);
+        console.log(` Sort changed to: ${sortValue}`);
       });
     });
 
@@ -461,17 +470,19 @@ class PaginationManager {
       }
     });
 
-    console.log("✅ Icon sort dropdown initialized");
+    console.log(" Icon sort dropdown initialized");
   }
 
-  // ===== APPLY FILTERS AND SORT =====
   applyFiltersAndSort(searchQuery = null) {
     let items = [...this.allItems];
 
     const query =
       searchQuery !== null
         ? searchQuery
-        : document.querySelector(this.searchInputSelector)?.value.toLowerCase().trim() || "";
+        : document
+            .querySelector(this.searchInputSelector)
+            ?.value.toLowerCase()
+            .trim() || "";
 
     if (query) {
       items = items.filter((item) => {
@@ -481,7 +492,8 @@ class PaginationManager {
             item.abstract.toLowerCase().includes(query) ||
             (Array.isArray(item.authors) &&
               item.authors.some((a) => a.toLowerCase().includes(query))) ||
-            (Array.isArray(item.tags) && item.tags.some((t) => t.toLowerCase().includes(query)))
+            (Array.isArray(item.tags) &&
+              item.tags.some((t) => t.toLowerCase().includes(query)))
           );
         } else {
           return (
@@ -497,7 +509,9 @@ class PaginationManager {
     if (this.currentFilter !== "all") {
       items = items.filter((item) => {
         if (this.dataType === "jurnal") {
-          return Array.isArray(item.tags) && item.tags.includes(this.currentFilter);
+          return (
+            Array.isArray(item.tags) && item.tags.includes(this.currentFilter)
+          );
         } else {
           return item.category === this.currentFilter;
         }
@@ -521,63 +535,27 @@ class PaginationManager {
 }
 
 // ===== AUTO-INITIALIZE =====
-let paginationManager;
-
 document.addEventListener("DOMContentLoaded", () => {
-  console.log(" DOM ready, initializing...");
+  const container = document.getElementById("journalContainer");
 
-  let container = document.getElementById("journalContainer");
+  if (container) {
+    console.log("Initializing PaginationManager...");
 
-  if (!container) {
-    console.warn("⚠️ Container not found, creating one...");
+    const isOpinionsPage = window.location.pathname.includes("opinions");
+    const dataType = isOpinionsPage ? "opini" : "jurnal";
 
-    const main =
-      document.querySelector("main") || document.querySelector(".container") || document.body;
+    window.paginationManager = new PaginationManager({
+      containerSelector: "#journalContainer",
+      paginationSelector: "#pagination",
+      searchInputSelector: "#searchInput",
+      sortSelectSelector: "#sortSelect",
+      filterSelectSelector: "#filterSelect",
+      itemsPerPage: 9,
+      dataType: dataType,
+    });
 
-    container = document.createElement("div");
-    container.id = "journalContainer";
-    container.style.cssText = `
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 30px;
-      padding: 40px 0;
-      min-height: 300px;
-    `;
-    main.appendChild(container);
-
-    let pagination = document.getElementById("pagination");
-    if (!pagination) {
-      pagination = document.createElement("div");
-      pagination.id = "pagination";
-      pagination.style.cssText = `
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        margin: 40px 0;
-        flex-wrap: wrap;
-      `;
-      main.appendChild(pagination);
-    }
-
-    console.log(" Containers created");
+    console.log(`PaginationManager initialized for ${dataType}`);
   }
-
-  const isOpinionsPage = window.location.pathname.includes("opinions");
-
-  console.log("📍 Page detected:", isOpinionsPage ? "Opinions" : "Journals");
-
-  paginationManager = new PaginationManager({
-    containerSelector: "#journalContainer",
-    paginationSelector: "#pagination",
-    searchInputSelector: "#searchInput",
-    sortSelectSelector: "#sortSelect",
-    filterSelectSelector: "#filterSelect",
-    itemsPerPage: 9,
-    dataType: isOpinionsPage ? "opini" : "jurnal",
-  });
-
-  console.log(" PaginationManager initialized (Database Mode)");
-  window.paginationManager = paginationManager;
 });
 
-console.log("pagination.js loaded (Database Mode)");
+console.log("pagination.js loaded (Support Journals & Opinions)");

@@ -78,7 +78,7 @@ class StatisticsManager {
 
   async trackVisitorToDatabase() {
     if (sessionStorage.getItem("visitorTracked")) {
-      console.log("👁️ Visitor already tracked this session");
+      console.log(" Visitor already tracked this session");
       return;
     }
 

@@ -6,19 +6,19 @@ $uploadDir = __DIR__ . '/../../uploads';
 if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['ok'=>false,'message'=>'Only POST allowed']);
+    echo json_encode(['ok' => false, 'message' => 'Only POST allowed']);
     exit;
 }
 
 if (!isset($_FILES['file'])) {
-    echo json_encode(['ok'=>false,'message'=>'file not provided']);
+    echo json_encode(['ok' => false, 'message' => 'file not provided']);
     exit;
 }
 
 $file = $_FILES['file'];
 $maxSize = 20 * 1024 * 1024; // 20MB limit
 if ($file['size'] > $maxSize) {
-    echo json_encode(['ok'=>false,'message'=>'File too large']);
+    echo json_encode(['ok' => false, 'message' => 'File too large']);
     exit;
 }
 
@@ -28,7 +28,7 @@ $safeName = bin2hex(random_bytes(12)) . ($ext ? '.' . $ext : '');
 $target = $uploadDir . '/' . $safeName;
 
 if (!move_uploaded_file($file['tmp_name'], $target)) {
-    echo json_encode(['ok'=>false,'message'=>'Cannot move uploaded file']);
+    echo json_encode(['ok' => false, 'message' => 'Cannot move uploaded file']);
     exit;
 }
 
@@ -42,4 +42,4 @@ $stmt = $pdo->prepare("INSERT INTO uploads (filename, original_name, mime, size,
 $stmt->execute([$safeName, $file['name'], $mime, $size, $publicUrl]);
 $uploadId = $pdo->lastInsertId();
 
-echo json_encode(['ok'=>true,'id'=>$uploadId,'url'=>$publicUrl]);
+echo json_encode(['ok' => true, 'id' => $uploadId, 'url' => $publicUrl]);

@@ -7,14 +7,18 @@ if (window._dualUploadHandlerLoaded) {
   class PengurusManager {
     constructor(suffix = "") {
       this.suffix = suffix;
-      this.pengurusContainer = document.getElementById(`pengurusContainer${suffix}`);
+      this.pengurusContainer = document.getElementById(
+        `pengurusContainer${suffix}`
+      );
       this.addPengurusBtn = document.getElementById(`addPengurusBtnJurnal`);
       this.pengurusCount = 1;
 
       if (this.pengurusContainer && this.addPengurusBtn) {
         this.init();
       } else {
-        console.warn(`PengurusManager: Elements not found for suffix "${suffix}"`);
+        console.warn(
+          `PengurusManager: Elements not found for suffix "${suffix}"`
+        );
       }
     }
 
@@ -51,7 +55,9 @@ if (window._dualUploadHandlerLoaded) {
     }
 
     removePengurusField(pengurusGroup) {
-      const pengurusGroups = this.pengurusContainer.querySelectorAll(".pengurus-input-group");
+      const pengurusGroups = this.pengurusContainer.querySelectorAll(
+        ".pengurus-input-group"
+      );
       if (pengurusGroups.length <= 1) {
         alert("Minimal harus ada 1 pengurus!");
         return;
@@ -63,20 +69,25 @@ if (window._dualUploadHandlerLoaded) {
     }
 
     updatePlaceholders() {
-      const pengurusInputs = this.pengurusContainer.querySelectorAll(".pengurus-input");
+      const pengurusInputs =
+        this.pengurusContainer.querySelectorAll(".pengurus-input");
       pengurusInputs.forEach((input, index) => {
         input.placeholder = `Nama Pengurus ${index + 1}`;
         if (index === 0) input.required = true;
       });
 
-      const removeButtons = this.pengurusContainer.querySelectorAll(".btn-remove-pengurus");
+      const removeButtons = this.pengurusContainer.querySelectorAll(
+        ".btn-remove-pengurus"
+      );
       removeButtons.forEach((btn, index) => {
-        btn.style.display = index === 0 && pengurusInputs.length === 1 ? "none" : "flex";
+        btn.style.display =
+          index === 0 && pengurusInputs.length === 1 ? "none" : "flex";
       });
     }
 
     getPengurus() {
-      const pengurusInputs = this.pengurusContainer.querySelectorAll(".pengurus-input");
+      const pengurusInputs =
+        this.pengurusContainer.querySelectorAll(".pengurus-input");
       const pengurus = [];
       pengurusInputs.forEach((input) => {
         const value = input.value.trim();
@@ -86,12 +97,15 @@ if (window._dualUploadHandlerLoaded) {
     }
 
     clearPengurus() {
-      const pengurusGroups = this.pengurusContainer.querySelectorAll(".pengurus-input-group");
+      const pengurusGroups = this.pengurusContainer.querySelectorAll(
+        ".pengurus-input-group"
+      );
       pengurusGroups.forEach((group, index) => {
         if (index > 0) group.remove();
       });
 
-      const firstInput = this.pengurusContainer.querySelector(".pengurus-input");
+      const firstInput =
+        this.pengurusContainer.querySelector(".pengurus-input");
       if (firstInput) firstInput.value = "";
       this.pengurusCount = 1;
       this.updatePlaceholders();
@@ -101,7 +115,9 @@ if (window._dualUploadHandlerLoaded) {
   class AuthorsManager {
     constructor(suffix = "") {
       this.suffix = suffix;
-      this.authorsContainer = document.getElementById(`authorsContainer${suffix}`);
+      this.authorsContainer = document.getElementById(
+        `authorsContainer${suffix}`
+      );
       this.addAuthorBtn = document.getElementById(`addAuthorBtn${suffix}`);
       this.authorCount = 1;
 
@@ -130,13 +146,18 @@ if (window._dualUploadHandlerLoaded) {
       this.authorsContainer.appendChild(authorGroup);
 
       const removeBtn = authorGroup.querySelector(".btn-remove-author");
-      removeBtn.addEventListener("click", () => this.removeAuthorField(authorGroup));
+      removeBtn.addEventListener("click", () =>
+        this.removeAuthorField(authorGroup)
+      );
 
       if (typeof feather !== "undefined") feather.replace();
     }
 
     removeAuthorField(authorGroup) {
-      if (this.authorsContainer.querySelectorAll(".author-input-group").length <= 1) {
+      if (
+        this.authorsContainer.querySelectorAll(".author-input-group").length <=
+        1
+      ) {
         alert("Minimal harus ada 1 penulis!");
         return;
       }
@@ -155,7 +176,9 @@ if (window._dualUploadHandlerLoaded) {
     }
 
     clearAuthors() {
-      const groups = this.authorsContainer.querySelectorAll(".author-input-group");
+      const groups = this.authorsContainer.querySelectorAll(
+        ".author-input-group"
+      );
       groups.forEach((group, index) => {
         if (index > 0) group.remove();
       });
@@ -199,7 +222,9 @@ if (window._dualUploadHandlerLoaded) {
     constructor() {
       // SINGLETON PATTERN
       if (DualUploadHandler._instance) {
-        console.warn("DualUploadHandler already exists, returning existing instance");
+        console.warn(
+          "DualUploadHandler already exists, returning existing instance"
+        );
         return DualUploadHandler._instance;
       }
       DualUploadHandler._instance = this;
@@ -307,7 +332,9 @@ if (window._dualUploadHandlerLoaded) {
 
         const phoneRegex = /^(?:(?:\+|00)62|[0])8[1-9]\d{7,11}$/;
         if (!phoneRegex.test(kontak.replace(/\D/g, ""))) {
-          alert("Nomor kontak harus berupa nomor HP yang valid!\n\nFormat: 08XXXXXXXXX");
+          alert(
+            "Nomor kontak harus berupa nomor HP yang valid!\n\nFormat: 08XXXXXXXXX"
+          );
           this.isSubmittingJurnal = false; // Reset flag
           return;
         }
@@ -315,9 +342,9 @@ if (window._dualUploadHandlerLoaded) {
         const file = this.jurnalFileManager.getUploadedFile();
         const confirmMsg = `Yakin mau upload jurnal ini?\n\nJudul: ${judul}\nPenulis: ${authors.join(
           ", "
-        )}\nPengurus: ${pengurus.join(", ")}\nKontak: ${kontak}\n\nUkuran: ${this.formatFileSize(
-          file.size
-        )}`;
+        )}\nPengurus: ${pengurus.join(
+          ", "
+        )}\nKontak: ${kontak}\n\nUkuran: ${this.formatFileSize(file.size)}`;
 
         if (!confirm(confirmMsg)) {
           console.log("Upload dibatalkan oleh user");
@@ -440,7 +467,6 @@ if (window._dualUploadHandlerLoaded) {
         this.opiniAuthorsManager = new AuthorsManager("Opini");
         this.opiniTagsManager = new TagsManager("Opini");
 
-        // Cek apakah sudah pernah di-bind
         if (form.dataset.handlerBound === "true") {
           console.warn("Form sudah ter-bind, skip");
           return;
@@ -451,7 +477,6 @@ if (window._dualUploadHandlerLoaded) {
           await this.handleOpiniSubmit();
         });
 
-        // Tandai form sudah ter-bind
         form.dataset.handlerBound = "true";
 
         console.log("Opini form ready");
@@ -461,33 +486,31 @@ if (window._dualUploadHandlerLoaded) {
     }
 
     async handleOpiniSubmit() {
-      // Cek flag untuk mencegah double submit
       if (this.isSubmittingOpini) {
-        console.warn("Submit sedang diproses, mohon tunggu...");
+        console.warn("⏳ Submit sedang diproses, mohon tunggu...");
         return;
       }
 
-      try {
-        // Set flag menjadi true
-        this.isSubmittingOpini = true;
+      this.isSubmittingOpini = true;
+      this.disableSubmitButton("uploadFormOpini");
 
+      try {
         if (!window.loginManager || !window.loginManager.isAdmin()) {
           alert("Login sebagai admin terlebih dahulu!");
           if (window.loginManager) window.loginManager.openLoginModal();
-          this.isSubmittingOpini = false; // Reset flag
           return;
         }
 
-        if (!this.opiniFileManager.getUploadedFile()) {
+        //  FIX: Pakai opiniFileManager (bukan opiniFileHandler)
+        const file = this.opiniFileManager.getUploadedFile();
+        if (!file) {
           alert("Upload file opini terlebih dahulu!");
-          this.isSubmittingOpini = false; // Reset flag
           return;
         }
 
         const authors = this.opiniAuthorsManager.getAuthors();
         if (authors.length === 0) {
           alert("Minimal 1 penulis!");
-          this.isSubmittingOpini = false; // Reset flag
           return;
         }
 
@@ -498,31 +521,29 @@ if (window._dualUploadHandlerLoaded) {
 
         if (!judul || !email || !kontak || !abstrak) {
           alert("Semua field harus diisi!");
-          this.isSubmittingOpini = false; // Reset flag
           return;
         }
 
         const phoneRegex = /^(?:(?:\+|00)62|[0])8[1-9]\d{7,11}$/;
         if (!phoneRegex.test(kontak.replace(/\D/g, ""))) {
-          alert("Nomor kontak harus berupa nomor HP yang valid!\n\nFormat: 08XXXXXXXXX");
-          this.isSubmittingOpini = false; // Reset flag
+          alert(
+            "Nomor kontak harus berupa nomor HP yang valid!\n\nFormat: 08XXXXXXXXX"
+          );
           return;
         }
 
-        const file = this.opiniFileManager.getUploadedFile();
         const confirmMsg = `Yakin mau upload opini ini?\n\nJudul: ${judul}\nPenulis: ${authors.join(
           ", "
         )}\nKontak: ${kontak}\n\nUkuran: ${this.formatFileSize(file.size)}`;
 
         if (!confirm(confirmMsg)) {
           console.log("Upload dibatalkan");
-          this.isSubmittingOpini = false; // Reset flag
           return;
         }
 
         this.showLoading("Mengupload opini ke server...");
 
-        // Upload file
+        // Upload PDF
         const fileFormData = new FormData();
         fileFormData.append("file", file);
 
@@ -537,13 +558,15 @@ if (window._dualUploadHandlerLoaded) {
           throw new Error(fileResult.message || "Upload file gagal");
         }
 
-        console.log("File uploaded:", fileResult.url);
+        console.log(" File uploaded:", fileResult.url);
 
-        // Upload cover
+        // Upload cover -  FIX: Pakai opiniCoverManager
         let coverUrl = null;
         const coverFile = this.opiniCoverManager.getCoverFile();
 
         if (coverFile) {
+          this.updateLoadingMessage("Mengupload cover image...");
+
           const coverFormData = new FormData();
           coverFormData.append("file", coverFile);
 
@@ -555,20 +578,27 @@ if (window._dualUploadHandlerLoaded) {
           const coverResult = await coverUploadResponse.json();
           if (coverResult.ok) {
             coverUrl = coverResult.url;
-            console.log("Cover uploaded:", coverUrl);
+            console.log(" Cover uploaded:", coverUrl);
           }
         }
 
         // Create opinion
+        this.updateLoadingMessage("Menyimpan metadata ke database...");
+
         const metadata = {
           title: judul,
           description: abstrak,
           category: "opini",
           author_name: authors.join(", "),
+          email: email,
+          contact: kontak,
+          tags: JSON.stringify(this.opiniTagsManager.getTags()),
           fileUrl: fileResult.url,
           coverUrl: coverUrl,
           client_updated_at: this.toMySQLDateTime(new Date()),
         };
+
+        console.log("Sending opinion metadata:", metadata);
 
         const createResponse = await fetch("/ksmaja/api/create_opinion.php", {
           method: "POST",
@@ -599,12 +629,12 @@ if (window._dualUploadHandlerLoaded) {
           window.location.reload();
         }, 1500);
       } catch (error) {
-        console.error("Upload error:", error);
+        console.error("❌ Upload error:", error);
         this.hideLoading();
         alert("Gagal upload: " + error.message);
       } finally {
-        // Selalu reset flag setelah proses selesai
         this.isSubmittingOpini = false;
+        this.enableSubmitButton("uploadFormOpini");
       }
     }
 
@@ -692,14 +722,24 @@ if (window._dualUploadHandlerLoaded) {
 
     resetOpiniForm() {
       document.getElementById("uploadFormOpini").reset();
-      this.opiniFileManager.removeFile();
-      this.opiniCoverManager.removeCover();
+
+      if (this.opiniFileManager) {
+        this.opiniFileManager.removeFile();
+      }
+      if (this.opiniCoverManager) {
+        this.opiniCoverManager.removeCover();
+      }
+
       this.opiniAuthorsManager.clearAuthors();
       this.opiniTagsManager.clearTags();
+
+      console.log("Opini form reset");
     }
 
     disableSubmitButton(formId) {
-      const submitBtn = document.querySelector(`#${formId} button[type="submit"]`);
+      const submitBtn = document.querySelector(
+        `#${formId} button[type="submit"]`
+      );
       if (submitBtn) {
         submitBtn.disabled = true;
         submitBtn.dataset.originalText = submitBtn.textContent;
@@ -708,7 +748,9 @@ if (window._dualUploadHandlerLoaded) {
     }
 
     enableSubmitButton(formId) {
-      const submitBtn = document.querySelector(`#${formId} button[type="submit"]`);
+      const submitBtn = document.querySelector(
+        `#${formId} button[type="submit"]`
+      );
       if (submitBtn) {
         submitBtn.disabled = false;
         submitBtn.textContent = submitBtn.dataset.originalText || "SUBMIT";

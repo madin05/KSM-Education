@@ -71,13 +71,16 @@ class PreviewViewer {
 
   openWithJournal(j) {
     this.title.textContent = j.title || "Untitled";
-    const authorsText = Array.isArray(j.author) ? j.author.join(", ") : j.author || "Unknown";
+    const authorsText = Array.isArray(j.author)
+      ? j.author.join(", ")
+      : j.author || "Unknown";
     this.info.textContent = `${j.date || ""} • ${authorsText}`;
     this.body.innerHTML = "";
 
     const ext = (j.fileName || "").split(".").pop().toLowerCase();
     const canPreviewPDF = !!j.fileData && ext === "pdf";
-    const canPreviewImage = !!j.coverImage && /^data:image\//.test(j.coverImage);
+    const canPreviewImage =
+      !!j.coverImage && /^data:image\//.test(j.coverImage);
 
     if (canPreviewPDF) {
       const iframe = document.createElement("iframe");
@@ -91,7 +94,9 @@ class PreviewViewer {
       const box = document.createElement("div");
       box.className = "preview-fallback";
       box.innerHTML = `
-        <div>Preview tidak tersedia untuk tipe file ini (${ext || "unknown"}).</div>
+        <div>Preview tidak tersedia untuk tipe file ini (${
+          ext || "unknown"
+        }).</div>
         <div class="hint">Gunakan menu Download di kartu/list untuk mengunduh file.</div>
       `;
       this.body.appendChild(box);
@@ -134,12 +139,18 @@ class SearchManager {
     const journalItems = document.querySelectorAll(".journal-item");
 
     journalItems.forEach((item) => {
-      const title = item.querySelector(".journal-title")?.textContent.toLowerCase() || "";
+      const title =
+        item.querySelector(".journal-title")?.textContent.toLowerCase() || "";
       const description =
-        item.querySelector(".journal-description")?.textContent.toLowerCase() || "";
+        item.querySelector(".journal-description")?.textContent.toLowerCase() ||
+        "";
       const tags = item.dataset.tags?.toLowerCase() || "";
 
-      if (title.includes(term) || description.includes(term) || tags.includes(term)) {
+      if (
+        title.includes(term) ||
+        description.includes(term) ||
+        tags.includes(term)
+      ) {
         item.style.display = "flex";
       } else {
         item.style.display = "none";
@@ -148,98 +159,7 @@ class SearchManager {
   }
 }
 
-// ===== MULTIPLE AUTHORS MANAGER (Support Multi-Instance) =====
-class AuthorsManager {
-  constructor(suffix = "") {
-    this.suffix = suffix;
-    this.authorsContainer = document.getElementById(`authorsContainer${suffix}`);
-    this.addAuthorBtn = document.getElementById(`addAuthorBtn${suffix}`);
-    this.authorCount = 1;
-
-    if (this.authorsContainer && this.addAuthorBtn) this.init();
-  }
-
-  init() {
-    this.addAuthorBtn.addEventListener("click", () => {
-      this.addAuthorField();
-    });
-  }
-
-  addAuthorField() {
-    this.authorCount++;
-    const authorGroup = document.createElement("div");
-    authorGroup.className = "author-input-group";
-    authorGroup.dataset.authorIndex = this.authorCount - 1;
-
-    authorGroup.innerHTML = `
-      <input type="text" 
-             class="author-input" 
-             placeholder="Nama Penulis ${this.authorCount}" 
-             ${this.authorCount === 1 ? "required" : ""}>
-      <button type="button" class="btn-remove-author">
-        <i data-feather="x"></i>
-      </button>
-    `;
-
-    this.authorsContainer.appendChild(authorGroup);
-
-    const removeBtn = authorGroup.querySelector(".btn-remove-author");
-    removeBtn.addEventListener("click", () => {
-      this.removeAuthorField(authorGroup);
-    });
-
-    feather.replace();
-    this.updatePlaceholders();
-  }
-
-  removeAuthorField(authorGroup) {
-    const authorGroups = this.authorsContainer.querySelectorAll(".author-input-group");
-    if (authorGroups.length <= 1) {
-      alert("Minimal harus ada 1 penulis!");
-      return;
-    }
-    authorGroup.remove();
-    this.authorCount--;
-    this.updatePlaceholders();
-  }
-
-  updatePlaceholders() {
-    const authorInputs = this.authorsContainer.querySelectorAll(".author-input");
-    authorInputs.forEach((input, index) => {
-      input.placeholder = `Nama Penulis ${index + 1}`;
-      if (index === 0) input.required = true;
-    });
-
-    const removeButtons = this.authorsContainer.querySelectorAll(".btn-remove-author");
-    removeButtons.forEach((btn, index) => {
-      btn.style.display = index === 0 && authorInputs.length === 1 ? "none" : "flex";
-    });
-  }
-
-  getAuthors() {
-    const authorInputs = this.authorsContainer.querySelectorAll(".author-input");
-    const authors = [];
-    authorInputs.forEach((input) => {
-      const value = input.value.trim();
-      if (value) authors.push(value);
-    });
-    return authors;
-  }
-
-  clearAuthors() {
-    const authorGroups = this.authorsContainer.querySelectorAll(".author-input-group");
-    authorGroups.forEach((group, index) => {
-      if (index > 0) group.remove();
-    });
-    const firstInput = this.authorsContainer.querySelector(".author-input");
-    if (firstInput) firstInput.value = "";
-    this.authorCount = 1;
-    this.updatePlaceholders();
-  }
-}
-
 // ===== EDIT JOURNAL MANAGER =====
-// ===== EDIT JOURNAL MANAGER (UPDATED WITH TAGS & PENGURUS) =====
 class EditJournalManager {
   constructor() {
     this.modal = document.getElementById("editModal");
@@ -267,26 +187,24 @@ class EditJournalManager {
     this.closeBtn?.addEventListener("click", () => this.closeEditModal());
     this.cancelBtn?.addEventListener("click", () => this.closeEditModal());
 
-    this.modal.querySelector(".modal-overlay")?.addEventListener("click", () => {
-      this.closeEditModal();
-    });
+    this.modal
+      .querySelector(".modal-overlay")
+      ?.addEventListener("click", () => {
+        this.closeEditModal();
+      });
 
-    // Authors
     this.addAuthorBtn?.addEventListener("click", () => {
       this.addAuthorField();
     });
 
-    //  Pengurus
     this.addPengurusBtn?.addEventListener("click", () => {
       this.addPengurusField();
     });
 
-    //  Tags
     this.addTagBtn?.addEventListener("click", () => {
       this.addTag();
     });
 
-    //  Tag input - Enter key
     this.tagInput?.addEventListener("keypress", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
@@ -299,10 +217,9 @@ class EditJournalManager {
       this.handleEditSubmit();
     });
 
-    console.log(" EditJournalManager initialized (with Tags & Pengurus)");
+    console.log(" EditJournalManager initialized");
   }
 
-  // ===== ADD TAG =====
   addTag() {
     const tag = this.tagInput.value.trim();
 
@@ -315,16 +232,17 @@ class EditJournalManager {
     tagElement.className = "tag-item";
     tagElement.innerHTML = `
       ${tag}
-      <span class="tag-remove" onclick="this.remove()">&times;</span>
+      <span class="tag-remove" onclick="this.parentElement.remove()">&times;</span>
     `;
 
     this.tagsContainer.appendChild(tagElement);
     this.tagInput.value = "";
   }
 
-  // ===== ADD PENGURUS FIELD =====
   addPengurusField() {
-    const pengurusGroups = this.pengurusContainer.querySelectorAll(".pengurus-input-group");
+    const pengurusGroups = this.pengurusContainer.querySelectorAll(
+      ".pengurus-input-group"
+    );
     const nextIndex = pengurusGroups.length;
 
     const pengurusGroup = document.createElement("div");
@@ -356,7 +274,9 @@ class EditJournalManager {
   }
 
   updatePengurusPlaceholders() {
-    const pengurusGroups = this.pengurusContainer.querySelectorAll(".pengurus-input-group");
+    const pengurusGroups = this.pengurusContainer.querySelectorAll(
+      ".pengurus-input-group"
+    );
     pengurusGroups.forEach((group, index) => {
       const input = group.querySelector(".pengurus-input");
       if (input) {
@@ -367,14 +287,14 @@ class EditJournalManager {
 
   openEditModal(journalId) {
     console.log("Opening edit modal for journal ID:", journalId);
-
-    // Ambil data journal dari database
     this.fetchJournalData(journalId);
   }
 
   async fetchJournalData(journalId) {
     try {
-      const response = await fetch(`/ksmaja/api/get_journal.php?id=${journalId}`);
+      const response = await fetch(
+        `/ksmaja/api/get_journal.php?id=${journalId}`
+      );
       const result = await response.json();
 
       if (!result.ok) {
@@ -386,7 +306,6 @@ class EditJournalManager {
 
       this.currentJournalId = journalId;
 
-      // Isi field-field form
       document.getElementById("editJournalId").value = journalId;
       document.getElementById("editJudulJurnal").value = journal.title || "";
       document.getElementById("editEmail").value = journal.email || "";
@@ -394,16 +313,10 @@ class EditJournalManager {
       document.getElementById("editVolume").value = journal.volume || "";
       document.getElementById("editAbstrak").value = journal.abstract || "";
 
-      //  Populate Tags
       this.populateTags(journal.tags);
-
-      //  Populate Pengurus
       this.populatePengurus(journal.pengurus);
-
-      //  Populate Authors
       this.populateAuthors(journal.authors);
 
-      // Tampilkan modal
       this.modal.classList.add("active");
       document.body.style.overflow = "hidden";
 
@@ -412,11 +325,10 @@ class EditJournalManager {
       }
     } catch (error) {
       console.error("Error loading journal:", error);
-      alert(" Gagal memuat data jurnal: " + error.message);
+      alert("Gagal memuat data jurnal: " + error.message);
     }
   }
 
-  // ===== POPULATE TAGS =====
   populateTags(tags) {
     this.tagsContainer.innerHTML = "";
 
@@ -442,7 +354,6 @@ class EditJournalManager {
     });
   }
 
-  // ===== POPULATE PENGURUS =====
   populatePengurus(pengurus) {
     this.pengurusContainer.innerHTML = "";
 
@@ -458,7 +369,7 @@ class EditJournalManager {
     }
 
     if (pengurusArray.length === 0) {
-      this.addPengurusField(); // Add one empty field
+      this.addPengurusField();
       return;
     }
 
@@ -541,7 +452,9 @@ class EditJournalManager {
   }
 
   addAuthorField() {
-    const authorGroups = this.authorsContainer.querySelectorAll(".author-input-group");
+    const authorGroups = this.authorsContainer.querySelectorAll(
+      ".author-input-group"
+    );
     const nextIndex = authorGroups.length;
 
     const authorGroup = document.createElement("div");
@@ -572,7 +485,9 @@ class EditJournalManager {
   }
 
   removeAuthorField(authorGroup) {
-    const authorGroups = this.authorsContainer.querySelectorAll(".author-input-group");
+    const authorGroups = this.authorsContainer.querySelectorAll(
+      ".author-input-group"
+    );
     if (authorGroups.length <= 1) {
       alert("Minimal harus ada 1 penulis!");
       return;
@@ -582,11 +497,14 @@ class EditJournalManager {
   }
 
   updateAuthorButtons() {
-    const authorGroups = this.authorsContainer.querySelectorAll(".author-input-group");
+    const authorGroups = this.authorsContainer.querySelectorAll(
+      ".author-input-group"
+    );
     authorGroups.forEach((group, index) => {
       const removeBtn = group.querySelector(".btn-remove-author");
       if (removeBtn) {
-        removeBtn.style.display = index === 0 && authorGroups.length === 1 ? "none" : "flex";
+        removeBtn.style.display =
+          index === 0 && authorGroups.length === 1 ? "none" : "flex";
       }
 
       const input = group.querySelector(".author-input");
@@ -619,46 +537,39 @@ class EditJournalManager {
     const pengurus = this.getPengurus();
 
     try {
-      //  GANTI DENGAN FORMDATA!
       const formData = new FormData();
 
-      // Add journal ID
       formData.append("id", this.currentJournalId);
 
-      // Add text fields
       if (judul) formData.append("title", judul);
       if (abstrak) formData.append("abstract", abstrak);
       if (email) formData.append("email", email);
       if (contact) formData.append("contact", contact);
       if (volume) formData.append("volume", volume);
 
-      // Add JSON arrays
-      if (authors.length > 0) formData.append("authors", JSON.stringify(authors));
+      if (authors.length > 0)
+        formData.append("authors", JSON.stringify(authors));
       if (tags.length > 0) formData.append("tags", JSON.stringify(tags));
-      if (pengurus.length > 0) formData.append("pengurus", JSON.stringify(pengurus));
+      if (pengurus.length > 0)
+        formData.append("pengurus", JSON.stringify(pengurus));
 
-      //  HANDLE FILE UPLOAD
       const fileInput = document.getElementById("editFileInput");
       if (fileInput && fileInput.files[0]) {
         formData.append("file", fileInput.files[0]);
-        console.log("📄 Uploading new file:", fileInput.files[0].name);
+        console.log("Uploading new file:", fileInput.files[0].name);
       }
 
-      //  HANDLE COVER UPLOAD
       const coverInput = document.getElementById("editCoverInput");
       if (coverInput && coverInput.files[0]) {
         formData.append("cover", coverInput.files[0]);
-        console.log("🖼️ Uploading new cover:", coverInput.files[0].name);
+        console.log("Uploading new cover:", coverInput.files[0].name);
       }
 
-      // Show loading
       this.showLoading("Menyimpan perubahan...");
 
-      //  SEND REQUEST KE update_journal.php
       const response = await fetch("/ksmaja/api/update_journal.php", {
         method: "POST",
-        body: formData, // ← FormData, bukan JSON!
-        //  JANGAN SET Content-Type header!
+        body: formData,
       });
 
       const result = await response.json();
@@ -672,36 +583,35 @@ class EditJournalManager {
       alert(" Jurnal berhasil diupdate!");
       this.closeEditModal();
 
-      // Clear cache & reload
       if ("caches" in window) {
         caches.keys().then((names) => {
           names.forEach((name) => caches.delete(name));
         });
       }
 
-      window.location.href = window.location.href.split("?")[0] + "?nocache=" + Date.now();
+      window.location.href =
+        window.location.href.split("?")[0] + "?nocache=" + Date.now();
     } catch (error) {
       console.error("Edit journal error:", error);
       this.hideLoading();
-      alert(" Gagal update jurnal: " + error.message);
+      alert("❌ Gagal update jurnal: " + error.message);
     }
   }
 
-  //  TAMBAH METHOD LOADING
   showLoading(message) {
     let overlay = document.getElementById("editLoadingOverlay");
     if (!overlay) {
       overlay = document.createElement("div");
       overlay.id = "editLoadingOverlay";
       overlay.innerHTML = `
-      <div class="loading-spinner"></div>
-      <p class="loading-message">${message}</p>
-    `;
+        <div class="loading-spinner"></div>
+        <p class="loading-message">${message}</p>
+      `;
       overlay.style.cssText = `
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8); display: flex; flex-direction: column;
-      justify-content: center; align-items: center; z-index: 10000; color: white;
-    `;
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.8); display: flex; flex-direction: column;
+        justify-content: center; align-items: center; z-index: 10000; color: white;
+      `;
       document.body.appendChild(overlay);
     } else {
       overlay.querySelector(".loading-message").textContent = message;
@@ -727,7 +637,8 @@ class EditJournalManager {
   }
 
   getPengurus() {
-    const pengurusInputs = this.pengurusContainer.querySelectorAll(".pengurus-input");
+    const pengurusInputs =
+      this.pengurusContainer.querySelectorAll(".pengurus-input");
     const pengurus = [];
     pengurusInputs.forEach((input) => {
       const value = input.value.trim();
@@ -737,7 +648,8 @@ class EditJournalManager {
   }
 
   getAuthors() {
-    const authorInputs = this.authorsContainer.querySelectorAll(".author-input");
+    const authorInputs =
+      this.authorsContainer.querySelectorAll(".author-input");
     const authors = [];
     authorInputs.forEach((input) => {
       const value = input.value.trim();
@@ -752,122 +664,175 @@ class EditJournalManager {
     this.currentJournalId = null;
     this.form.reset();
 
-    // Clear dynamic fields
     if (this.tagsContainer) this.tagsContainer.innerHTML = "";
     if (this.pengurusContainer) this.pengurusContainer.innerHTML = "";
     if (this.authorsContainer) this.authorsContainer.innerHTML = "";
   }
 }
 
-// function setupNavDropdown() {
-//   const dropdowns = document.querySelectorAll(".nav-dropdown");
-//   console.log("Found dropdowns:", dropdowns.length);
-
-//   dropdowns.forEach((dd) => {
-//     const btn = dd.querySelector(".nav-link.has-caret");
-//     const menu = dd.querySelector(".dropdown-menu");
-//     if (!btn || !menu) return;
-
-//     btn.addEventListener("click", (e) => {
-//       console.log("Nav dropdown clicked");
-//       e.preventDefault();
-//       e.stopPropagation();
-
-//       // cek class sebelum
-//       console.log("before:", dd.className);
-
-//       if (dd.classList.contains("open")) {
-//         dd.classList.remove("open");
-//       } else {
-//         dd.classList.add("open");
-//       }
-
-//       // cek class sesudah
-//       console.log("after:", dd.className);
-//     });
-//   });
-
-//   // sementara: matikan auto-close global dulu
-//   // document.addEventListener("click", () => {
-//   //   dropdowns.forEach((dd) => dd.classList.remove("open"));
-//   // });
-// }
-
 // ===== LOGIN STATUS SYNC =====
 function syncLoginStatusUI() {
   const isLoggedIn = sessionStorage.getItem("userLoggedIn") === "true";
   const isAdmin = sessionStorage.getItem("userType") === "admin";
 
-  // Dispatch custom event untuk notify semua manager
   window.dispatchEvent(
     new CustomEvent("loginStatusChanged", {
       detail: { isLoggedIn, isAdmin },
     })
   );
 
-  // Re-render journal jika ada
-  if (window.journalManager && typeof window.journalManager.renderJournals === "function") {
+  if (
+    window.journalManager &&
+    typeof window.journalManager.renderJournals === "function"
+  ) {
     window.journalManager.renderJournals();
   }
 
-  // Re-render pagination jika ada
-  if (window.paginationManager && typeof window.paginationManager.render === "function") {
+  if (
+    window.paginationManager &&
+    typeof window.paginationManager.render === "function"
+  ) {
     window.paginationManager.render();
   }
 }
 
-// Listen untuk login status changes
 window.addEventListener("adminLoginStatusChanged", syncLoginStatusUI);
+
+// ===== SORT & SEARCH FOR OPINIONS PAGE =====
+function setupOpinionsPageControls() {
+  // Search functionality
+  const searchInput = document.getElementById("searchInput");
+  if (searchInput && window.journalManager) {
+    searchInput.addEventListener("input", (e) => {
+      window.journalManager.searchJournals(e.target.value);
+    });
+  }
+
+  // Sort dropdown (icon button)
+  const btnSort = document.getElementById("btnSort");
+  const sortMenu = document.getElementById("sortMenu");
+
+  if (btnSort && sortMenu) {
+    btnSort.addEventListener("click", () => {
+      sortMenu.classList.toggle("active");
+    });
+
+    // Sort items
+    const sortItems = sortMenu.querySelectorAll(".sort-item");
+    sortItems.forEach((item) => {
+      item.addEventListener("click", () => {
+        const sortType = item.getAttribute("data-sort");
+
+        // Update active state
+        sortItems.forEach((si) => si.classList.remove("active"));
+        item.classList.add("active");
+
+        // Close menu
+        sortMenu.classList.remove("active");
+
+        // Apply sort
+        if (window.journalManager) {
+          window.journalManager.sortJournals(sortType);
+        }
+      });
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", (e) => {
+      if (!btnSort.contains(e.target) && !sortMenu.contains(e.target)) {
+        sortMenu.classList.remove("active");
+      }
+    });
+  }
+
+  // Update total count
+  if (window.journalManager) {
+    const totalEl = document.getElementById("totalJournals");
+    if (totalEl) {
+      setTimeout(() => {
+        totalEl.textContent = window.journalManager.getTotalCount();
+      }, 500);
+    }
+  }
+}
 
 // ===== INITIALIZE ALL SYSTEMS =====
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("DOM ready, init start");
+  console.log("🚀 DOM ready, initializing...");
 
-  // ===== CLEAR OLD LOCALSTORAGE =====
+  // Clear localStorage cache
   localStorage.removeItem("journals");
   localStorage.removeItem("opinions");
 
-  // console.log("Before setupNavDropdown");
-  // setupNavDropdown();
-  // console.log("After setupNavDropdown");
-
   setupHashSearch();
 
+  // Initialize feather icons
+  if (typeof feather !== "undefined") {
+    feather.replace();
+  }
+
+  // Initialize Login Manager
   if (typeof LoginManager !== "undefined") {
     window.loginManager = new LoginManager();
   }
 
+  if (
+    document.querySelector(".upload-tab") &&
+    typeof UploadTabsManager !== "undefined"
+  ) {
+    window.uploadTabsManager = new UploadTabsManager();
+    console.log(" UploadTabsManager initialized");
+  }
+
+  // Page: journals.html
   if (document.getElementById("journalFullContainer")) {
-    // UNTUK HALAMAN journals.html
     if (typeof EditJournalManager !== "undefined")
       window.editJournalManager = new EditJournalManager();
     if (typeof PaginationManager !== "undefined")
       window.paginationManager = new PaginationManager();
     window.previewViewer = new PreviewViewer();
-    console.log("Journals page systems initialized");
+    console.log("📚 Journals page systems initialized");
 
-    // SYNC LOGIN STATUS UNTUK RENDER TOMBOL
     syncLoginStatusUI();
     return;
   }
 
-  if (document.getElementById("opinionsContainer")) {
-    if (typeof OpinionsPageManager !== "undefined") {
-      window.opinionsPageManager = new OpinionsPageManager();
-      console.log("Opinions page systems initialized");
+  // Page: opinions.html (ADMIN MODE)
+  if (
+    window.location.pathname.includes("opinions.html") &&
+    document.getElementById("journalContainer")
+  ) {
+    console.log("📝 Opinions page (ADMIN MODE) detected");
+
+    if (typeof EditJournalManager !== "undefined") {
+      window.editJournalManager = new EditJournalManager();
     }
+
+    // Setup sort & search controls
+    setTimeout(() => {
+      setupOpinionsPageControls();
+    }, 500);
+
+    console.log(" Opinions admin controls initialized");
     return;
   }
 
-  // UNTUK HALAMAN dashboard_admin.html DAN index.html
-  if (typeof StatisticsManager !== "undefined") window.statsManager = new StatisticsManager();
+  // Page: opinions_user.html (USER MODE)
+  if (
+    window.location.pathname.includes("opinions_user.html") ||
+    document.getElementById("opinionsContainer")
+  ) {
+    console.log("📝 Opinions page (USER MODE) detected");
+    return;
+  }
 
-  // ===== COMMENT INI - JOURNALMANAGER UDAH AUTO-INIT DI JURNAL.JS =====
-  // if (typeof JournalManager !== "undefined") window.journalManager = new JournalManager();
+  // Page: dashboard_admin.html & index.html
+  if (typeof StatisticsManager !== "undefined")
+    window.statsManager = new StatisticsManager();
 
-  if (typeof OpinionManager !== "undefined") window.opinionManager = new OpinionManager();
-  if (typeof SearchManager !== "undefined") window.searchManager = new SearchManager();
-  if (typeof UploadTabsManager !== "undefined") window.uploadTabsManager = new UploadTabsManager();
+  if (typeof SearchManager !== "undefined")
+    window.searchManager = new SearchManager();
+
   if (typeof EditJournalManager !== "undefined")
     window.editJournalManager = new EditJournalManager();
 
@@ -877,9 +842,11 @@ document.addEventListener("DOMContentLoaded", () => {
     window.loginManager.syncLoginStatus();
   }
 
-  // Stats manager - safely initialize
   try {
-    if (window.statsManager && typeof window.statsManager.updateArticleCount === "function") {
+    if (
+      window.statsManager &&
+      typeof window.statsManager.updateArticleCount === "function"
+    ) {
       setTimeout(() => {
         try {
           window.statsManager.updateArticleCount();
@@ -895,8 +862,9 @@ document.addEventListener("DOMContentLoaded", () => {
     console.warn("Stats manager not available");
   }
 
-  // SYNC LOGIN STATUS UNTUK RENDER TOMBOL DI ADMIN
   syncLoginStatusUI();
 
-  console.log("All systems initialized successfully");
+  console.log(" All systems initialized successfully");
 });
+
+console.log("📄 script.js loaded");

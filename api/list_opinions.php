@@ -26,7 +26,6 @@ try {
     error_log("=== LIST OPINIONS API ===");
     error_log("Limit: $limit, Offset: $offset, Category: " . ($category ?? 'all'));
 
-    // ✅ FIX: JOIN with uploads table to get file URLs
     $sql = "
         SELECT 
             o.*,

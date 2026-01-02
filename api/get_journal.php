@@ -15,7 +15,7 @@ if (!$id) {
 }
 
 try {
-    // ✅ JOIN dengan uploads table untuk get URL terbaru!
+    //  JOIN dengan uploads table untuk get URL terbaru!
     $stmt = $pdo->prepare("
         SELECT 
             j.*,
@@ -35,11 +35,11 @@ try {
         exit;
     }
 
-    // ✅ Increment views
+    //  Increment views
     $updateViews = $pdo->prepare("UPDATE journals SET views = views + 1 WHERE id = ?");
     $updateViews->execute([$id]);
 
-    // ✅ Return with UPDATED file URLs
+    //  Return with UPDATED file URLs
     echo json_encode([
         'ok' => true,
         'journal' => $journal

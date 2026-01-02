@@ -5,12 +5,12 @@ feather.replace();
 
 // ===== TRACK VIEWED ARTICLES (PREVENT DUPLICATE VIEWS) =====
 const viewedArticles = new Set(
-  JSON.parse(localStorage.getItem('viewedArticles') || '[]')
+  JSON.parse(localStorage.getItem("viewedArticles") || "[]")
 );
 
 function markAsViewed(articleId) {
   viewedArticles.add(String(articleId));
-  localStorage.setItem('viewedArticles', JSON.stringify([...viewedArticles]));
+  localStorage.setItem("viewedArticles", JSON.stringify([...viewedArticles]));
 }
 
 function hasBeenViewed(articleId) {
@@ -25,7 +25,7 @@ function checkLoginStatus() {
 // ===== LOAD ARTICLES FROM DATABASE =====
 async function loadArticles() {
   try {
-    console.log("📥 Loading articles from database...");
+    console.log("Loading articles from database...");
 
     const timestamp = Date.now();
 
@@ -41,7 +41,7 @@ async function loadArticles() {
     let opinionsData = { ok: false, results: [] };
     try {
       const opinionsResponse = await fetch(
-        `/ksmaja/api/list_opinion.php?limit=50&offset=0&t=${timestamp}`,
+        `/ksmaja/api/list_opinions.php?limit=50&offset=0&t=${timestamp}`,
         {
           cache: "no-store",
           headers: { "Cache-Control": "no-cache" },
@@ -62,7 +62,11 @@ async function loadArticles() {
             ? JSON.parse(j.authors)
             : j.authors
           : [];
-        const tags = j.tags ? (typeof j.tags === "string" ? JSON.parse(j.tags) : j.tags) : [];
+        const tags = j.tags
+          ? typeof j.tags === "string"
+            ? JSON.parse(j.tags)
+            : j.tags
+          : [];
         return {
           id: j.id,
           title: j.title,
@@ -132,16 +136,20 @@ let articles = [];
 // ===== NAVIGATE TO ARTICLE DETAIL (WITH VIEW TRACKING) =====
 function openArticleDetail(articleId, articleType) {
   console.log("Opening article:", articleId, articleType);
-  
-  // Update views ONLY if not viewed before
+
   if (!hasBeenViewed(articleId)) {
     updateArticleViews(articleId, articleType);
     markAsViewed(articleId);
   } else {
-    console.log('Article already viewed, skipping view count update');
+    console.log("Article already viewed, skipping view count update");
   }
-  
-  window.location.href = `explore_jurnal_user.html?id=${articleId}&type=${articleType}`;
+
+  const targetPage =
+    articleType === "opini"
+      ? "explore_opini_user.html"
+      : "explore_jurnal_user.html";
+
+  window.location.href = `${targetPage}?id=${articleId}&type=${articleType}`;
 }
 
 // ===== UPDATE VIEWS (ONLY ONCE PER USER) =====
@@ -150,16 +158,23 @@ async function updateArticleViews(id, type) {
     await fetch(`/ksmaja/api/update_views.php`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: id, type: type === 'opini' ? 'opinion' : 'journal' }),
+      body: JSON.stringify({
+        id: id,
+        type: type === "opini" ? "opinion" : "journal",
+      }),
     });
-    console.log(' View updated for:', id);
+    console.log(" View updated for:", id);
   } catch (error) {
-    console.warn("⚠️ Failed to update views:", error);
+    console.warn("Failed to update views:", error);
   }
 }
 
 function escapeForAttribute(text) {
-  return (text || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return (text || "")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }
 
 async function renderArticles() {
@@ -197,7 +212,8 @@ async function renderArticles() {
         ? article.author[0]
         : article.author || article.penulis || "ADMIN";
 
-      const date = article.date || article.uploadDate || new Date().toISOString();
+      const date =
+        article.date || article.uploadDate || new Date().toISOString();
       const formattedDate = new Date(date).toLocaleDateString("id-ID", {
         year: "numeric",
         month: "short",
@@ -215,25 +231,36 @@ async function renderArticles() {
         abstract.length > 100 ? abstract.substring(0, 100) + "..." : abstract;
 
       const typeLabel = article.type === "opini" ? "OPINI" : "JURNAL";
-      const typeClass = article.type === "opini" ? "badge-opini" : "badge-jurnal";
+      const typeClass =
+        article.type === "opini" ? "badge-opini" : "badge-jurnal";
 
       return `
         <div class="article-card">
-          <div class="article-image-container" onclick="openArticleDetail('${article.id}', '${article.type}')" style="cursor: pointer;">
+          <div class="article-image-container" onclick="openArticleDetail('${
+            article.id
+          }', '${article.type}')" style="cursor: pointer;">
             <img src="${coverImage}" alt="${title}" class="article-image"
                  onerror="this.src='https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500&h=400&fit=crop'">
             <span class="article-type-badge ${typeClass}">${typeLabel}</span>
+            
           </div>
+          
           <div class="article-content">
             <div class="article-meta">
               <span><i data-feather="user" style="width: 14px; height: 14px;"></i> ${author}</span>
               <span><i data-feather="calendar" style="width: 14px; height: 14px;"></i> ${formattedDate}</span>
               <span><i data-feather="eye" style="width: 14px; height: 14px;"></i> ${views}</span>
             </div>
-            <div class="article-title" onclick="openArticleDetail('${article.id}', '${article.type}')" style="cursor: pointer;">
+            <div class="article-title" onclick="openArticleDetail('${
+              article.id
+            }', '${article.type}')" style="cursor: pointer;">
               ${title}
             </div>
-            ${truncatedAbstract ? `<div class="article-excerpt">${truncatedAbstract}</div>` : ""}
+            ${
+              truncatedAbstract
+                ? `<div class="article-excerpt">${truncatedAbstract}</div>`
+                : ""
+            }
             
             <!--  FULL WIDTH SHARE BUTTON -->
             <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #f0f0f0;">
@@ -271,7 +298,7 @@ async function renderArticles() {
   }
 
   feather.replace();
-  console.log(' Articles rendered, Share buttons ready');
+  console.log(" Articles rendered, Share buttons ready");
 }
 
 // ===== LOGOUT HANDLER =====
@@ -297,13 +324,16 @@ function setupNewsletter() {
     subscribeBtn.addEventListener("click", () => {
       const email = newsletterEmail.value.trim();
       if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showToast("Terima kasih! Anda telah berhasil subscribe newsletter.", "success");
+        showToast(
+          "Terima kasih! Anda telah berhasil subscribe newsletter.",
+          "success"
+        );
         newsletterEmail.value = "";
       } else {
         showToast("Mohon masukkan email yang valid.", "error");
       }
     });
-    
+
     newsletterEmail.addEventListener("keypress", (e) => {
       if (e.key === "Enter") {
         subscribeBtn.click();
@@ -379,7 +409,9 @@ function setupSearch() {
       if (e.key === "Enter") {
         const query = searchInput.value.trim();
         if (query) {
-          window.location.href = `journals_user.html?search=${encodeURIComponent(query)}`;
+          window.location.href = `journals_user.html?search=${encodeURIComponent(
+            query
+          )}`;
         }
       }
     });
@@ -387,32 +419,33 @@ function setupSearch() {
 }
 
 // ===== TOAST NOTIFICATION =====
-function showToast(message, type = 'info') {
-  const toast = document.createElement('div');
+function showToast(message, type = "info") {
+  const toast = document.createElement("div");
   toast.className = `toast-notification ${type}`;
   toast.innerHTML = message;
-  
+
   Object.assign(toast.style, {
-    position: 'fixed',
-    bottom: '30px',
-    right: '30px',
-    background: type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6',
-    color: 'white',
-    padding: '16px 24px',
-    borderRadius: '12px',
-    boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
-    zIndex: '10000',
-    animation: 'slideInUp 0.3s ease',
-    maxWidth: '400px',
-    fontSize: '15px',
-    fontWeight: '500',
-    lineHeight: '1.5'
+    position: "fixed",
+    bottom: "30px",
+    right: "30px",
+    background:
+      type === "success" ? "#10b981" : type === "error" ? "#ef4444" : "#3b82f6",
+    color: "white",
+    padding: "16px 24px",
+    borderRadius: "12px",
+    boxShadow: "0 10px 40px rgba(0,0,0,0.3)",
+    zIndex: "10000",
+    animation: "slideInUp 0.3s ease",
+    maxWidth: "400px",
+    fontSize: "15px",
+    fontWeight: "500",
+    lineHeight: "1.5",
   });
 
   document.body.appendChild(toast);
-  
+
   setTimeout(() => {
-    toast.style.animation = 'fadeOut 0.3s ease forwards';
+    toast.style.animation = "fadeOut 0.3s ease forwards";
     setTimeout(() => {
       if (toast.parentElement) {
         toast.remove();
@@ -446,43 +479,62 @@ class ShareManager {
   }
 
   init() {
-    console.log('🔗 Initializing Share Manager...');
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => this.setupEventListeners());
+    console.log("Initializing Share Manager...");
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", () =>
+        this.setupEventListeners()
+      );
     } else {
       this.setupEventListeners();
     }
   }
 
   setupEventListeners() {
-    document.body.addEventListener('click', (e) => {
-      const shareBtn = e.target.closest('.btn-share-article');
-      if (shareBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        
-        const articleId = shareBtn.getAttribute('data-article-id');
-        const articleType = shareBtn.getAttribute('data-article-type');
-        const articleTitle = shareBtn.getAttribute('data-article-title');
-        
-        console.log('📤 Share button clicked:', { articleId, articleType, articleTitle });
-        
-        this.handleShare(articleId, articleType, articleTitle);
-        return false;
-      }
-    }, true);
+    document.body.addEventListener(
+      "click",
+      (e) => {
+        const shareBtn = e.target.closest(".btn-share-article");
+        if (shareBtn) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
 
-    console.log(' Share event listeners attached');
+          const articleId = shareBtn.getAttribute("data-article-id");
+          const articleType = shareBtn.getAttribute("data-article-type");
+          const articleTitle = shareBtn.getAttribute("data-article-title");
+
+          console.log("Share button clicked:", {
+            articleId,
+            articleType,
+            articleTitle,
+          });
+
+          this.handleShare(articleId, articleType, articleTitle);
+          return false;
+        }
+      },
+      true
+    );
+
+    console.log(" Share event listeners attached");
   }
 
   handleShare(articleId, articleType, articleTitle) {
     const baseUrl = window.location.origin;
-    const path = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
-    const shareUrl = `${baseUrl}${path}/explore_jurnal_user.html?id=${articleId}&type=${articleType}`;
-    
-    console.log('🔗 Sharing URL:', shareUrl);
-    
+    const path = window.location.pathname.substring(
+      0,
+      window.location.pathname.lastIndexOf("/")
+    );
+
+    const targetPage =
+      articleType === "opini"
+        ? "explore_opini_user.html"
+        : "explore_jurnal_user.html";
+
+    const shareUrl = `${baseUrl}${path}/${targetPage}?id=${articleId}&type=${articleType}`;
+
+    console.log("Sharing URL:", shareUrl);
+
     this.copyToClipboard(shareUrl, articleTitle);
   }
 
@@ -496,28 +548,28 @@ class ShareManager {
         this.showShareSuccess(title);
       }
     } catch (err) {
-      console.error('Copy failed:', err);
+      console.error("Copy failed:", err);
       try {
         this.fallbackCopyToClipboard(url);
         this.showShareSuccess(title);
       } catch (fallbackErr) {
-        showToast('Gagal menyalin link. Silakan coba lagi.', 'error');
+        showToast("Gagal menyalin link. Silakan coba lagi.", "error");
       }
     }
   }
 
   fallbackCopyToClipboard(text) {
-    const textArea = document.createElement('textarea');
+    const textArea = document.createElement("textarea");
     textArea.value = text;
-    textArea.style.position = 'fixed';
-    textArea.style.left = '-999999px';
-    textArea.style.top = '-999999px';
+    textArea.style.position = "fixed";
+    textArea.style.left = "-999999px";
+    textArea.style.top = "-999999px";
     document.body.appendChild(textArea);
     textArea.focus();
     textArea.select();
-    
+
     try {
-      document.execCommand('copy');
+      document.execCommand("copy");
       textArea.remove();
     } catch (err) {
       textArea.remove();
@@ -526,9 +578,10 @@ class ShareManager {
   }
 
   showShareSuccess(title) {
-    const truncatedTitle = title.length > 40 ? title.substring(0, 40) + '...' : title;
+    const truncatedTitle =
+      title.length > 40 ? title.substring(0, 40) + "..." : title;
     const message = ` Link berhasil disalin!<br><small style="opacity: 0.8">"${truncatedTitle}"</small>`;
-    showToast(message, 'success');
+    showToast(message, "success");
   }
 }
 
@@ -541,19 +594,25 @@ class DynamicCategoriesManager {
 
   async loadCategories() {
     try {
-      console.log('📊 Loading dynamic categories from database...');
+      console.log("Loading dynamic categories from database...");
 
       const timestamp = Date.now();
-      
+
       const [journalsResponse, opinionsResponse] = await Promise.all([
-        fetch(`/ksmaja/api/list_journals.php?limit=1000&offset=0&t=${timestamp}`, {
-          cache: 'no-store',
-          headers: { 'Cache-Control': 'no-cache' }
-        }),
-        fetch(`/ksmaja/api/list_opinion.php?limit=1000&offset=0&t=${timestamp}`, {
-          cache: 'no-store',
-          headers: { 'Cache-Control': 'no-cache' }
-        }).catch(() => ({ json: async () => ({ ok: false, results: [] }) }))
+        fetch(
+          `/ksmaja/api/list_journals.php?limit=1000&offset=0&t=${timestamp}`,
+          {
+            cache: "no-store",
+            headers: { "Cache-Control": "no-cache" },
+          }
+        ),
+        fetch(
+          `/ksmaja/api/list_opinions.php?limit=1000&offset=0&t=${timestamp}`,
+          {
+            cache: "no-store",
+            headers: { "Cache-Control": "no-cache" },
+          }
+        ).catch(() => ({ json: async () => ({ ok: false, results: [] }) })),
       ]);
 
       const journalsData = await journalsResponse.json();
@@ -561,16 +620,15 @@ class DynamicCategoriesManager {
 
       const allArticles = [
         ...(journalsData.ok ? journalsData.results : []),
-        ...(opinionsData.ok ? opinionsData.results : [])
+        ...(opinionsData.ok ? opinionsData.results : []),
       ];
 
       this.processArticleTags(allArticles);
       this.renderCategories();
 
       console.log(` Loaded ${this.categories.size} dynamic categories`);
-
     } catch (error) {
-      console.error('Error loading categories:', error);
+      console.error("Error loading categories:", error);
       this.renderFallbackCategories();
     }
   }
@@ -578,10 +636,10 @@ class DynamicCategoriesManager {
   processArticleTags(articles) {
     this.categories.clear();
 
-    articles.forEach(article => {
+    articles.forEach((article) => {
       let tags = article.tags;
 
-      if (typeof tags === 'string' && tags.trim()) {
+      if (typeof tags === "string" && tags.trim()) {
         try {
           tags = JSON.parse(tags);
         } catch (e) {
@@ -593,7 +651,7 @@ class DynamicCategoriesManager {
         tags = [];
       }
 
-      tags.forEach(tag => {
+      tags.forEach((tag) => {
         const normalizedTag = this.normalizeTag(tag);
         if (normalizedTag) {
           const currentCount = this.categories.get(normalizedTag) || 0;
@@ -608,40 +666,48 @@ class DynamicCategoriesManager {
   }
 
   normalizeTag(tag) {
-    if (!tag || typeof tag !== 'string') return null;
-    
-    return tag.trim()
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ');
+    if (!tag || typeof tag !== "string") return null;
+
+    return tag
+      .trim()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
   }
 
   renderCategories() {
-    const grid = document.querySelector('.categories-grid');
+    const grid = document.querySelector(".categories-grid");
     if (!grid) {
-      console.warn('Categories grid element not found');
+      console.warn("Categories grid element not found");
       return;
     }
 
     const topCategories = [...this.categories.entries()].slice(0, 12);
 
     if (topCategories.length === 0) {
-      grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #999; padding: 40px 0;">Belum ada kategori. Tambahkan tags saat upload artikel.</div>';
+      grid.innerHTML =
+        '<div style="grid-column: 1/-1; text-align: center; color: #999; padding: 40px 0;">Belum ada kategori. Tambahkan tags saat upload artikel.</div>';
       return;
     }
 
-    grid.innerHTML = topCategories.map(([category, count]) => `
-      <div class="category-card" onclick="window.location.href='journals_user.html?category=${encodeURIComponent(category)}'" style="cursor: pointer;">
+    grid.innerHTML = topCategories
+      .map(
+        ([category, count]) => `
+      <div class="category-card" onclick="window.location.href='journals_user.html?category=${encodeURIComponent(
+        category
+      )}'" style="cursor: pointer;">
         <span class="category-name">${this.escapeHtml(category)}</span>
         <span class="category-count">(${count})</span>
       </div>
-    `).join('');
+    `
+      )
+      .join("");
 
     console.log(` Rendered ${topCategories.length} categories to UI`);
   }
 
   renderFallbackCategories() {
-    const grid = document.querySelector('.categories-grid');
+    const grid = document.querySelector(".categories-grid");
     if (!grid) return;
 
     grid.innerHTML = `
@@ -654,17 +720,17 @@ class DynamicCategoriesManager {
   }
 
   escapeHtml(text) {
-    const div = document.createElement('div');
+    const div = document.createElement("div");
     div.textContent = text;
     return div.innerHTML;
   }
 }
 
 // ===== INITIALIZE =====
-console.log('🔧 Initializing Share & Dynamic Categories...');
+console.log("🔧 Initializing Share & Dynamic Categories...");
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
     window.shareManager = new ShareManager();
     window.dynamicCategoriesManager = new DynamicCategoriesManager();
   });
@@ -674,7 +740,7 @@ if (document.readyState === 'loading') {
 }
 
 // ===== STYLES =====
-const styles = document.createElement('style');
+const styles = document.createElement("style");
 styles.textContent = `
   @keyframes spin {
     0% { transform: rotate(0deg); }
@@ -747,4 +813,4 @@ styles.textContent = `
 `;
 document.head.appendChild(styles);
 
-console.log(' Dashboard User initialized - View tracking: localStorage-based');
+console.log(" Dashboard User initialized - View tracking: localStorage-based");

@@ -147,6 +147,7 @@ class PaginationManager {
         fileUrl: item.file_url,
         file: item.file_url,
         views: parseInt(item.views) || 0,
+        tags: parseJsonField(item.tags),
       };
     }
   }
@@ -285,6 +286,17 @@ class PaginationManager {
               item.uploadDate
             )}</span>
           </div>
+          <div class="opinion-tags">
+              ${item.tags
+                .slice(0, 3)
+                .map((tag) => `<span class="tag">${tag}</span>`)
+                .join("")}
+              ${
+                item.tags.length > 3
+                  ? `<span class="tag-more">+${item.tags.length - 3}</span>`
+                  : ""
+              }
+            </div>
           <div class="opinion-actions">
             <a href="explore_opini_user.html?id=${
               item.id

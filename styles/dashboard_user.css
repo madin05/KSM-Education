@@ -549,14 +549,14 @@ nav a.active:hover {
   height: 14px;
 }
 
-.article-card .journal-tags {
+.article-card .journal-tags .opinin-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   margin-top: 12px;
 }
 
-.article-card .journal-tags .tag {
+.article-card .journal-tags .opinion-tag .tag {
   background: #f0f0f0;
   color: #666;
   padding: 4px 10px;
@@ -565,7 +565,7 @@ nav a.active:hover {
   font-weight: 500;
 }
 
-.article-card .journal-tags .tag-more {
+.article-card .journal-tags .opinion-tag .tag-more {
   background: #2c3e50;
   color: white;
   padding: 4px 10px;

@@ -719,7 +719,7 @@
 }
 
 /* Tags Section */
-.journal-tags {
+.journal-tags, .opinion-tags {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;

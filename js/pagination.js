@@ -222,8 +222,10 @@ class PaginationManager {
           ? item.authors[0]
           : "Unknown";
 
+      const exploreUrl = `explore_jurnal_user.html?id=${item.id}&type=jurnal`;
+
       card.innerHTML = `
-        <div class="journal-cover">
+        <div class="journal-cover" data-explore-url="${exploreUrl}">
           <img src="${item.coverImage}" alt="${item.title}" 
                onerror="this.src='https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500&h=400&fit=crop'">
           <div class="journal-views">
@@ -257,17 +259,37 @@ class PaginationManager {
               : ""
           }
           <div class="journal-actions">
-            <a href="explore_jurnal_user.html?id=${
-              item.id
-            }&type=jurnal" class="btn-view">
-              <i data-feather="eye"></i> Lihat Detail
-            </a>
+            <button class="btn-share" data-journal-id="${item.id}" 
+                    data-journal-title="${item.title}"
+                    data-journal-url="${exploreUrl}">
+              <i data-feather="share-2"></i> Share
+            </button>
           </div>
         </div>
       `;
+
+      // Add click handler for cover image
+      const coverDiv = card.querySelector('.journal-cover');
+      if (coverDiv) {
+        coverDiv.addEventListener('click', () => {
+          window.location.href = exploreUrl;
+        });
+      }
+
+      // Add share button handler
+      const shareBtn = card.querySelector('.btn-share');
+      if (shareBtn) {
+        shareBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          this.handleShare(item, exploreUrl);
+        });
+      }
+
     } else {
+      const exploreUrl = `explore_opini_user.html?id=${item.id}&type=opini`;
+
       card.innerHTML = `
-        <div class="opinion-cover">
+        <div class="opinion-cover" data-explore-url="${exploreUrl}">
           <img src="${item.coverImage}" alt="${item.title}"
                onerror="this.src='https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500&h=400&fit=crop'">
           <div class="opinion-views">
@@ -298,17 +320,91 @@ class PaginationManager {
               }
             </div>
           <div class="opinion-actions">
-            <a href="explore_opini_user.html?id=${
-              item.id
-            }&type=opini" class="btn-view">
-              <i data-feather="eye"></i> Lihat Detail
-            </a>
+            <button class="btn-share" data-opinion-id="${item.id}" 
+                    data-opinion-title="${item.title}"
+                    data-opinion-url="${exploreUrl}">
+              <i data-feather="share-2"></i> Share
+            </button>
           </div>
         </div>
       `;
+
+      // Add click handler for cover image
+      const coverDiv = card.querySelector('.opinion-cover');
+      if (coverDiv) {
+        coverDiv.addEventListener('click', () => {
+          window.location.href = exploreUrl;
+        });
+      }
+
+      // Add share button handler
+      const shareBtn = card.querySelector('.btn-share');
+      if (shareBtn) {
+        shareBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          this.handleShare(item, exploreUrl);
+        });
+      }
     }
 
     return card;
+  }
+
+  // ===== HANDLE SHARE =====
+  handleShare(item, url) {
+    const fullUrl = window.location.origin + '/' + url;
+    const shareText = `Lihat ${this.dataType}: ${item.title}`;
+
+    // Try native share API first (mobile)
+    if (navigator.share) {
+      navigator.share({
+        title: item.title,
+        text: shareText,
+        url: fullUrl
+      })
+      .then(() => console.log('Shared successfully'))
+      .catch((error) => {
+        if (error.name !== 'AbortError') {
+          this.fallbackShare(fullUrl, shareText);
+        }
+      });
+    } else {
+      // Fallback to copy to clipboard
+      this.fallbackShare(fullUrl, shareText);
+    }
+  }
+
+  fallbackShare(url, text) {
+    // Copy to clipboard
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url)
+        .then(() => {
+          alert('Link berhasil disalin ke clipboard! 📋');
+        })
+        .catch(() => {
+          this.legacyCopy(url);
+        });
+    } else {
+      this.legacyCopy(url);
+    }
+  }
+
+  legacyCopy(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    
+    try {
+      document.execCommand('copy');
+      alert('Link berhasil disalin! 📋');
+    } catch (err) {
+      prompt('Copy link ini:', text);
+    }
+    
+    document.body.removeChild(textarea);
   }
 
   // ===== RENDER PAGINATION =====
@@ -570,4 +666,4 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-console.log("pagination.js loaded (Support Journals & Opinions)");
+console.log("pagination.js loaded (Support Journals & Opinions + Share)");

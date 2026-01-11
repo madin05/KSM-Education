@@ -451,6 +451,7 @@ nav a.active:hover {
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .article-card:hover {
@@ -501,6 +502,7 @@ nav a.active:hover {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
 .article-card .journal-title {
@@ -520,7 +522,6 @@ nav a.active:hover {
   color: #666;
   line-height: 1.6;
   margin-bottom: 16px;
-  flex: 1;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -709,12 +710,156 @@ a[class*="quickshare"]:hover {
   background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
 }
 
-/* Share button in article cards */
+/* ===== SHARE BUTTON ENHANCEMENT - CONSISTENT STYLE ===== */
+/* Override untuk semua button share - konsisten dengan button lain */
 .article-card .share-button,
 .article-card .btn-share,
-.article-card .btn-quickshare {
-  margin-top: 12px;
+.article-card .btn-quickshare,
+.article-card .btn-share-article,
+.share-button.white-style,
+.btn-share.white-style,
+.btn-share-article {
+  background: #2c3e50 !important;
+  color: white !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid #2c3e50 !important;
+  margin-top: 0 !important;
+  width: 100% !important;
+  position: relative;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding: 12px 20px !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  font-family: "Inter", sans-serif !important;
+  line-height: 1 !important;
+  min-height: 44px !important;
+}
+
+.article-card .share-button:hover,
+.article-card .btn-share:hover,
+.article-card .btn-quickshare:hover,
+.article-card .btn-share-article:hover,
+.share-button.white-style:hover,
+.btn-share.white-style:hover,
+.btn-share-article:hover {
+  background: white !important;
+  color: #2c3e50 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+  transform: translateY(-2px) !important;
+  border-color: #2c3e50 !important;
+}
+
+.article-card .share-button:active,
+.article-card .btn-share:active,
+.article-card .btn-quickshare:active,
+.article-card .btn-share-article:active,
+.share-button.white-style:active,
+.btn-share.white-style:active,
+.btn-share-article:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Pastikan icon share sesuai dengan warna button */
+.article-card .share-button svg,
+.article-card .btn-share svg,
+.article-card .btn-quickshare svg,
+.article-card .btn-share-article svg,
+.share-button.white-style svg,
+.btn-share.white-style svg,
+.btn-share-article svg {
+  stroke: white !important;
+  width: 18px !important;
+  height: 18px !important;
+  flex-shrink: 0 !important;
+  display: block !important;
+}
+
+/* Icon berubah warna saat hover */
+.article-card .share-button:hover svg,
+.article-card .btn-share:hover svg,
+.article-card .btn-quickshare:hover svg,
+.article-card .btn-share-article:hover svg,
+.share-button.white-style:hover svg,
+.btn-share.white-style:hover svg,
+.btn-share-article:hover svg {
+  stroke: #2c3e50 !important;
+}
+
+/* Pastikan container share button konsisten */
+.article-card .article-content > div:last-child {
+  margin-top: 16px !important;
+  padding-top: 16px !important;
+  border-top: 1px solid #f0f0f0 !important;
+}
+
+/* Fallback article content structure */
+.article-card .article-content {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.article-card .article-content > div:first-child {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* ===== SHARE BUTTON ENHANCEMENT - WHITE STYLE ===== */
+/* Override untuk button share di article card - warna putih dengan shadow tipis */
+.article-card .share-button,
+.article-card .btn-share,
+.article-card .btn-quickshare,
+.share-button.white-style,
+.btn-share.white-style {
+  background: white;
+  color: #2c3e50;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+  margin-top: 16px;
   width: 100%;
+  position: relative;
+}
+
+.article-card .share-button:hover,
+.article-card .btn-share:hover,
+.article-card .btn-quickshare:hover,
+.share-button.white-style:hover,
+.btn-share.white-style:hover {
+  background: #f9fafb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+  border-color: #d1d5db;
+}
+
+.article-card .share-button:active,
+.article-card .btn-share:active,
+.article-card .btn-quickshare:active,
+.share-button.white-style:active,
+.btn-share.white-style:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* Pastikan icon share tetap terlihat dengan warna gelap */
+.article-card .share-button svg,
+.article-card .btn-share svg,
+.article-card .btn-quickshare svg,
+.share-button.white-style svg,
+.btn-share.white-style svg {
+  stroke: #2c3e50;
 }
 
 /* ===== FALLBACK STYLES ===== */
@@ -1002,85 +1147,5 @@ a[class*="quickshare"]:hover {
 
   .nav-dropdown.active .nav-link.has-caret {
     border-bottom: none;
-  }
-
-  /* HIDE close button in mobile */
-  .dropdown-close {
-    display: none !important;
-  }
-
-  /* Dropdown menu mobile - ULTRA COMPACT */
-  .nav-dropdown .dropdown-menu {
-    position: relative !important;
-    width: 100%;
-    box-shadow: none !important;
-    border: none !important;
-    background: #f8f9fa;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease;
-    margin: 0 !important;
-    padding: 0 !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: none !important;
-  }
-
-  .nav-dropdown.active .dropdown-menu {
-    max-height: 150px;
-  }
-
-  .nav-dropdown .dropdown-menu a {
-    padding: 10px 20px !important;
-    font-size: 14px;
-    border-radius: 0;
-    display: block;
-    width: 100%;
-    margin: 0 !important;
-    border-bottom: 1px solid #e0e0e0;
-  }
-
-  .nav-dropdown .dropdown-menu a:last-child {
-    border-bottom: 1px solid #eee;
-  }
-
-  /* Hide search & auth */
-  .auth-section {
-    display: none;
-  }
-
-  /* Prevent scroll when menu open */
-  body.menu-open {
-    overflow: hidden;
-  }
-
-  /* Container adjustments */
-  .header-container {
-    padding: 15px 20px;
-  }
-
-  .container {
-    padding: 0 20px;
-  }
-
-  .stats-grid,
-  .articles-grid,
-  .categories-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .newsletter-form {
-    flex-direction: column;
-  }
-
-  .newsletter-section {
-    padding: 30px 20px;
-  }
-
-  /* Mobile share button */
-  .btn-share-article,
-  .share-button {
-    padding: 10px 16px;
-    font-size: 13px;
   }
 }

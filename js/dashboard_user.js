@@ -1,5 +1,5 @@
 // ===== DASHBOARD USER - COMPLETE FIXED VERSION =====
-// Fixed: View counter yang tidak nambah sendiri
+// Fixed: Share button positioning konsisten
 
 feather.replace();
 
@@ -163,7 +163,7 @@ async function updateArticleViews(id, type) {
         type: type === "opini" ? "opinion" : "journal",
       }),
     });
-    console.log(" View updated for:", id);
+    console.log("✓ View updated for:", id);
   } catch (error) {
     console.warn("Failed to update views:", error);
   }
@@ -242,41 +242,43 @@ async function renderArticles() {
             <img src="${coverImage}" alt="${title}" class="article-image"
                  onerror="this.src='https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500&h=400&fit=crop'">
             <span class="article-type-badge ${typeClass}">${typeLabel}</span>
-            
           </div>
           
           <div class="article-content">
-            <div class="article-meta">
-              <span><i data-feather="user" style="width: 14px; height: 14px;"></i> ${author}</span>
-              <span><i data-feather="calendar" style="width: 14px; height: 14px;"></i> ${formattedDate}</span>
-              <span><i data-feather="eye" style="width: 14px; height: 14px;"></i> ${views}</span>
+            <div style="flex: 1; display: flex; flex-direction: column;">
+              <div class="article-meta">
+                <span><i data-feather="user" style="width: 14px; height: 14px;"></i> ${author}</span>
+                <span><i data-feather="calendar" style="width: 14px; height: 14px;"></i> ${formattedDate}</span>
+                <span><i data-feather="eye" style="width: 14px; height: 14px;"></i> ${views}</span>
+              </div>
+              
+              <div class="article-title" onclick="openArticleDetail('${
+                article.id
+              }', '${article.type}')" style="cursor: pointer;">
+                ${title}
+              </div>
+              
+              ${
+                truncatedAbstract
+                  ? `<div class="article-excerpt">${truncatedAbstract}</div>`
+                  : ""
+              }
             </div>
-            <div class="article-title" onclick="openArticleDetail('${
-              article.id
-            }', '${article.type}')" style="cursor: pointer;">
-              ${title}
-            </div>
-            ${
-              truncatedAbstract
-                ? `<div class="article-excerpt">${truncatedAbstract}</div>`
-                : ""
-            }
             
-            <!--  FULL WIDTH SHARE BUTTON -->
-            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #f0f0f0;">
+            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #f0f0f0;">
               <button 
                 class="btn-share-article" 
                 data-article-id="${article.id}"
                 data-article-type="${article.type}"
                 data-article-title="${escapeForAttribute(title)}">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;">
                   <circle cx="18" cy="5" r="3"></circle>
                   <circle cx="6" cy="12" r="3"></circle>
                   <circle cx="18" cy="19" r="3"></circle>
                   <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
                   <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
                 </svg>
-                Share
+                SHARE
               </button>
             </div>
           </div>
@@ -298,7 +300,7 @@ async function renderArticles() {
   }
 
   feather.replace();
-  console.log(" Articles rendered, Share buttons ready");
+  console.log("✓ Articles rendered, Share buttons ready");
 }
 
 // ===== LOGOUT HANDLER =====
@@ -469,7 +471,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   await renderArticles();
 
   feather.replace();
-  console.log(" User Dashboard ready");
+  console.log("✓ User Dashboard ready");
 });
 
 // ===== SHARE MANAGER =====
@@ -516,7 +518,7 @@ class ShareManager {
       true
     );
 
-    console.log(" Share event listeners attached");
+    console.log("✓ Share event listeners attached");
   }
 
   handleShare(articleId, articleType, articleTitle) {
@@ -580,7 +582,7 @@ class ShareManager {
   showShareSuccess(title) {
     const truncatedTitle =
       title.length > 40 ? title.substring(0, 40) + "..." : title;
-    const message = ` Link berhasil disalin!<br><small style="opacity: 0.8">"${truncatedTitle}"</small>`;
+    const message = `✓ Link berhasil disalin!<br><small style="opacity: 0.8">"${truncatedTitle}"</small>`;
     showToast(message, "success");
   }
 }
@@ -626,7 +628,7 @@ class DynamicCategoriesManager {
       this.processArticleTags(allArticles);
       this.renderCategories();
 
-      console.log(` Loaded ${this.categories.size} dynamic categories`);
+      console.log(`✓ Loaded ${this.categories.size} dynamic categories`);
     } catch (error) {
       console.error("Error loading categories:", error);
       this.renderFallbackCategories();
@@ -703,7 +705,7 @@ class DynamicCategoriesManager {
       )
       .join("");
 
-    console.log(` Rendered ${topCategories.length} categories to UI`);
+    console.log(`✓ Rendered ${topCategories.length} categories to UI`);
   }
 
   renderFallbackCategories() {
@@ -767,41 +769,6 @@ styles.textContent = `
     }
   }
 
-  /* Full Width Share Button */
-  .btn-share-article {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    padding: 12px 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-family: inherit;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .btn-share-article:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-  }
-
-  .btn-share-article:active {
-    transform: translateY(0);
-  }
-
-  .btn-share-article svg {
-    width: 18px;
-    height: 18px;
-  }
-
   @media (max-width: 768px) {
     .toast-notification {
       right: 15px !important;
@@ -813,4 +780,4 @@ styles.textContent = `
 `;
 document.head.appendChild(styles);
 
-console.log(" Dashboard User initialized - View tracking: localStorage-based");
+console.log("✓ Dashboard User initialized - Share button positioning fixed");

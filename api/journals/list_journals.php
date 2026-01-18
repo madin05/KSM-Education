@@ -1,24 +1,28 @@
 <?php
-// ===== FORCE NO CACHE (ANTI DATA HANTU) =====
-header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-header("Cache-Control: post-check=0, pre-check=0", false);
-header("Pragma: no-cache");
-header("Expires: 0");
-header('Content-Type: application/json');
+// api/journals/list.php
 
-error_reporting(E_ALL);
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
+session_start();
+header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: *');
+
+require_once __DIR__ . '/../../database/db.php';
+
+// OPTIONAL AUTH - Uncomment kalau mau require login di masa depan
+// require_once __DIR__ . '/../auth/api_auth_middleware.php';
+// $userId = requireAuth();
 
 try {
-    require_once __DIR__ . '/../../database/db.php';
-
-    $limit = isset($_GET['limit']) ? min(100, (int)$_GET['limit']) : 50;
+    // Pagination parameters
+    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
     $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
 
-    // PASTIKAN volume ada di SELECT
+    // Validate pagination
+    $limit = max(1, min(100, $limit)); // Min 1, max 100
+    $offset = max(0, $offset);
+
+    // Get journals with pagination
     $stmt = $pdo->prepare("
-        SELECT 
+        SELECT
             id, title, abstract, authors, email, contact, pengurus, volume, tags, views, created_at,
             file_upload_id, cover_upload_id
         FROM journals
@@ -29,9 +33,10 @@ try {
     $stmt->bindValue(1, $limit, PDO::PARAM_INT);
     $stmt->bindValue(2, $offset, PDO::PARAM_INT);
     $stmt->execute();
+
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Ambil file_url dan cover_url
+    // Get file URLs and cover URLs
     foreach ($rows as &$row) {
         if (!empty($row['file_upload_id'])) {
             $fileStmt = $pdo->prepare("SELECT url FROM uploads WHERE id = ?");
@@ -54,13 +59,23 @@ try {
         // Set default untuk pengurus jika NULL
         $row['pengurus'] = $row['pengurus'] ? json_decode($row['pengurus'], true) : [];
 
-        // Remove upload IDs
+        // Remove upload IDs (security)
         unset($row['file_upload_id']);
         unset($row['cover_upload_id']);
     }
 
     echo json_encode(['ok' => true, 'results' => $rows]);
+
+} catch (PDOException $e) {
+    error_log('List journals error: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode([
+        'ok' => false,
+        'message' => 'Database error',
+        'error' => 'Server error'
+    ]);
 } catch (Exception $e) {
+    error_log('List journals error: ' . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         'ok' => false,
@@ -68,3 +83,4 @@ try {
         'error' => 'Database error'
     ]);
 }
+?>

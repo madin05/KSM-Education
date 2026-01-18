@@ -1,18 +1,23 @@
 <?php
+// api/opinions/get.php
+
+session_start();
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
 require_once __DIR__ . '/../../database/db.php';
 
+if (!isset($_GET['id'])) {
+    http_response_code(400);
+    echo json_encode(['ok' => false, 'message' => 'id required']);
+    exit;
+}
+
+$id = (int)$_GET['id'];
+
 try {
-    $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-
-    if ($id <= 0) {
-        throw new Exception('Invalid opinion ID');
-    }
-
     $stmt = $pdo->prepare("
-        SELECT 
+        SELECT
             o.*,
             uf.url AS file_url,
             uc.url AS cover_url
@@ -26,6 +31,7 @@ try {
     $opinion = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$opinion) {
+        http_response_code(404);
         throw new Exception('Opinion not found');
     }
 
@@ -38,10 +44,19 @@ try {
         'result' => $opinion,
         'opinion' => $opinion
     ]);
+} catch (PDOException $e) {
+    error_log('Get opinion error: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode([
+        'ok' => false,
+        'message' => 'Server error'
+    ]);
 } catch (Exception $e) {
+    error_log('Get opinion error: ' . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         'ok' => false,
         'message' => $e->getMessage()
     ]);
 }
+?>

@@ -1,25 +1,13 @@
 <?php
-// ===== FORCE NO CACHE (ANTI DELAY STATISTIK) =====
-header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-header("Cache-Control: post-check=0, pre-check=0", false);
-header("Pragma: no-cache");
-header("Expires: 0");
+// api/stats/get.php
 
-// Headers lainnya
+session_start();
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
-error_reporting(0);
-ini_set('display_errors', 0);
+require_once __DIR__ . '/../../database/db.php';
 
 try {
-    require_once __DIR__ . '/../../database/db.php';
-
-    // Check PDO connection
-    if (!isset($pdo)) {
-        throw new Exception('Database connection failed');
-    }
-
     // Get total journals
     $stmtJournals = $pdo->query("SELECT COUNT(*) as total FROM journals");
     $totalJournals = $stmtJournals->fetch(PDO::FETCH_ASSOC)['total'];
@@ -56,7 +44,15 @@ try {
             'total_visitors' => (int)$totalVisitors
         ]
     ]);
+} catch (PDOException $e) {
+    error_log('Get stats error: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode([
+        'ok' => false,
+        'message' => 'Server error'
+    ]);
 } catch (Exception $e) {
+    error_log('Get stats error: ' . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         'ok' => false,

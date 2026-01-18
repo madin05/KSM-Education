@@ -6,6 +6,7 @@
 config/config.php
 config/database.php
 config/credentials.php
+config/db.php
 db.php
 .env
 .env.local

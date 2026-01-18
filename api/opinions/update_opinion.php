@@ -1,21 +1,22 @@
 <?php
-header('Content-Type: application/json');
+// api/opinions/update.php
+
+session_start();
+header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
-}
-
-require_once __DIR__ . '/../../database/db.php';
+header('Access-Control-Allow-Methods: POST');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['ok' => false, 'message' => 'Only POST method allowed']);
     exit;
 }
+
+require_once __DIR__ . '/../../database/db.php';
+require_once __DIR__ . '/../auth/api_auth_middleware.php';
+
+// AUTH REQUIRED - Admin only
+$userId = requireAuth();
 
 try {
     // Support both JSON and FormData
@@ -56,14 +57,14 @@ try {
         $description = $_POST['description'] ?? $opinion['description'];
         $author_name = $_POST['author_name'] ?? $opinion['author_name'];
         $email = $_POST['email'] ?? $opinion['email'];
-        $contact = $_POST['contact'] ?? $_POST['contact'] ?? $opinion['contact'];
+        $contact = $_POST['contact'] ?? $opinion['contact'];
         $category = $_POST['category'] ?? $opinion['category'];
     }
 
     $fileUploadId = $opinion['file_upload_id'];
     $coverUploadId = $opinion['cover_upload_id'];
 
-    $uploadDir = __DIR__ . '/../../uploads';
+    $uploadDir = __DIR__ . '/../../../uploads';
     if (!is_dir($uploadDir)) {
         mkdir($uploadDir, 0755, true);
     }
@@ -89,6 +90,7 @@ try {
             $stmt->execute([$pdfSafeName, $pdfFile['name'], $pdfMime, $pdfSize, $pdfPublicUrl]);
             $newFileUploadId = $pdo->lastInsertId();
 
+            // Delete old file
             if ($fileUploadId) {
                 $stmt = $pdo->prepare("SELECT filename FROM uploads WHERE id = ?");
                 $stmt->execute([$fileUploadId]);
@@ -123,6 +125,7 @@ try {
                 $stmt->execute([$coverSafeName, $coverFile['name'], $coverMime, $coverSize, $coverPublicUrl]);
                 $newCoverUploadId = $pdo->lastInsertId();
 
+                // Delete old cover
                 if ($coverUploadId) {
                     $stmt = $pdo->prepare("SELECT filename FROM uploads WHERE id = ?");
                     $stmt->execute([$coverUploadId]);
@@ -140,9 +143,10 @@ try {
         }
     }
 
+    // Update opinion
     $stmt = $pdo->prepare("
-        UPDATE opinions 
-        SET title = ?, description = ?, author_name = ?, email = ?, contact = ?, 
+        UPDATE opinions
+        SET title = ?, description = ?, author_name = ?, email = ?, contact = ?,
             category = ?, file_upload_id = ?, cover_upload_id = ?, updated_at = NOW()
         WHERE id = ?
     ");
@@ -165,12 +169,20 @@ try {
         'ok' => true,
         'message' => 'Opini berhasil diupdate'
     ]);
+
+} catch (PDOException $e) {
+    error_log('Update opinion error: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode([
+        'ok' => false,
+        'message' => 'Database error'
+    ]);
 } catch (Exception $e) {
     error_log('Update opinion error: ' . $e->getMessage());
-
     http_response_code(500);
     echo json_encode([
         'ok' => false,
         'message' => $e->getMessage()
     ]);
 }
+?>

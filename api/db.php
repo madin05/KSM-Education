@@ -26,7 +26,6 @@ try {
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     ]);
 } catch (Exception $e) {
-    // 4. Penanganan Error Koneksi
     // Jika koneksi gagal, set kode respon HTTP 500 (Server Error)
     http_response_code(500);
 

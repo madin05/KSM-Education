@@ -1,6 +1,6 @@
 <?php
 // sync_push.php
-require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/../../database/db.php';
 $raw = file_get_contents('php://input');
 $data = json_decode($raw,true);
 if (!$data || !isset($data['changes'])) { echo json_encode(['ok'=>false,'message'=>'Invalid']); exit; }

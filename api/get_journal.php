@@ -5,7 +5,7 @@ ini_set('display_errors', 1);
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
-require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/../../database/db.php';
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 

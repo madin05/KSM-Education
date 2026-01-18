@@ -11,7 +11,7 @@ ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
 try {
-    require_once __DIR__ . '/db.php';
+    require_once __DIR__ . '/../../database/db.php';
 
     $limit = isset($_GET['limit']) ? min(100, (int)$_GET['limit']) : 50;
     $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;

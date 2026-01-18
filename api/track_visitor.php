@@ -6,7 +6,7 @@ header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
 try {
-    require_once __DIR__ . '/db.php';
+    require_once __DIR__ . '/../../database/db.php';
 
     if (!isset($pdo)) {
         throw new Exception('Database connection failed');

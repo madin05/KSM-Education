@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-require_once 'db.php';
+require_once __DIR__ . '/../../database/db.php';
 
 try {
     $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 100;

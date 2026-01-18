@@ -2,7 +2,7 @@
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
-require_once 'db.php';
+require_once __DIR__ . '/../../database/db.php';
 
 try {
     $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;

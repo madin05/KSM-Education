@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-require_once 'db.php';
+require_once __DIR__ . '/../../database/db.php';
 
 try {
     //  Support multiple methods to get ID

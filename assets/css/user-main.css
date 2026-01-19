@@ -1,0 +1,21 @@
+/* Core (Shared) */
+@import url("core/reset.css");
+@import url("core/layout.css");
+@import url("core/components.css");
+@import url("core/cards.css");
+@import url("core/states.css");
+@import url("core/statistics.css");
+
+/* User Specific - Header & Navigation */
+@import url("user/header-user.css");
+@import url("user/navigation-user.css");
+@import url("user/user-profile.css");
+@import url("user/search-user.css");
+
+/* User Specific - Features*/
+@import url("user/articles-section.css");
+@import url("user/categories.css");
+@import url("user/newsletter.css");
+
+/* Responsive */
+@import url("core/responsive.css");

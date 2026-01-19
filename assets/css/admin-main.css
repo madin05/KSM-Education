@@ -1,0 +1,17 @@
+/* Core (Shared) */
+@import url("core/reset.css");
+@import url("core/layout.css");
+@import url("core/components.css");
+@import url("core/forms.css");
+@import url("core/cards.css");
+@import url("core/states.css");
+@import url("core/statistics.css");
+
+/* Admin Specific */
+@import url("admin/journal-list.css");
+@import url("admin/modals.css");
+@import url("admin/pagination.css");
+@import url("admin/upload.css");
+
+/* Responsive */
+@import url("core/responsive.css");

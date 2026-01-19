@@ -288,3 +288,238 @@
   transform: none;
   box-shadow: none;
 }
+
+/* share btn */
+.share-button,
+.btn-share {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: "Inter", sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.share-button:hover,
+.btn-share:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.share-button:active,
+.btn-share:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+}
+
+.share-button svg,
+.btn-share svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.5;
+}
+
+/* Compact version for cards */
+.share-button.compact,
+.btn-share.compact {
+  padding: 8px 16px;
+  font-size: 12px;
+  gap: 6px;
+}
+
+.share-button.compact svg,
+.btn-share.compact svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* outine evariation */
+.share-button.outline,
+.btn-share.outline {
+  background: white;
+  color: #667eea;
+  border: 2px solid #667eea;
+  box-shadow: none;
+}
+
+.share-button.outline:hover,
+.btn-share.outline:hover {
+  background: #667eea;
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* Icon only version */
+.share-button.icon-only,
+.btn-share.icon-only {
+  padding: 10px;
+  border-radius: 50%;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.share-button.icon-only span,
+.btn-share.icon-only span {
+  display: none;
+}
+
+/* Success variant */
+.share-button.success,
+.btn-share.success {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  box-shadow: 0 4px 15px rgba(17, 153, 142, 0.3);
+}
+
+.share-button.success:hover,
+.btn-share.success:hover {
+  background: linear-gradient(135deg, #38ef7d 0%, #11998e 100%);
+}
+
+/* quickshare */
+.btn-quickshare,
+button[class*="quickshare"],
+a[class*="quickshare"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: "Inter", sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-quickshare:hover,
+button[class*="quickshare"]:hover,
+a[class*="quickshare"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+/*  SHARE BUTTON ENHANCEMENT  */
+.article-card .share-button,
+.article-card .btn-share,
+.article-card .btn-quickshare,
+.article-card .btn-share-article,
+.share-button.white-style,
+.btn-share.white-style,
+.btn-share-article {
+  background: #2c3e50 !important;
+  color: white !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid #2c3e50 !important;
+  margin-top: 0 !important;
+  width: 100% !important;
+  position: relative;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding: 12px 20px !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  font-family: "Inter", sans-serif !important;
+  line-height: 1 !important;
+  min-height: 44px !important;
+}
+
+.article-card .share-button:hover,
+.article-card .btn-share:hover,
+.article-card .btn-quickshare:hover,
+.article-card .btn-share-article:hover,
+.share-button.white-style:hover,
+.btn-share.white-style:hover,
+.btn-share-article:hover {
+  background: white !important;
+  color: #2c3e50 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+  transform: translateY(-2px) !important;
+  border-color: #2c3e50 !important;
+}
+
+.article-card .share-button:active,
+.article-card .btn-share:active,
+.article-card .btn-quickshare:active,
+.article-card .btn-share-article:active,
+.share-button.white-style:active,
+.btn-share.white-style:active,
+.btn-share-article:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* share btn icon colors */
+.article-card .share-button svg,
+.article-card .btn-share svg,
+.article-card .btn-quickshare svg,
+.article-card .btn-share-article svg,
+.share-button.white-style svg,
+.btn-share.white-style svg,
+.btn-share-article svg {
+  stroke: white !important;
+  width: 18px !important;
+  height: 18px !important;
+  flex-shrink: 0 !important;
+  display: block !important;
+}
+
+.article-card .share-button:hover svg,
+.article-card .btn-share:hover svg,
+.article-card .btn-quickshare:hover svg,
+.article-card .btn-share-article:hover svg,
+.share-button.white-style:hover svg,
+.btn-share.white-style:hover svg,
+.btn-share-article:hover svg {
+  stroke: #2c3e50 !important;
+}
+
+/* aritkel contnet structure */
+.article-card .article-content > div:last-child {
+  margin-top: 16px !important;
+  padding-top: 16px !important;
+  border-top: 1px solid #f0f0f0 !important;
+}
+
+.article-card .article-content {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.article-card .article-content > div:first-child {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}

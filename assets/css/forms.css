@@ -1,0 +1,221 @@
+/* Form Styles */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.form-group span {
+  color: #f44336;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  font-family: "Inter", sans-serif;
+  transition: border-color 0.3s ease;
+}
+
+.form-group textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #2c3e50;
+}
+
+/* edit Form Groups */
+#editModal .form-group {
+  margin-bottom: 20px;
+}
+
+#editModal .form-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+#editModal label .required,
+#editModal label span {
+  color: #e74c3c;
+  margin-left: 4px;
+}
+
+#editModal label i {
+  margin-right: 6px;
+  color: #007bff;
+  width: 16px;
+  height: 16px;
+}
+
+/* Input Fields */
+#editModal input[type="text"],
+#editModal input[type="email"],
+#editModal input[type="tel"],
+#editModal input[type="file"],
+#editModal textarea {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: "Inter", sans-serif;
+  transition: all 0.3s;
+  box-sizing: border-box;
+}
+
+#editModal input:focus,
+#editModal textarea:focus {
+  outline: none;
+  border-color: #2c3e50;
+  box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.1);
+}
+
+#editModal textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+#editModal small {
+  display: block;
+  color: #999;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Author & Pengurus Inputs */
+#editModal .author-input,
+#editModal .pengurus-input {
+  flex: 1;
+  padding: 12px 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: "Inter", sans-serif;
+  transition: all 0.3s;
+}
+
+#editModal .author-input:focus,
+#editModal .pengurus-input:focus {
+  outline: none;
+  border-color: #2c3e50;
+  box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.1);
+}
+
+/* file input styling */
+.file-input {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+  margin-top: 8px;
+  border: 2px dashed #007bff;
+  border-radius: 8px;
+  background: rgba(0, 123, 255, 0.05);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  transition: all 0.3s ease;
+}
+
+.file-input:hover {
+  border-color: #0056b3;
+  background: rgba(0, 123, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.file-input:focus {
+  outline: none;
+  border-color: #0056b3;
+  box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.2);
+}
+
+.form-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+  color: #666;
+  font-style: italic;
+}
+
+/* Author Input Group */
+#authorsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.author-input-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.author-input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  font-family: "Inter", sans-serif;
+  transition: border-color 0.3s ease;
+}
+
+.author-input:focus {
+  outline: none;
+  border-color: #2c3e50;
+}
+
+/* Form Actions (Submit & Cancel) */
+#editModal .form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid #e0e0e0;
+  position: sticky;
+  bottom: 0;
+  background: white;
+  z-index: 10;
+}
+
+#editModal .form-actions button {
+  padding: 12px 32px;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+}

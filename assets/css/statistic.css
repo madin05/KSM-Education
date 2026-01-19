@@ -1,0 +1,61 @@
+/* Statistics Section */
+.statistics {
+  margin-bottom: 50px;
+}
+
+.statistics h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 30px;
+  color: #2c3e50;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 30px;
+}
+
+.stat-card {
+  background-color: white;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+.stat-icon {
+  margin-bottom: 15px;
+}
+
+.stat-icon #bar-chart-2,
+.stat-icon #eye {
+  width: 70px;
+  height: 70px;
+}
+
+.stat-number {
+  font-size: 48px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 5px;
+  transition: color 0.3s ease;
+}
+
+.stat-number.counting {
+  color: #4caf50;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}

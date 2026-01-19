@@ -1,0 +1,290 @@
+/* Journal Actions */
+.journal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.btn-download {
+  background: linear-gradient(135deg, #4caf50, #8bc34a);
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.btn-download:hover {
+  background: linear-gradient(135deg, #45a049, #7cb342);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.btn-download svg {
+  width: 16px;
+  height: 16px;
+}
+
+.btn-delete {
+  background: linear-gradient(135deg, #f44336, #e91e63);
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-delete:hover {
+  background: linear-gradient(135deg, #d32f2f, #c2185b);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+}
+
+.btn-delete svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* submit button */
+.btn-submit {
+  background-color: #2196f3;
+  color: white;
+  padding: 12px 30px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 100%;
+}
+
+.btn-submit:hover {
+  background-color: #1976d2;
+}
+
+.btn-submit:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* add author */
+.btn-add-author,
+.btn-secondary {
+  background: linear-gradient(135deg, #4caf50, #8bc34a);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  width: fit-content;
+}
+
+.btn-add-author:hover {
+  background: linear-gradient(135deg, #45a049, #7cb342);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.btn-add-author i {
+  width: 18px;
+  height: 18px;
+}
+
+/* remove author/pengurus button */
+.btn-remove-author,
+.btn-remove-pengurus {
+  background: #f44336;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.btn-remove-author:hover,
+.btn-remove-pengurus:hover {
+  background: #d32f2f;
+  transform: scale(1.1);
+}
+
+.btn-remove-author,
+.btn-remove-pengurus i {
+  width: 18px;
+  height: 18px;
+}
+
+/* MODAL BUTTON */
+/* Edit Button (on journal card) */
+.btn-edit {
+  background: linear-gradient(135deg, #2196f3, #64b5f6);
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-edit:hover {
+  background: linear-gradient(135deg, #1976d2, #42a5f5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.btn-edit svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* remove author btn*/
+#editModal .btn-remove-author,
+#editModal .btn-remove-pengurus {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.3s;
+}
+
+#editModal .btn-remove-author:hover,
+#editModal .btn-remove-pengurus:hover {
+  background: linear-gradient(135deg, #c0392b, #a93226);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+#editModal .btn-remove-author svg,
+#editModal .btn-remove-pengurus svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Add Buttons (Tags, Pengurus, Authors) */
+#editModal .btn-secondary,
+#editModal .btn-add-field,
+#editModal
+  button[type="button"]:not(.close):not(.btn-remove-author):not(
+    .btn-remove-pengurus
+  ) {
+  background: linear-gradient(135deg, #4caf50, #8bc34a);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#editModal .btn-secondary:hover,
+#editModal .btn-add-field:hover {
+  background: linear-gradient(135deg, #45a049, #7cb342);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+#editModal .btn-secondary svg,
+#editModal .btn-add-field svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Cancel Button */
+#editModal .form-actions .btn-secondary,
+#editModal .form-actions button[type="button"]:not([id]) {
+  background: #e0e0e0;
+  color: #333;
+}
+
+#editModal .form-actions .btn-secondary:hover {
+  background: #d0d0d0;
+  transform: translateY(-2px);
+}
+
+/* Submit Button */
+#editModal .form-actions .btn-primary,
+#editModal .form-actions button[type="submit"] {
+  background: linear-gradient(135deg, #2c3e50, #34495e);
+  color: white;
+}
+
+#editModal .form-actions .btn-primary:hover {
+  background: linear-gradient(135deg, #34495e, #2c3e50);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(44, 62, 80, 0.3);
+}
+
+/* enhanced primary btn */
+#editModal .btn-primary {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+}
+
+#editModal .btn-primary:hover {
+  background: linear-gradient(135deg, #0056b3, #004085);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+}
+
+#editModal .btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+/* Loading State */
+#editModal .btn-primary:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}

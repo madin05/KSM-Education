@@ -1,11 +1,13 @@
 /* Core (Shared) */
 @import url("core/reset.css");
-@import url("core/layout.css");
+@import url("core/main-layout.css");
 @import url("core/components.css");
 @import url("core/forms.css");
 @import url("core/cards.css");
 @import url("core/states.css");
 @import url("core/statistics.css");
+@import url("core/breadcrumb.css");
+@import url("core/explore-journal-layout.css");
 
 /* Admin Specific */
 @import url("admin/journal-list.css");

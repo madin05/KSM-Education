@@ -1,3 +1,4 @@
+#  PDF HANDLING 
 <IfModule mod_mime.c>
     AddType application/pdf .pdf
 </IfModule>
@@ -6,5 +7,90 @@
     <FilesMatch "\.pdf$">
         Header set Content-Type "application/pdf"
         Header set Content-Disposition "inline"
+        # Prevent PDF caching issues
+        Header set Cache-Control "public, max-age=3600"
     </FilesMatch>
 </IfModule>
+
+
+#  INDEX FILES 
+# Set index file priority (PHP first, HTML fallback)
+DirectoryIndex index.php index.html
+
+
+#  SECURITY 
+# Prevent directory listing
+Options -Indexes
+
+# Protect sensitive files
+<FilesMatch "^(\.htaccess|\.git|\.env|config\.php|database\.php|\.user\.ini)$">
+    Require all denied
+</FilesMatch>
+
+# Prevent access to backup files
+<FilesMatch "\.(bak|backup|old|temp|tmp|log)$">
+    Require all denied
+</FilesMatch>
+
+
+#  URL REWRITING 
+# Enable rewrite engine
+RewriteEngine On
+
+# Prevent script injection
+RewriteCond %{QUERY_STRING} (<|%3C).*script.*(>|%3E) [NC,OR]
+RewriteCond %{QUERY_STRING} GLOBALS(=|\[|\%[0-9A-Z]{0,2}) [OR]
+RewriteCond %{QUERY_STRING} _REQUEST(=|\[|\%[0-9A-Z]{0,2})
+RewriteRule ^(.*)$ - [F,L]
+
+# Optional: Force HTTPS (uncomment for production)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Optional: Redirect www to non-www (uncomment if needed)
+# RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+# RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+
+
+#  PERFORMANCE 
+# Enable Gzip compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+</IfModule>
+
+# Browser caching
+<IfModule mod_expires.c>
+    ExpiresActive On
+    # Images
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/x-icon "access plus 1 year"
+    # CSS and JavaScript
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    # Fonts
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/ttf "access plus 1 year"
+    # PDF
+    ExpiresByType application/pdf "access plus 1 month"
+</IfModule>
+
+
+#  ERROR PAGES (Optional) 
+# Custom error pages (create these files if needed)
+# ErrorDocument 404 /views/error/404.html
+# ErrorDocument 403 /views/error/403.html
+# ErrorDocument 500 /views/error/500.html
+
+
+#  PHP SETTINGS (Optional) 
+# Uncomment if you need to adjust PHP settings
+# php_value upload_max_filesize 20M
+# php_value post_max_size 20M
+# php_value max_execution_time 300
+# php_value max_input_time 300
+# php_value memory_limit 256M

@@ -1,0 +1,389 @@
+.article-container {
+  max-width: 900px;
+  margin: 0 auto 60px;
+  padding: 0 24px;
+}
+
+.article-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+/*  ARTICLE HEADER  */
+.article-header {
+  padding: 48px 48px 32px;
+  text-align: left;
+}
+
+.article-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.badge-jurnal {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-opini {
+  background: #fed7aa;
+  color: #c2410c;
+}
+
+.article-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #0f172a;
+  margin-bottom: 20px;
+}
+
+.article-meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  color: #64748b;
+  font-size: 14px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.meta-item svg {
+  width: 16px;
+  height: 16px;
+}
+
+/*  COVER IMAGE  */
+.article-cover {
+  width: 100%;
+  max-height: 500px;
+  object-fit: cover;
+}
+
+/*  ARTICLE CONTENT  */
+.article-content {
+  padding: 48px;
+}
+
+.content-section {
+  margin-bottom: 48px;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-title svg {
+  width: 24px;
+  height: 24px;
+  color: #3b82f6;
+}
+
+.abstract-box {
+  background: #f8fafc;
+  border-left: 4px solid #3b82f6;
+  padding: 24px;
+  border-radius: 8px;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: #475569;
+}
+
+/*  TAGS  */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tag {
+  padding: 8px 16px;
+  background: #e0f2fe;
+  color: #0369a1;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/*  AUTHORS  */
+.authors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.author-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.author-card svg {
+  width: 20px;
+  height: 20px;
+  color: #3b82f6;
+}
+
+/*  CONTACT  */
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.contact-item svg {
+  width: 20px;
+  height: 20px;
+  color: #3b82f6;
+}
+
+.contact-item a {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.contact-item a:hover {
+  text-decoration: underline;
+}
+
+/*  PDF SECTION  */
+.pdf-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 32px;
+  border-radius: 16px;
+  text-align: center;
+  color: white;
+}
+
+.pdf-section h3 {
+  color: white;
+  margin-bottom: 8px;
+}
+
+.pdf-section p {
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 24px;
+}
+
+.pdf-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-pdf {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s;
+  cursor: pointer;
+  border: none;
+  font-size: 15px;
+}
+
+.btn-download {
+  background: white;
+  color: #667eea;
+}
+
+.btn-download:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.pdf-viewer {
+  margin-top: 24px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: white;
+}
+
+.pdf-viewer iframe {
+  width: 100%;
+  height: 600px;
+  border: none;
+}
+
+/*  SEARCH MODAL  */
+.search-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 80px;
+}
+
+.search-modal-content {
+  background: white;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 700px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.search-modal-header {
+  padding: 24px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.search-modal-header h3 {
+  font-size: 1.5rem;
+  color: #1e293b;
+}
+
+.close-btn {
+  background: #f1f5f9;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.close-btn:hover {
+  background: #e2e8f0;
+}
+
+.search-results {
+  padding: 24px;
+}
+
+.search-result-item {
+  padding: 20px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.search-result-item:hover {
+  background: white;
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.search-result-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.result-type-jurnal {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.result-type-opini {
+  background: #fed7aa;
+  color: #c2410c;
+}
+
+.search-result-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.search-result-abstract {
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.search-result-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+/*  LOADING & ERROR  */
+.loading,
+.error-message {
+  text-align: center;
+  padding: 60px 24px;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #e2e8f0;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,6 +1,6 @@
 /* Core (Shared) */
 @import url("core/reset.css");
-@import url("core/layout.css");
+@import url("core/main-layout.css");
 @import url("core/components.css");
 @import url("core/cards.css");
 @import url("core/states.css");

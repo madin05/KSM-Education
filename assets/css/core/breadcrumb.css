@@ -1,0 +1,21 @@
+/*  BREADCRUMB  */
+.breadcrumb {
+  max-width: 900px;
+  margin: 24px auto;
+  padding: 0 24px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.breadcrumb a {
+  color: #64748b;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.breadcrumb a:hover {
+  color: #1e293b;
+}

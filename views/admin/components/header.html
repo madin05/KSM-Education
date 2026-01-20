@@ -1,0 +1,86 @@
+<header>
+  <div class="header-container">
+    <div class="logo">
+      <a href="#"><img src="../../../assets/images/main_logo.png" alt="Logo" /></a>
+    </div>
+
+    <button
+      class="hamburger-menu"
+      aria-label="Toggle menu"
+      aria-expanded="false"
+      type="button"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav class="active">
+      <a href="#">HOME</a>
+      <div class="nav-dropdown">
+        <button class="nav-link has-caret" type="button">
+          ARTIKEL
+          <svg
+            class="caret"
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="dropdown-menu">
+          <a href="journals.html">Artikel Jurnal</a>
+          <a href="opinions.html">Artikel Opini</a>
+          <a href="journals.html#search">Cari Artikel</a>
+        </div>
+      </div>
+      <a href="#upload">UPLOAD</a>
+    </nav>
+
+    <div class="auth-section">
+      <a href="./login_user.html" class="btn-user-login">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        USER
+      </a>
+      <a href="#" class="btn-register">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+          <path d="M2 17l10 5 10-5"></path>
+          <path d="M2 12l10 5 10-5"></path>
+        </svg>
+        ADMIN
+      </a>
+      <div class="search-box">
+        <i id="icon-search" data-feather="search"></i>
+        <input type="text" placeholder="cari jurnal..." />
+      </div>
+    </div>
+  </div>
+</header>

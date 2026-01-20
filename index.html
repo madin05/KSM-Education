@@ -1,199 +1,85 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="refresh" content="0; url=views/user/dashboard.php" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>KSM Education</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="shortcut icon" type="image/x-icon" href="./assets/favicon.ico" />
-    <link rel="stylesheet" href="./styles/dashboard_user.css?v=20251130" />
-    <link rel="stylesheet" href="./styles/journal.css" />
-    <link rel="stylesheet" href="./styles/user.css" />
-    <script src="https://unpkg.com/feather-icons"></script>
+    <title>Redirecting... - KSM Education</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Inter", Arial, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .redirect-container {
+        background: white;
+        padding: 3rem;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        max-width: 400px;
+      }
+      .spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1.5rem;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      h1 {
+        font-size: 1.5rem;
+        color: #333;
+        margin-bottom: 1rem;
+      }
+      p {
+        color: #666;
+        margin-bottom: 1.5rem;
+      }
+      a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    </style>
   </head>
   <body>
-    <!-- Header -->
-    <header>
-      <div class="header-container">
-        <div class="logo">
-          <a href="#"><img src="./assets/main_logo.png" alt="Logo" /></a>
-        </div>
-
-        <!-- Hamburger Button (Mobile Only) -->
-        <button
-          class="hamburger-menu"
-          aria-label="Toggle menu"
-          aria-expanded="false"
-          type="button"
+    <div class="redirect-container">
+      <div class="spinner"></div>
+      <h1>KSM Education</h1>
+      <p>Redirecting to dashboard...</p>
+      <p>
+        <a href="views/user/dashboard.php"
+          >Click here if not redirected automatically</a
         >
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-
-        <nav>
-          <a href="#" class="active">HOME</a>
-          <div class="nav-dropdown">
-            <button class="nav-link has-caret" type="button">
-              Artikel
-              <svg
-                class="caret"
-                viewBox="0 0 24 24"
-                width="14"
-                height="14"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </button>
-            <div class="dropdown-menu">
-              <button
-                type="button"
-                class="dropdown-close"
-                aria-label="Close dropdown"
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M18 6L6 18M6 6l12 12" />
-                </svg>
-              </button>
-              <a href="./journals_user.html">Jurnal</a>
-              <a href="./opinions_user.html">Berita & Opini</a>
-
-              <!-- <a
-                href="#"
-                onclick="alert('Fitur Opini sedang dalam pengembangan!\n\nCooming Soon 🚀'); return false;"
-                style="opacity: 0.6; cursor: not-allowed"
-              >
-                Daftar Opini
-                <span
-                  style="
-                    background: #ff9800;
-                    color: white;
-                    padding: 2px 6px;
-                    border-radius: 4px;
-                    font-size: 10px;
-                    margin-left: 8px;
-                  "
-                  >SOON</span
-                >
-              </a> -->
-            </div>
-          </div>
-        </nav>
-      </div>
-    </header>
-
-    <!-- Main Content -->
-    <div class="container">
-      <!-- Statistics Section -->
-      <section class="statistics">
-        <h2>Statistik</h2>
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon">
-              <i data-feather="bar-chart-2"></i>
-            </div>
-            <div class="stat-number" id="articleCount">0</div>
-            <div class="stat-label">Artikel</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">
-              <i data-feather="eye"></i>
-            </div>
-            <div class="stat-number" id="visitorCount">0</div>
-            <div class="stat-label">Pengunjung</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Articles Section -->
-      <section class="articles-section">
-        <h2>Artikel Terbaru</h2>
-        <div class="articles-grid" id="articlesGrid">
-          <!-- Articles will be generated by JavaScript -->
-        </div>
-        <div id="latestArticlesNavUser"></div>
-      </section>
-
-      <!-- Categories Section -->
-      <section class="categories-section">
-        <h2>Kategori Populer</h2>
-        <div class="categories-grid">
-          <div class="category-card">
-            <span class="category-name">Social</span>
-            <span class="category-count">(17)</span>
-          </div>
-          <div class="category-card">
-            <span class="category-name">International</span>
-            <span class="category-count">(84)</span>
-          </div>
-          <div class="category-card">
-            <span class="category-name">Crime</span>
-            <span class="category-count">(32)</span>
-          </div>
-          <div class="category-card">
-            <span class="category-name">Accident</span>
-            <span class="category-count">(24)</span>
-          </div>
-          <div class="category-card">
-            <span class="category-name">Political</span>
-            <span class="category-count">(155)</span>
-          </div>
-          <div class="category-card">
-            <span class="category-name">Sports</span>
-            <span class="category-count">(1952)</span>
-          </div>
-          <div class="category-card">
-            <span class="category-name">Health</span>
-            <span class="category-count">(143)</span>
-          </div>
-          <div class="category-card">
-            <span class="category-name">Education</span>
-            <span class="category-count">(91)</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- Newsletter Section -->
-      <section class="newsletter-section">
-        <h3>Stay Tuned</h3>
-        <p>
-          Subscribe to our latest newsletter and never miss the latest news!
-        </p>
-        <div class="newsletter-form">
-          <input
-            type="email"
-            class="newsletter-input"
-            placeholder="Enter your email..."
-            id="newsletterEmail"
-          />
-          <button class="submit-btn" id="subscribeBtn">Submit</button>
-        </div>
-      </section>
+      </p>
     </div>
 
-    <!-- Scripts -->
-    <script src="./js/script.js?v=2025112910"></script>
-    <script src="./js/statistic.js?v=20251130"></script>
-    <script src="./js/jurnal.js?bust=29112025v3"></script>
-    <script src="./js/opinions_manager.js"></script>
-    <script src="./js/file_upload.js"></script>
-    <script src="./js/dashboard_user.js?v=finalfix999"></script>
-    <script src="./js/mobile_menu.js?v=20251130"></script>
     <script>
-      feather.replace();
+      // Fallback redirect via JavaScript (if meta refresh fails)
+      setTimeout(function () {
+        window.location.href = "views/user/dashboard.php";
+      }, 100);
     </script>
   </body>
 </html>

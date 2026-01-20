@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
@@ -640,12 +640,12 @@
     <header>
       <div class="header-container">
         <div class="logo">
-          <a href="dashboard_admin.html">
+          <a href="dashboard_user.html">
             <img src="./assets/main_logo.png" alt="Logo" />
           </a>
         </div>
         <nav>
-          <a href="./dashboard_admin.html">HOME</a>
+          <a href="dashboard_user.html">HOME</a>
           <div class="nav-dropdown">
             <a href="#" class="nav-link has-caret">JURNAL</a>
             <div class="dropdown-menu">
@@ -661,7 +661,7 @@
     <div class="breadcrumb">
       <a href="dashboard_user.html">Home</a>
       <span>/</span>
-      <a href="journals.html" id="breadcrumbType">Jurnal</a>
+      <a href="opinions_user.html" id="breadcrumbType">Opini</a>
       <span>/</span>
       <span id="breadcrumbTitle">Blog</span>
     </div>
@@ -699,7 +699,7 @@
         <div class="article-header">
           <span id="articleBadge" class="article-badge badge-jurnal">
             <i data-feather="book-open"></i>
-            <span id="badgeText">Artikel Jurnal</span>
+            <span id="badgeText">Artikel Opini</span>
           </span>
 
           <h1 class="article-title" id="articleTitle">-</h1>

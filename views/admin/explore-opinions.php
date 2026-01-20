@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
@@ -8,7 +8,7 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="shortcut icon" type="image/x-icon" href="./assets/favicon.ico" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../assets/images/icons/favicon.ico" />
     <script src="https://unpkg.com/feather-icons"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
@@ -640,17 +640,19 @@
     <header>
       <div class="header-container">
         <div class="logo">
-          <a href="dashboard_admin.html">
+          <a href="dashboard_user.html">
             <img src="./assets/main_logo.png" alt="Logo" />
           </a>
         </div>
         <nav>
-          <a href="./dashboard_admin.html">HOME</a>
+          <a href="dashboard_user.html">HOME</a>
           <div class="nav-dropdown">
             <a href="#" class="nav-link has-caret">JURNAL</a>
             <div class="dropdown-menu">
               <a href="./journals_user.html">Jurnal</a>
-              <a href="./opinions_user.html">Opini</a>
+              <!-- <a href="./opinions_user.html">Daftar Opini</a> -->
+
+              <a href="./opinions.html">Opini </a>
             </div>
           </div>
         </nav>
@@ -659,9 +661,9 @@
 
     <!-- Breadcrumb -->
     <div class="breadcrumb">
-      <a href="dashboard_user.html">Home</a>
+      <a href="dashboard_admin.html">Home</a>
       <span>/</span>
-      <a href="journals.html" id="breadcrumbType">Jurnal</a>
+      <a href="opinions.html" id="breadcrumbType">Opini</a>
       <span>/</span>
       <span id="breadcrumbTitle">Blog</span>
     </div>
@@ -699,7 +701,7 @@
         <div class="article-header">
           <span id="articleBadge" class="article-badge badge-jurnal">
             <i data-feather="book-open"></i>
-            <span id="badgeText">Artikel Jurnal</span>
+            <span id="badgeText">Artikel Opini</span>
           </span>
 
           <h1 class="article-title" id="articleTitle">-</h1>

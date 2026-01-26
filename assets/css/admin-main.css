@@ -8,6 +8,8 @@
 @import url("core/statistics.css");
 @import url("core/breadcrumb.css");
 @import url("core/explore-journal-layout.css");
+@import url("core/articles-detail.css");
+@import url("core/search-modal.css");
 
 /* Admin Specific */
 @import url("admin/journal-list.css");
@@ -15,6 +17,7 @@
 @import url("admin/pagination.css");
 @import url("admin/upload.css");
 @import url("admin/header-admin.css");
+@import url("admin/navigation-admin.css");
 
 /* Responsive */
 @import url("core/responsive.css");

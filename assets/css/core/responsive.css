@@ -1,12 +1,12 @@
-/*  MOBILE: 0-768px  */
+/* ==================== MOBILE: 0-768px ==================== */
 @media (max-width: 768px) {
-  /*  CONTAINER  */
+  /* ===== CONTAINER ===== */
   .container {
     padding: 0 15px;
     margin: 20px auto;
   }
 
-  /*  HEADER  */
+  /* ===== HEADER ===== */
   header {
     position: sticky;
     top: 0;
@@ -17,7 +17,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 15px 20px;
-    flex-direction: row; /* Keep logo and hamburger side-by-side */
+    flex-direction: row;
   }
 
   .logo img {
@@ -28,12 +28,12 @@
     font-size: 16px;
   }
 
-  /*  HAMBURGER MENU  */
+  /* ===== HAMBURGER MENU ===== */
   .hamburger-menu {
     display: flex;
   }
 
-  /*  NAVIGATION (Mobile Sliding Menu)  */
+  /* ===== NAVIGATION (Mobile Sliding Menu) ===== */
   nav {
     position: fixed;
     top: 70px;
@@ -64,7 +64,7 @@
     margin: 0;
   }
 
-  /*  NAV DROPDOWN (Mobile)  */
+  /* ===== NAV DROPDOWN (Mobile) ===== */
   .nav-dropdown {
     width: 100%;
     margin: 0;
@@ -125,7 +125,7 @@
     border-bottom: 1px solid #eee;
   }
 
-  /*  SEARCH BOX  */
+  /* ===== SEARCH BOX ===== */
   .search-box {
     width: 100%;
     margin: 15px 0;
@@ -135,7 +135,7 @@
     width: 100%;
   }
 
-  /*  AUTH SECTION  */
+  /* ===== AUTH SECTION ===== */
   .auth-section {
     width: 100%;
     flex-direction: column;
@@ -160,7 +160,7 @@
     font-size: 12px;
   }
 
-  /*  STATISTICS  */
+  /* ===== STATISTICS ===== */
   .statistics {
     margin-bottom: 30px;
   }
@@ -192,7 +192,7 @@
     font-size: 12px;
   }
 
-  /*  ARTICLES SECTION  */
+  /* ===== ARTICLES SECTION ===== */
   .articles-section {
     margin-bottom: 30px;
   }
@@ -209,7 +209,7 @@
     padding: 20px 0;
   }
 
-  /*  CARDS (User Grid View)  */
+  /* ===== CARDS (User Grid View) ===== */
   .article-card,
   .journal-card,
   .opinion-card {
@@ -239,7 +239,7 @@
     gap: 8px;
   }
 
-  /*  CATEGORIES  */
+  /* ===== CATEGORIES ===== */
   .categories-section {
     margin-bottom: 30px;
   }
@@ -266,7 +266,7 @@
     font-size: 12px;
   }
 
-  /*  NEWSLETTER  */
+  /* ===== NEWSLETTER ===== */
   .newsletter-section {
     padding: 30px 20px;
     margin-bottom: 30px;
@@ -299,7 +299,7 @@
     font-size: 13px;
   }
 
-  /*  SHARE BUTTONS  */
+  /* ===== SHARE BUTTONS ===== */
   .share-button,
   .btn-share,
   .btn-quickshare {
@@ -330,7 +330,7 @@
     padding: 8px;
   }
 
-  /*  EMPTY STATE  */
+  /* ===== EMPTY STATE ===== */
   .empty-state {
     padding: 40px 15px;
   }
@@ -348,7 +348,7 @@
     font-size: 13px;
   }
 
-  /*  ADMIN SPECIFIC - JOURNAL LIST  */
+  /* ===== ADMIN SPECIFIC - JOURNAL LIST ===== */
   .journal-list {
     gap: 15px;
   }
@@ -389,7 +389,7 @@
     font-size: 13px;
   }
 
-  /*  ADMIN SPECIFIC - UPLOAD  */
+  /* ===== ADMIN SPECIFIC - UPLOAD ===== */
   .upload-section {
     padding: 30px 20px;
   }
@@ -411,7 +411,7 @@
     padding: 12px;
   }
 
-  /*  ADMIN SPECIFIC - MODALS  */
+  /* ===== ADMIN SPECIFIC - MODALS ===== */
   #editModal {
     padding: 20px 10px;
   }
@@ -470,7 +470,7 @@
     max-width: 100%;
   }
 
-  /*  ADMIN SPECIFIC - PAGINATION  */
+  /* ===== ADMIN SPECIFIC - PAGINATION ===== */
   .pagination-container {
     flex-direction: column;
     gap: 15px;
@@ -490,21 +490,33 @@
     text-align: center;
   }
 
-  /*  ARTICLE DETAIL PAGE  */
+  /* ===== ARTICLE DETAIL PAGE ===== */
   .article-header {
-    padding: 32px 24px 24px;
+    padding: 1.5rem 1rem 1rem;
   }
 
   .article-title {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
   }
 
   .article-content {
-    padding: 32px 24px;
+    padding: 1.5rem 1rem;
   }
 
-  .section-title {
-    font-size: 1.3rem;
+  .content-section h3 {
+    font-size: 1.2rem;
+  }
+
+  .article-body {
+    font-size: 1rem;
+  }
+
+  .contact-info {
+    grid-template-columns: 1fr;
+  }
+
+  .pdf-viewer iframe {
+    height: 400px;
   }
 
   .pdf-actions {
@@ -515,54 +527,89 @@
     width: 100%;
     justify-content: center;
   }
+
+  /* ===== SEARCH MODAL ===== */
+  .search-modal-content {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .search-modal-header {
+    padding: 1rem 1.5rem;
+  }
+
+  .search-modal-header h3 {
+    font-size: 1.2rem;
+  }
+
+  .search-results {
+    padding: 1rem 1.5rem;
+  }
+
+  .search-result-item {
+    padding: 1rem;
+  }
+
+  .search-result-title {
+    font-size: 1rem;
+  }
 }
 
-/*  TABLET: 769px-1024px  */
+/* ==================== TABLET: 769px-1024px ==================== */
 @media (min-width: 769px) and (max-width: 1024px) {
-  /*  CONTAINER  */
+  /* ===== CONTAINER ===== */
   .container {
     padding: 0 25px;
   }
 
-  /*  STATISTICS  */
+  /* ===== STATISTICS ===== */
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
   }
 
-  /*  CARDS  */
+  /* ===== CARDS ===== */
   #journalContainer,
   .articles-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
   }
 
-  /*  CATEGORIES  */
+  /* ===== CATEGORIES ===== */
   .categories-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  /*  JOURNAL LIST (Admin)  */
+  /* ===== JOURNAL LIST (Admin) ===== */
   .journal-thumbnail {
     width: 150px;
     height: 150px;
   }
+
+  /* ===== ARTICLE DETAIL (Tablet) ===== */
+  .article-title {
+    font-size: 2rem;
+  }
+
+  .contact-info {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
-/*  DESKTOP LARGE: 1441px+  */
+/* ==================== DESKTOP LARGE: 1441px+ ==================== */
 @media (min-width: 1441px) {
-  /*  CONTAINER  */
+  /* ===== CONTAINER ===== */
   .container {
     max-width: 1400px;
   }
 
-  /*  CARDS  */
+  /* ===== CARDS ===== */
   #journalContainer,
   .articles-grid {
     grid-template-columns: repeat(4, 1fr);
   }
 
-  /*  STATISTICS  */
+  /* ===== STATISTICS ===== */
   .stats-grid {
     grid-template-columns: repeat(4, 1fr);
   }

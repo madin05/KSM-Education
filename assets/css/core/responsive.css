@@ -1,6 +1,4 @@
-/* 
-  MOBILE: 0-768px
-    */
+/*  MOBILE: 0-768px  */
 @media (max-width: 768px) {
   /*  CONTAINER  */
   .container {
@@ -19,7 +17,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 15px 20px;
-    flex-direction: row;
+    flex-direction: row; /* Keep logo and hamburger side-by-side */
   }
 
   .logo img {
@@ -51,7 +49,6 @@
     transition: right 0.3s ease;
     z-index: 1000;
     overflow-y: auto;
-    justify-self: auto;
   }
 
   nav.active {
@@ -115,6 +112,7 @@
     opacity: 1;
     visibility: visible;
     transform: none;
+    left: auto;
   }
 
   .nav-dropdown.open .dropdown-menu,
@@ -139,7 +137,17 @@
 
   /*  AUTH SECTION  */
   .auth-section {
+    width: 100%;
+    flex-direction: column;
     gap: 10px;
+    margin-top: 15px;
+  }
+
+  .btn-user-login,
+  .btn-register {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 20px;
   }
 
   .user-name {
@@ -509,11 +517,9 @@
   }
 }
 
-/* 
-    TABLET: 769px-1024px
-    */
+/*  TABLET: 769px-1024px  */
 @media (min-width: 769px) and (max-width: 1024px) {
-  /* ===== CONTAINER ===== */
+  /*  CONTAINER  */
   .container {
     padding: 0 25px;
   }
@@ -543,9 +549,7 @@
   }
 }
 
-/* 
-    DESKTOP LARGE: 1441px+
-    */
+/*  DESKTOP LARGE: 1441px+  */
 @media (min-width: 1441px) {
   /*  CONTAINER  */
   .container {

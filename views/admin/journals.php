@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <!-- CSS Utama Admin -->
-  <link rel="stylesheet" href="../../assets/css/admin/admin-main.css" />
+  <link rel="stylesheet" href="../../assets/css/admin-main.css" />
   <link rel="shortcut icon" type="image/x-icon" href="../../assets/favicon.ico" />
 
   <script src="https://unpkg.com/feather-icons"></script>

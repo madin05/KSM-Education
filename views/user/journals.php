@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="shortcut icon" type="image/x-icon" href="../../assets/favicon.ico" />
 
-  <link rel="stylesheet" href="../../assets/css/user/user-main.css" />
+  <link rel="stylesheet" href="../../assets/css/admin-main.css" />
   <link rel="stylesheet" href="../../assets/css/user/journal-list.css" />
 
   <script src="https://unpkg.com/feather-icons"></script>

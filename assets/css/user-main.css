@@ -1,10 +1,16 @@
 /* Core (Shared) */
 @import url("core/reset.css");
+@import url("core/breadcrumb.css");
 @import url("core/main-layout.css");
 @import url("core/components.css");
 @import url("core/cards.css");
 @import url("core/states.css");
 @import url("core/statistics.css");
+@import url("core/articles-detail.css");
+@import url("core/search-modal.css");
+@import url("core/journal-list.css");
+@import url("core/filters.css");
+@import url("core/navigation.css'");
 
 /* User Specific - Header & Navigation */
 @import url("user/header-user.css");
@@ -16,6 +22,7 @@
 @import url("user/articles-section.css");
 @import url("user/categories.css");
 @import url("user/newsletter.css");
+@import url("user/opinions.css");
 
 /* Responsive */
 @import url("core/responsive.css");

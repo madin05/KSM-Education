@@ -10,14 +10,18 @@
 @import url("core/explore-journal-layout.css");
 @import url("core/articles-detail.css");
 @import url("core/search-modal.css");
+@import url("core/journal-list.css");
+@import url("core/filters.css");
+@import url("core/navigation.css'");
 
 /* Admin Specific */
-@import url("admin/journal-list.css");
+@import url("admin/journal-crud.css");
 @import url("admin/modals.css");
 @import url("admin/pagination.css");
 @import url("admin/upload.css");
 @import url("admin/header-admin.css");
 @import url("admin/navigation-admin.css");
+@import url("admin/upload-tabs.css");
 
 /* Responsive */
 @import url("core/responsive.css");

@@ -1,0 +1,352 @@
+/*  COMPACT JOURNAL DISPLAY (Homepage)  */
+
+.journal-item {
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  margin-bottom: 15px;
+  display: flex;
+  gap: 15px;
+  transition: all 0.3s ease;
+  position: relative;
+  max-height: 180px;
+}
+
+.journal-item:hover {
+  transform: translateX(3px);
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+}
+
+.journal-thumbnail {
+  width: 120px;
+  height: 150px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.journal-thumbnail:hover {
+  transform: scale(1.03);
+}
+
+.journal-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.journal-meta {
+  font-size: 11px;
+  color: #999;
+  margin-bottom: 5px;
+}
+
+.journal-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 6px;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  max-height: 2.6em;
+}
+
+.journal-description {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.4;
+  margin-bottom: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  max-height: 2.8em;
+}
+
+.file-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #2196f3;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.journal-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 0;
+}
+
+.btn-download,
+.btn-edit,
+.btn-delete {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.3s ease;
+  min-width: 70px;
+  justify-content: center;
+}
+
+.btn-download {
+  background: linear-gradient(135deg, #4caf50, #8bc34a);
+  color: white;
+}
+
+.btn-download:hover {
+  background: linear-gradient(135deg, #45a049, #7cb342);
+  transform: translateY(-1px);
+}
+
+.btn-edit {
+  background: linear-gradient(135deg, #2196f3, #64b5f6);
+  color: white;
+}
+
+.btn-edit:hover {
+  background: linear-gradient(135deg, #1976d2, #42a5f5);
+  transform: translateY(-1px);
+}
+
+.btn-delete {
+  background: linear-gradient(135deg, #f44336, #e91e63);
+  color: white;
+}
+
+.btn-delete:hover {
+  background: linear-gradient(135deg, #d32f2f, #c2185b);
+  transform: translateY(-1px);
+}
+
+.btn-download svg,
+.btn-edit svg,
+.btn-delete svg {
+  width: 13px;
+  height: 13px;
+}
+
+/*  VIEW ALL BUTTON  */
+.view-all-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 25px;
+  padding-top: 25px;
+  border-top: 2px solid #f0f0f0;
+}
+
+.btn-view-all {
+  background: linear-gradient(135deg, #34495e, #2c3e50);
+  color: white;
+  padding: 12px 40px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+}
+
+.btn-view-all:hover {
+  background: linear-gradient(135deg, #2c3e50, #1a252f);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(44, 62, 80, 0.3);
+}
+
+.btn-view-all i {
+  width: 18px;
+  height: 18px;
+}
+
+/*  FULL JOURNAL PAGE  */
+
+.journal-list-full {
+  margin-bottom: 40px;
+}
+
+.journal-list-full .journal-item {
+  max-height: none;
+  height: auto;
+}
+
+.journal-list-full .journal-thumbnail {
+  width: 140px;
+  height: 180px;
+}
+
+/*  JOURNAL CARD - CLICKABLE COVER  */
+.journal-cover {
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.journal-cover:hover {
+  transform: scale(1.02);
+}
+
+.journal-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/*  SHARE BUTTON  */
+.btn-share {
+  background: #34495e;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  width: 100%;
+}
+
+.btn-share:hover {
+  background: white;
+  color: #34495e;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.btn-share svg {
+  width: 18px;
+  height: 18px;
+}
+
+/*  SEE ALL BUTTON  */
+#latestArticlesNavUser,
+#latestArticlesNavAdmin {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.btn-see-all {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  background: #3498db;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+  transition:
+    background 0.2s ease,
+    transform 0.1s ease,
+    box-shadow 0.2s ease;
+}
+
+.btn-see-all:hover {
+  background: #2980b9;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(52, 152, 219, 0.5);
+}
+
+.btn-see-all:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+}
+
+/*  COVER PREVIEW (Modal Edit)  */
+.cover-preview {
+  position: relative;
+  width: 200px;
+  height: 260px;
+  margin: 20px auto;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.cover-preview img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.remove-cover-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(244, 67, 54, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.remove-cover-btn:hover {
+  background: #f44336;
+  transform: scale(1.1);
+}
+
+.remove-cover-btn svg {
+  width: 20px;
+  height: 20px;
+  color: white;
+}
+
+/*  PENGURUS INPUT  */
+.pengurus-input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.pengurus-input {
+  flex: 1;
+  padding: 12px 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: "Inter", sans-serif;
+  transition: all 0.2s;
+}
+
+.pengurus-input:focus {
+  outline: none;
+  border-color: #2c3e50;
+  box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.1);
+}

@@ -31,7 +31,7 @@
     <?php include 'components/newsletter.html'; ?>
   </div>
 
-  <?php include 'components/footer-scripts.html'; ?>
+  <?php include 'components/footer-scripts-dashboard.html'; ?>
 
 </body>
 

@@ -1,138 +1,95 @@
 <!DOCTYPE html>
 <html lang="id">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Daftar Jurnal - KSM Education</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="./styles/admin.css" />
-    <link rel="stylesheet" href="./styles/journal.css" />
-    <link rel="shortcut icon" type="image/x-icon" href="./assets/favicon.ico" />
-    <script src="https://unpkg.com/feather-icons"></script>
-  </head>
-  <body>
-    <!-- Header -->
-    <header>
-      <div class="header-container">
-        <div class="logo">
-          <a href="./dashboard_user.html"
-            ><img src="./assets/main_logo.png" alt="Logo"
-          /></a>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daftar Jurnal - KSM Education</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="shortcut icon" type="image/x-icon" href="../../assets/favicon.ico" />
+
+  <link rel="stylesheet" href="../../assets/css/user/user-main.css" />
+  <link rel="stylesheet" href="../../assets/css/user/journal-list.css" />
+
+  <script src="https://unpkg.com/feather-icons"></script>
+</head>
+
+<body>
+
+  <!-- Header -->
+  <?php include 'components/header.html'; ?>
+
+  <!-- Main Content -->
+  <div class="container">
+    <!-- Filter & Search Section -->
+    <section class="filter-section">
+      <div class="filter-row-top">
+        <div class="sort-dropdown">
+          <button class="btn-icon-sort" type="button" id="btnSort">
+            <i data-feather="filter"></i>
+          </button>
+
+          <div class="sort-menu" id="sortMenu">
+            <button data-sort="newest" class="sort-item active">
+              <i data-feather="clock"></i>
+              Terbaru
+            </button>
+            <button data-sort="oldest" class="sort-item">
+              <i data-feather="calendar"></i>
+              Terlama
+            </button>
+            <button data-sort="title" class="sort-item">
+              <i data-feather="type"></i>
+              Judul A-Z
+            </button>
+            <button data-sort="views" class="sort-item">
+              <i data-feather="eye"></i>
+              Paling Populer
+            </button>
+          </div>
         </div>
 
-        <!-- Hamburger Button (Mobile Only) -->
-        <button
-          class="hamburger-menu"
-          aria-label="Toggle menu"
-          aria-expanded="false"
-          type="button"
-        >
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-
-        <!-- CENTERED NAV -->
-        <nav class="nav-centered">
-          <a href="./dashboard_user.html">HOME</a>
-          <div class="nav-dropdown">
-            <button class="nav-link has-caret" type="button">
-              Jurnal
-              <svg
-                class="caret"
-                viewBox="0 0 24 24"
-                width="16"
-                height="16"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </button>
-            <div class="dropdown-menu">
-              <a href="./opinions_user.html">Opini </a>
-            </div>
-          </div>
-        </nav>
+        <div class="search-box">
+          <i data-feather="search"></i>
+          <input type="text" placeholder="Cari jurnal..." id="searchInput" />
+        </div>
       </div>
-    </header>
 
-    <!-- Main Content -->
-    <div class="container">
-      <!-- Filter & Search Section -->
-      <section class="filter-section">
-        <!-- Row 1: Icon Sort + Search Box -->
-        <div class="filter-row-top">
-          <!-- Icon Sort Dropdown -->
-          <div class="sort-dropdown">
-            <button class="btn-icon-sort" type="button" id="btnSort">
-              <i data-feather="filter"></i>
-            </button>
-            <div class="sort-menu" id="sortMenu">
-              <button data-sort="newest" class="sort-item active">
-                <i data-feather="clock"></i>
-                Terbaru
-              </button>
-              <button data-sort="oldest" class="sort-item">
-                <i data-feather="calendar"></i>
-                Terlama
-              </button>
-              <button data-sort="title" class="sort-item">
-                <i data-feather="type"></i>
-                Judul A-Z
-              </button>
-              <button data-sort="views" class="sort-item">
-                <i data-feather="eye"></i>
-                Paling Populer
-              </button>
-            </div>
-          </div>
-
-          <!-- Search Box -->
-          <div class="search-box">
-            <i data-feather="search"></i>
-            <input type="text" placeholder="Cari jurnal..." id="searchInput" />
-          </div>
+      <div class="filter-row-bottom">
+        <div class="filter-stats">
+          <span id="totalJournals">0</span> jurnal
         </div>
+      </div>
+    </section>
 
-        <!-- Row 2: Total Counter -->
-        <div class="filter-row-bottom">
-          <div class="filter-stats">
-            <span id="totalJournals">0</span> jurnal
-          </div>
-        </div>
-      </section>
+    <!-- Back Button -->
+    <section class="back-section">
+      <a href="dashboard.php" class="btn-back">
+        <i data-feather="arrow-left"></i>
+        Back
+      </a>
+    </section>
 
-      <!-- Back Button -->
-      <section class="back-section">
-        <a href="./dashboard_user.html" class="btn-back">
-          <i data-feather="arrow-left"></i>
-          Back
-        </a>
-      </section>
+    <!-- Journal List Section -->
+    <section id="journal" class="journal-list-full">
+      <div id="journalContainer">
+      </div>
+    </section>
 
-      <!-- Journal List Section -->
-      <section id="journal" class="journal-list-full">
-        <div id="journalContainer">
-          <!-- Journal items will be generated by pagination.js -->
-        </div>
-      </section>
+    <!-- Pagination -->
+    <section class="pagination-section">
+      <div id="pagination" class="pagination"></div>
+    </section>
+  </div>
 
-      <!-- Pagination -->
-      <section class="pagination-section">
-        <div id="pagination" class="pagination"></div>
-      </section>
-    </div>
+  <!-- Scripts -->
+  <script src="../../js/pagination.js"></script>
+  <script src="../../js/mobile_menu.js"></script>
 
-    <!-- Scripts -->
-    <script src="./js/pagination.js"></script>
-    <script src="./js/mobile_menu.js"></script>
-    <script>
-      feather.replace();
-    </script>
-  </body>
+  <script>
+    feather.replace();
+  </script>
+</body>
+
 </html>

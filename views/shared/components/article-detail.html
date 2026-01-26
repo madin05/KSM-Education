@@ -1,0 +1,142 @@
+<!-- Loading State -->
+<div id="loadingState" class="loading">
+  <div class="loading-spinner"></div>
+  <p>Memuat artikel...</p>
+</div>
+
+<!-- Error State -->
+<div id="errorState" class="error-message" style="display: none">
+  <i data-feather="alert-circle"></i>
+  <h3>Artikel tidak ditemukan</h3>
+  <p>Artikel yang Anda cari tidak tersedia atau telah dihapus.</p>
+</div>
+
+<!-- Article Detail -->
+<div id="articleDetail" class="article-card" style="display: none">
+  <!-- Article Header -->
+  <div class="article-header">
+    <span id="articleBadge" class="article-badge badge-jurnal">
+      <i data-feather="book-open"></i>
+      <span id="badgeText">Artikel Jurnal</span>
+    </span>
+
+    <h1 class="article-title" id="articleTitle">-</h1>
+
+    <div class="article-meta">
+      <div class="meta-item">
+        <i data-feather="user"></i>
+        <span id="articleAuthor">admin</span>
+      </div>
+      <div class="meta-item">
+        <i data-feather="calendar"></i>
+        <span id="articleDate">-</span>
+      </div>
+      <div class="meta-item">
+        <i data-feather="eye"></i>
+        <span id="articleViews">0</span>
+      </div>
+      <div class="meta-item">
+        <i data-feather="clock"></i>
+        <span id="readTime">5 min read</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cover Image -->
+  <img id="articleCover" class="article-cover" style="display: none" />
+
+  <!-- Article Content -->
+  <div class="article-content">
+    <!-- Abstract Section -->
+    <div class="content-section">
+      <h2 class="section-title">
+        <i data-feather="file-text"></i>
+        <span id="abstractTitle">Abstrak</span>
+      </h2>
+      <div class="abstract-box">
+        <p id="articleAbstract">-</p>
+      </div>
+    </div>
+
+    <!-- Volume Section (Will be hidden for Opinion via JS) -->
+    <div class="content-section" id="volumeSection" style="display: none">
+      <h2 class="section-title">
+        <i data-feather="book-open"></i>
+        Volume
+      </h2>
+      <div class="contact-grid">
+        <div class="contact-item">
+          <i data-feather="book"></i>
+          <span id="articleVolume">-</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tags Section -->
+    <div class="content-section" id="tagsSection" style="display: none">
+      <h2 class="section-title">
+        <i data-feather="tag"></i>
+        Kata Kunci
+      </h2>
+      <div class="tags-container" id="articleTags"></div>
+    </div>
+
+    <!-- Authors Section -->
+    <div class="content-section">
+      <h2 class="section-title">
+        <i data-feather="users"></i>
+        Penulis
+      </h2>
+      <div class="authors-grid" id="articleAuthors"></div>
+    </div>
+
+    <!-- Pengurus Section -->
+    <div class="content-section" id="pengurusSection" style="display: none">
+      <h2 class="section-title">
+        <i data-feather="briefcase"></i>
+        Pengurus
+      </h2>
+      <div class="authors-grid" id="articlePengurus"></div>
+    </div>
+
+    <!-- Contact Section -->
+    <div class="content-section">
+      <h2 class="section-title">
+        <i data-feather="phone"></i>
+        Informasi Kontak
+      </h2>
+      <div class="contact-grid">
+        <div class="contact-item">
+          <i data-feather="mail"></i>
+          <a href="#" id="articleEmail">-</a>
+        </div>
+        <div class="contact-item">
+          <i data-feather="phone"></i>
+          <span id="articlePhone">-</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PDF Section -->
+    <div class="content-section" id="pdfSection">
+      <div class="pdf-section">
+        <h3>
+          <i data-feather="file"></i>
+          Dokumen Lengkap
+        </h3>
+        <p>Lihat dan download dokumen lengkap dalam format PDF</p>
+
+        <div class="pdf-actions">
+          <a href="#" id="pdfDownload" class="btn-pdf btn-download" download>
+            <i data-feather="download"></i>
+            Download PDF
+          </a>
+        </div>
+
+        <div class="pdf-viewer" id="pdfViewer" style="display: block">
+          <iframe id="pdfIframe"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

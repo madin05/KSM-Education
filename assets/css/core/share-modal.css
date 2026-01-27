@@ -1,4 +1,5 @@
-/* ===== SHARE MODAL ===== */
+/*  SHARE MODAL  */
+
 #shareModal .modal-content {
   max-width: 420px;
   width: 100%;
@@ -39,7 +40,7 @@
   background: #f9fafb;
 }
 
-/* Tombol share */
+/* \ SHARE BUTTONS \ */
 .share-btn {
   width: 100%;
   padding: 11px 12px;
@@ -53,7 +54,10 @@
   font-weight: 600;
   color: #ffffff;
   cursor: pointer;
-  transition: transform 0.1s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.15s ease,
+    opacity 0.15s ease;
 }
 
 .share-btn i {
@@ -61,7 +65,7 @@
   height: 18px;
 }
 
-/* Variasi warna */
+/* Button Variants */
 .share-btn.copy {
   background: #2563eb;
 }
@@ -78,7 +82,7 @@
   background: #111827;
 }
 
-/* Hover / active */
+/* Hover / Active States */
 .share-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 18px rgba(15, 23, 42, 0.18);
@@ -88,12 +92,4 @@
   transform: translateY(0);
   box-shadow: 0 2px 6px rgba(15, 23, 42, 0.25);
   opacity: 0.9;
-}
-
-/* Responsif */
-@media (max-width: 600px) {
-  #shareModal .modal-content {
-    margin: 0 12px;
-    padding: 18px 16px 20px;
-  }
 }

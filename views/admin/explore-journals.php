@@ -24,6 +24,10 @@
 
 <body>
 
+  <?php
+  require_once '../../config/config.php';
+  ?>
+
   <?php include 'components/header.html'; ?>
 
   <?php include '../shared/components/breadcrumb.html'; ?>

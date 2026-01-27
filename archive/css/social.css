@@ -1,0 +1,102 @@
+/* ===== SHARE MODAL ===== */
+#shareModal .modal-content {
+  max-width: 420px;
+  width: 100%;
+  border-radius: 14px;
+  padding: 20px 22px 22px;
+}
+
+#shareModal h2 {
+  margin: 0 0 16px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1f2933;
+}
+
+#shareModal .close-modal {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 999px;
+  transition: background 0.15s ease;
+}
+
+#shareModal .close-modal:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+#shareModal #shareUrlInput {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e1e4ea;
+  font-size: 14px;
+  color: #1f2933;
+  background: #f9fafb;
+}
+
+/* Tombol share */
+.share-btn {
+  width: 100%;
+  padding: 11px 12px;
+  border-radius: 8px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.share-btn i {
+  width: 18px;
+  height: 18px;
+}
+
+/* Variasi warna */
+.share-btn.copy {
+  background: #2563eb;
+}
+
+.share-btn.wa {
+  background: #22c55e;
+}
+
+.share-btn.fb {
+  background: #1877f2;
+}
+
+.share-btn.x {
+  background: #111827;
+}
+
+/* Hover / active */
+.share-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.18);
+}
+
+.share-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.25);
+  opacity: 0.9;
+}
+
+/* Responsif */
+@media (max-width: 600px) {
+  #shareModal .modal-content {
+    margin: 0 12px;
+    padding: 18px 16px 20px;
+  }
+}

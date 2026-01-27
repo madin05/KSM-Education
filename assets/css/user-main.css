@@ -11,6 +11,9 @@
 @import url("core/journal-list.css");
 @import url("core/filters.css");
 @import url("core/navigation.css'");
+@import url("core/auth.css");
+@import url("core/preview-modal.css");
+@import url("core/share-modal.css");
 
 /* User Specific - Header & Navigation */
 @import url("user/header-user.css");
@@ -23,6 +26,7 @@
 @import url("user/categories.css");
 @import url("user/newsletter.css");
 @import url("user/opinions.css");
+@import url("user/login-page.css");
 
 /* Responsive */
 @import url("core/responsive.css");

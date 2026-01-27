@@ -13,6 +13,9 @@
 @import url("core/journal-list.css");
 @import url("core/filters.css");
 @import url("core/navigation.css'");
+@import url("core/auth.css");
+@import url("core/preview-modal.css");
+@import url("core/share-modal.css"); 
 
 /* Admin Specific */
 @import url("admin/journal-crud.css");

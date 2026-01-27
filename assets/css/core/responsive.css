@@ -678,6 +678,74 @@
     border-bottom: none;
     border-left-color: #2c3e50;
   }
+
+  /* ===== AUTH & LOGIN (NEW!) ===== */
+
+  /* Login Container (Modal) */
+  .login-container {
+    padding: 40px 25px;
+  }
+
+  /* Login Wrapper (Full Page) */
+  .login-wrapper {
+    padding: 40px 30px;
+  }
+
+  .login-header h2 {
+    font-size: 20px;
+  }
+
+  .login-logo {
+    width: 100px;
+  }
+
+  .form-options {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .upload-section.locked::after {
+    font-size: 14px;
+    padding: 12px 20px;
+    width: 80%;
+    text-align: center;
+  }
+
+  .social-login {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== MOBILE EXTRA SMALL: 0-480px ===== */
+@media (max-width: 480px) {
+  .login-container,
+  .login-wrapper {
+    padding: 30px 20px;
+  }
+
+  .login-header h2 {
+    font-size: 18px;
+  }
+
+  .login-logo {
+    width: 80px;
+  }
+
+  .login-form input[type="email"],
+  .login-form input[type="password"] {
+    padding: 12px 15px;
+    font-size: 14px;
+  }
+
+  .btn-login {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .login-footer {
+    font-size: 12px;
+  }
 }
 
 /*  TABLET: 769px-1024px  */

@@ -10,13 +10,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <!-- CSS Utama User -->
-  <link rel="stylesheet" href="../../assets/css/user/user-main.css" />
+  <link rel="stylesheet" href="../../assets/css/user-main.css" />
   <link rel="shortcut icon" type="image/x-icon" href="../../assets/favicon.ico" />
 
   <script src="https://unpkg.com/feather-icons"></script>
 </head>
 
 <body>
+  <?php
+  require_once '../../config/config.php';
+  ?>
 
   <!-- Header User -->
   <?php include 'components/header.html'; ?>

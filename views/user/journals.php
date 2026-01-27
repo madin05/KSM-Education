@@ -16,6 +16,9 @@
 </head>
 
 <body>
+  <?php
+  require_once '../../config/config.php';
+  ?>
 
   <!-- Header -->
   <?php include 'components/header.html'; ?>

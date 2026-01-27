@@ -216,7 +216,8 @@
   <script src="../../js/storage.js"></script>
 
   <!-- Script Khusus Opini Admin -->
-  <script src="../../js/file_upload.js"></script>
+  <script type="module" src="../../assets/js/admin/file-upload-manager.js"></script>
+
   <script src="../../js/opinions_admin.js"></script>
   <script src="../../js/edit_opinion.js"></script>
   <script src="../../js/social.js"></script>

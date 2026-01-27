@@ -163,7 +163,7 @@
   <script src="../../js/storage.js"></script>
 
   <!-- Script Khusus Admin (Logic Edit/Delete/Upload) -->
-  <script src="../../js/file_upload.js"></script>
+  <script type="module" src="../../assets/js/admin/file-upload-manager.js"></script>
   <script src="../../js/jurnal_admin.js"></script>
 
   <script>

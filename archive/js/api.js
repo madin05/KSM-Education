@@ -4,7 +4,7 @@
 // Set base API URL
 window.API_BASE = window.API_BASE || "/ksmaja/api";
 
-// ===== FILE UPLOAD =====
+//  FILE UPLOAD 
 async function uploadFileToServer(file, onProgress) {
   const endpoint = window.API_BASE + "/upload.php";
   const form = new FormData();
@@ -58,7 +58,7 @@ async function uploadFileToServer(file, onProgress) {
   }
 }
 
-// ===== JOURNAL API =====
+//  JOURNAL API 
 async function createJournal(metadata) {
   const endpoint = window.API_BASE + "/create_journal.php";
   try {
@@ -135,7 +135,7 @@ async function deleteJournal(id) {
   }
 }
 
-// ===== OPINION API =====
+//  OPINION API 
 async function listOpinions(limit = 50, offset = 0, category = null) {
   let endpoint = `${
     window.API_BASE
@@ -248,7 +248,7 @@ async function deleteOpinion(id) {
   }
 }
 
-// ===== SYNC API =====
+//  SYNC API 
 async function syncPush(changes) {
   const endpoint = window.API_BASE + "/sync_push.php";
   try {
@@ -279,7 +279,7 @@ async function syncPull(since) {
   }
 }
 
-// ===== UPDATE VIEWS =====
+//  UPDATE VIEWS 
 async function updateViews(id, type) {
   const endpoint = window.API_BASE + "/update_views.php";
   try {
@@ -296,7 +296,7 @@ async function updateViews(id, type) {
   }
 }
 
-// ===== EXPOSE GLOBALLY =====
+//  EXPOSE GLOBALLY 
 // Journals
 window.uploadFileToServer = uploadFileToServer;
 window.createJournal = createJournal;

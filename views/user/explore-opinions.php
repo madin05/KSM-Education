@@ -44,7 +44,7 @@
   <!-- Scripts -->
   <script src="../../js/pdf_text_extractor.js"></script>
   <script src="../../js/explore_jurnal_user.js"></script>
-  <script src="../../js/api.js"></script>
+  <script type="module" src="../../assets/js/api.js"></script>
   <script src="../../js/storage.js"></script>
 
   <script>

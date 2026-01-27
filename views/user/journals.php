@@ -87,7 +87,7 @@
   </div>
 
   <!-- Scripts -->
-  <script src="../../js/pagination.js"></script>
+  <script type="module" src="../../assets/js/admin/pagination-manager.js"></script>
   <script src="../../js/mobile_menu.js"></script>
 
   <script>

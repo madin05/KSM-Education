@@ -1,4 +1,3 @@
-// js/storage.js
 // Wrapper storage dengan sync queue
 window.AppStorage = (function(){
   const PREFIX = 'app_'; // optional prefix

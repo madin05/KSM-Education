@@ -1,4 +1,8 @@
-// ===== EXPLORE JURNAL USER - DATABASE VERSION =====
+// assets/js/explore-journal.js (atau sesuai nama lu)
+
+import { CONFIG } from "./config.js";
+import { getJournal, getOpinion, listJournals, listOpinions } from "./api.js";
+
 console.log("Starting explore_jurnal_user.js (Database Mode)");
 
 // Initialize Feather Icons
@@ -17,21 +21,19 @@ if (typeof PDFTextExtractor !== "undefined") {
   console.warn("PDF Extractor not available - text extraction disabled");
 }
 
-// ===== GET ARTICLE BY ID FROM DATABASE =====
 async function getArticleById(id, type) {
-  console.log("📥 Getting article from database:", id, type);
+  console.log("Getting article from database:", id, type);
 
   try {
     if (type === "jurnal") {
-      const response = await fetch(`/ksmaja/api/get_journal.php?id=${id}`);
-      const data = await response.json();
+      const data = await getJournal(id);
 
-      console.log("📦 API Response:", data);
+      console.log("API Response:", data);
 
       if (data.ok && data.journal) {
         const j = data.journal;
 
-        // Parse JSON fields
+        // Parse JSON fields (TETAP SAMA!)
         let authors = j.authors;
         if (typeof authors === "string") {
           try {
@@ -86,14 +88,13 @@ async function getArticleById(id, type) {
           type: "jurnal",
         };
       } else {
-        console.error(" Journal not found:", data);
+        console.error("Journal not found:", data);
         return null;
       }
     } else if (type === "opini") {
-      const response = await fetch(`/ksmaja/api/get_opinion.php?id=${id}`);
-      const data = await response.json();
+      const data = await getOpinion(id);
 
-      console.log("📦 Opinion Response:", data);
+      console.log("Opinion Response:", data);
 
       const o = data.opinion || data.result;
 
@@ -123,17 +124,16 @@ async function getArticleById(id, type) {
           type: "opini",
         };
       } else {
-        console.error(" Opinion not found:", data);
+        console.error("Opinion not found:", data);
         return null;
       }
     }
   } catch (error) {
-    console.error(" Error fetching article:", error);
+    console.error("Error fetching article:", error);
     return null;
   }
 }
 
-// ===== LOAD ARTICLE DETAIL =====
 async function loadArticleDetail() {
   console.log("Loading article detail...");
 
@@ -160,7 +160,7 @@ async function loadArticleDetail() {
   if (!articleId) {
     showError(
       "Article ID missing from URL\n\nDebug Info:\nArticle ID: null\nType: " +
-        articleType
+        articleType,
     );
     return;
   }
@@ -174,12 +174,12 @@ async function loadArticleDetail() {
           articleId +
           "\nType: " +
           articleType +
-          "\nError: Article not found in database"
+          "\nError: Article not found in database",
       );
       return;
     }
 
-    console.log(" Article loaded:", article);
+    console.log("Article loaded:", article);
 
     if (loadingState) {
       loadingState.style.display = "none";
@@ -187,26 +187,25 @@ async function loadArticleDetail() {
 
     if (articleDetail) {
       articleDetail.style.display = "block";
-      console.log(" Article detail shown");
+      console.log("Article detail shown");
     }
 
     await displayArticle(article, articleType);
   } catch (error) {
-    console.error(" Error loading article:", error);
+    console.error("Error loading article:", error);
     showError(
       "Failed to load article\n\nDebug Info:\nArticle ID: " +
         articleId +
         "\nType: " +
         articleType +
         "\nError: " +
-        error.message
+        error.message,
     );
   }
 }
 
-// ===== DISPLAY ARTICLE =====
 async function displayArticle(article, type) {
-  console.log("📄 Displaying article:", article.title);
+  console.log("Displaying article:", article.title);
 
   // Title
   const titleElement = document.getElementById("articleTitle");
@@ -229,7 +228,7 @@ async function displayArticle(article, type) {
         "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=1200&h=400&fit=crop";
     };
 
-    console.log(" Cover image set:", coverUrl);
+    console.log("Cover image set:", coverUrl);
   }
 
   // Meta info
@@ -264,7 +263,7 @@ async function displayArticle(article, type) {
       tagsContainer.innerHTML = article.tags
         .map((tag) => `<span class="tag">${tag}</span>`)
         .join("");
-      console.log(" Tags displayed:", article.tags.length);
+      console.log("Tags displayed:", article.tags.length);
     } else {
       tagsSection.style.display = "none";
     }
@@ -281,23 +280,23 @@ async function displayArticle(article, type) {
       authorsContainer.innerHTML = article.authors
         .map(
           (author) => `
-          <div class="author-card">
-            <i data-feather="user"></i>
-            <span>${author}</span>
-          </div>
-        `
+                    <div class="author-card">
+                        <i data-feather="user"></i>
+                        <span>${author}</span>
+                    </div>
+                `,
         )
         .join("");
-      console.log(" Authors displayed:", article.authors);
+      console.log("Authors displayed:", article.authors);
     } else {
       const singleAuthor =
         article.author || article.penulis || "Unknown Author";
       authorsContainer.innerHTML = `
-        <div class="author-card">
-          <i data-feather="user"></i>
-          <span>${singleAuthor}</span>
-        </div>
-      `;
+                <div class="author-card">
+                    <i data-feather="user"></i>
+                    <span>${singleAuthor}</span>
+                </div>
+            `;
     }
   }
 
@@ -310,14 +309,14 @@ async function displayArticle(article, type) {
       pengurusContainer.innerHTML = article.pengurus
         .map(
           (pengurus) => `
-          <div class="author-card">
-            <i data-feather="briefcase"></i>
-            <span>${pengurus}</span>
-          </div>
-        `
+                    <div class="author-card">
+                        <i data-feather="briefcase"></i>
+                        <span>${pengurus}</span>
+                    </div>
+                `,
         )
         .join("");
-      console.log(" Pengurus displayed:", article.pengurus.length);
+      console.log("Pengurus displayed:", article.pengurus.length);
     } else {
       pengurusSection.style.display = "none";
     }
@@ -348,7 +347,7 @@ async function displayArticle(article, type) {
     if (type === "jurnal" && article.volume) {
       volumeSection.style.display = "block";
       volumeElement.textContent = article.volume;
-      console.log(" Volume displayed:", article.volume);
+      console.log("Volume displayed:", article.volume);
     } else {
       volumeSection.style.display = "none";
     }
@@ -365,7 +364,7 @@ async function displayArticle(article, type) {
 
       const pdfIframe = document.getElementById("pdfIframe");
       if (pdfIframe) {
-        pdfIframe.src = pdfUrl; // sekarang: /ksmaja/serve_pdf.php?file=/ksmaja/uploads/xxx.pdf
+        pdfIframe.src = pdfUrl;
       }
 
       const downloadLink = document.getElementById("pdfDownload");
@@ -385,12 +384,12 @@ async function displayArticle(article, type) {
     feather.replace();
   }
 
-  console.log(" Article displayed successfully");
+  console.log("Article displayed successfully");
 }
 
-// ===== SHOW ERROR =====
 function showError(message) {
-  console.error(" Showing error:", message);
+  // TETAP SAMA!
+  console.error("Showing error:", message);
 
   const loadingState = document.getElementById("loadingState");
   const errorState = document.getElementById("errorState");
@@ -401,16 +400,16 @@ function showError(message) {
     const errorDebug = errorState.querySelector("p");
     if (errorDebug) {
       errorDebug.innerHTML = `
-        ${errorDebug.textContent}<br><br>
-        <strong>Debug Info:</strong><br>
-        ${message.replace(/\n/g, "<br>")}
-      `;
+                ${errorDebug.textContent}<br><br>
+                <strong>Debug Info:</strong><br>
+                ${message.replace(/\n/g, "<br>")}
+            `;
     }
   }
 }
 
-// ===== SETUP NAV DROPDOWN =====
 function setupNavDropdown() {
+  // TETAP SAMA!
   document.querySelectorAll(".nav-dropdown").forEach((dd) => {
     const btn = dd.querySelector(".nav-link.has-caret");
     const menu = dd.querySelector(".dropdown-menu");
@@ -436,7 +435,6 @@ function setupNavDropdown() {
   });
 }
 
-// ===== SEARCH FUNCTIONALITY =====
 const searchInput = document.getElementById("searchInput");
 const searchModal = document.getElementById("searchModal");
 const closeSearchModal = document.getElementById("closeSearchModal");
@@ -475,15 +473,8 @@ if (searchModal) {
 
 async function performSearch(query) {
   try {
-    const journalsResp = await fetch(
-      "/ksmaja/api/list_journals.php?limit=50&offset=0"
-    );
-    const journalsData = await journalsResp.json();
-
-    const opinionsResp = await fetch(
-      "/ksmaja/api/list_opinion.php?limit=50&offset=0"
-    );
-    const opinionsData = await opinionsResp.json();
+    const journalsData = await listJournals(50, 0);
+    const opinionsData = await listOpinions(50, 0);
 
     const journals = journalsData.ok
       ? journalsData.results.map((j) => ({ ...j, type: "jurnal" }))
@@ -508,48 +499,49 @@ async function performSearch(query) {
 
     displaySearchResults(results, query);
   } catch (error) {
-    console.error(" Search error:", error);
+    console.error("Search error:", error);
   }
 }
 
 function displaySearchResults(results, query) {
+  // TETAP SAMA!
   if (!searchResults) return;
 
   if (results.length === 0) {
     searchResults.innerHTML = `
-      <div class="search-no-results">
-        <p>Tidak ada artikel yang cocok dengan pencarian "${query}"</p>
-      </div>
-    `;
+            <div class="search-no-results">
+                <p>Tidak ada artikel yang cocok dengan pencarian "${query}"</p>
+            </div>
+        `;
     return;
   }
 
   searchResults.innerHTML = results
     .map(
       (article) => `
-    <div class="search-result-item" onclick="window.location.href='explore_jurnal_user.html?id=${
-      article.id
-    }&type=${article.type}'">
-      <div class="search-result-title">${article.title}</div>
-      <div class="search-result-excerpt">${(
-        article.abstract ||
-        article.description ||
-        ""
-      ).substring(0, 150)}...</div>
-      <div class="search-result-meta">
-        <span class="badge">${
-          article.type === "jurnal" ? "Jurnal" : "Opini"
-        }</span>
-      </div>
-    </div>
-  `
+            <div class="search-result-item" onclick="window.location.href='explore_jurnal_user.html?id=${
+              article.id
+            }&type=${article.type}'">
+                <div class="search-result-title">${article.title}</div>
+                <div class="search-result-excerpt">${(
+                  article.abstract ||
+                  article.description ||
+                  ""
+                ).substring(0, 150)}...</div>
+                <div class="search-result-meta">
+                    <span class="badge">${
+                      article.type === "jurnal" ? "Jurnal" : "Opini"
+                    }</span>
+                </div>
+            </div>
+        `,
     )
     .join("");
 }
 
-// ===== INITIALIZE =====
+// INITIALIZE (TETAP SAMA!)
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("🚀 Explore Jurnal User initialized (Database Mode)");
+  console.log("Explore Jurnal User initialized (Database Mode)");
 
   setupNavDropdown();
   loadArticleDetail();
@@ -557,4 +549,4 @@ document.addEventListener("DOMContentLoaded", () => {
   if (typeof feather !== "undefined") feather.replace();
 });
 
-console.log(" explore_jurnal_user.js loaded (Database Mode)");
+console.log("explore_jurnal_user.js loaded (Database Mode)");

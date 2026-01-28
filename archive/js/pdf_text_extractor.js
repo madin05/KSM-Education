@@ -1,4 +1,4 @@
-// ===== PDF TEXT EXTRACTOR USING PDF.js =====
+//  PDF TEXT EXTRACTOR USING PDF.js 
 // Add this at the top of your HTML file:
 // <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 

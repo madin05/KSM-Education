@@ -38,7 +38,9 @@ async function sendRequest(endpoint, options = {}) {
   }
 }
 
-// FILE UPLOAD (XHR for progress)
+/**
+ * FILE UPLOAD (XHR for progress)
+ */
 export async function uploadFileToServer(file, onProgress) {
   const endpoint = API_BASE + "/upload.php";
   const form = new FormData();
@@ -84,7 +86,8 @@ export async function uploadFileToServer(file, onProgress) {
   }
 }
 
-// JOURNAL API
+//  JOURNAL API 
+
 export async function createJournal(metadata) {
   return await sendRequest("/create_journal.php", {
     method: "POST",
@@ -93,7 +96,9 @@ export async function createJournal(metadata) {
 }
 
 export async function listJournals(limit = 50, offset = 0) {
-  const query = `?limit=${encodeURIComponent(limit)}&offset=${encodeURIComponent(offset)}`;
+  // Add timestamp to prevent caching
+  const timestamp = Date.now();
+  const query = `?limit=${encodeURIComponent(limit)}&offset=${encodeURIComponent(offset)}&_=${timestamp}`;
   return await sendRequest(`/list_journals.php${query}`);
 }
 
@@ -115,14 +120,7 @@ export async function deleteJournal(id) {
   });
 }
 
-// OPINION API
-export async function listOpinions(limit = 50, offset = 0, category = null) {
-  let query = `?limit=${encodeURIComponent(limit)}&offset=${encodeURIComponent(offset)}`;
-  if (category && category !== "all") {
-    query += `&category=${encodeURIComponent(category)}`;
-  }
-  return await sendRequest(`/list_opinions.php${query}`);
-}
+//  OPINION API 
 
 export async function createOpinion(opinionData) {
   const config = { method: "POST" };
@@ -135,6 +133,18 @@ export async function createOpinion(opinionData) {
   }
 
   return await sendRequest("/create_opinion.php", config);
+}
+
+export async function listOpinions(limit = 50, offset = 0, category = null) {
+  // Add timestamp to prevent caching
+  const timestamp = Date.now();
+  let query = `?limit=${encodeURIComponent(limit)}&offset=${encodeURIComponent(offset)}&_=${timestamp}`;
+
+  if (category && category !== "all") {
+    query += `&category=${encodeURIComponent(category)}`;
+  }
+
+  return await sendRequest(`/list_opinions.php${query}`);
 }
 
 export async function getOpinion(id) {
@@ -162,7 +172,8 @@ export async function deleteOpinion(id) {
   });
 }
 
-// SYNC & VIEWS API
+//  SYNC & VIEWS API 
+
 export async function syncPush(changes) {
   return await sendRequest("/sync_push.php", {
     method: "POST",
@@ -181,3 +192,5 @@ export async function updateViews(id, type) {
     body: JSON.stringify({ id, type }),
   });
 }
+
+console.log("api.js loaded");

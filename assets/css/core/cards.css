@@ -233,3 +233,51 @@
 .user-dashboard .article-card .btn-delete {
   display: none !important;
 }
+
+/* Admin actions buttons */
+.journal-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.journal-actions button {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.journal-actions button:hover {
+  opacity: 0.9;
+}
+
+.journal-actions .btn-view {
+  background: #3498db;
+  color: white;
+}
+
+.journal-actions .btn-edit {
+  background: #f39c12;
+  color: white;
+}
+
+.journal-actions .btn-delete {
+  background: #e74c3c;
+  color: white;
+}
+
+.journal-actions .btn-share {
+  background: #27ae60;
+  color: white;
+}

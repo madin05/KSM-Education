@@ -1,7 +1,7 @@
-// ===== INITIALIZE FEATHER ICONS =====
+//  INITIALIZE FEATHER ICONS 
 feather.replace();
 
-// ===== TOGGLE PASSWORD VISIBILITY =====
+//  TOGGLE PASSWORD VISIBILITY 
 const togglePassword = document.getElementById('togglePassword');
 const passwordInput = document.getElementById('loginPassword');
 
@@ -14,7 +14,7 @@ togglePassword.addEventListener('click', function() {
   feather.replace();
 });
 
-// ===== ALERT FUNCTIONS =====
+//  ALERT FUNCTIONS 
 const alertBox = document.getElementById('alertBox');
 
 function showAlert(message, type = 'error') {
@@ -27,7 +27,7 @@ function showAlert(message, type = 'error') {
   }, 5000);
 }
 
-// ===== FORM SUBMISSION =====
+//  FORM SUBMISSION 
 const loginForm = document.getElementById('loginForm');
 const loginButton = document.querySelector('.btn-login');
 
@@ -84,7 +84,7 @@ loginForm.addEventListener('submit', function(e) {
   }, 1500);
 });
 
-// ===== SOCIAL LOGIN HANDLERS =====
+//  SOCIAL LOGIN HANDLERS 
 document.getElementById('googleLogin').addEventListener('click', function() {
   showAlert('Fitur login Google sedang dalam pengembangan', 'error');
 });
@@ -93,13 +93,13 @@ document.getElementById('facebookLogin').addEventListener('click', function() {
   showAlert('Fitur login Facebook sedang dalam pengembangan', 'error');
 });
 
-// ===== FORGOT PASSWORD =====
+//  FORGOT PASSWORD 
 document.querySelector('.forgot-password').addEventListener('click', function(e) {
   e.preventDefault();
   showAlert('Link reset password akan dikirim ke email Anda', 'success');
 });
 
-// ===== CHECK IF ALREADY LOGGED IN =====
+//  CHECK IF ALREADY LOGGED IN 
 window.addEventListener('load', function() {
   // Redirect if already logged in
   if (sessionStorage.getItem('userLoggedIn') === 'true') {
@@ -114,7 +114,7 @@ window.addEventListener('load', function() {
       document.getElementById('rememberMe').checked = true;
     }
   }
-  // ===== LOGIN USER - DATABASE VERSION =====
+  //  LOGIN USER - DATABASE VERSION 
 feather.replace();
 
 const togglePassword = document.getElementById('togglePassword');

@@ -1,14 +1,22 @@
-// ===== STATISTICS MANAGER - DATABASE VERSION (NO CACHE) =====
+/**
+ * Statistics Manager
+ * Manages article count, visitor tracking, and animated counters
+ *
+ * Dependencies: api.js
+ */
+
+import { CONFIG } from "./config.js";
+
 class StatisticsManager {
   constructor() {
-    console.log("🔧 StatisticsManager constructor called");
+    console.log("StatisticsManager constructor called");
 
     this.articleCountElement = document.getElementById("articleCount");
     this.visitorCountElement = document.getElementById("visitorCount");
 
-    console.log("📍 Elements found:", {
-      articleCount: this.articleCountElement ? "" : "",
-      visitorCount: this.visitorCountElement ? "" : "",
+    console.log("Elements found:", {
+      articleCount: !!this.articleCountElement,
+      visitorCount: !!this.visitorCountElement,
     });
 
     this.currentArticles = 0;
@@ -18,29 +26,34 @@ class StatisticsManager {
 
   async init() {
     if (!this.articleCountElement && !this.visitorCountElement) {
-      console.error(" No stat elements found! Aborting StatisticsManager init.");
+      console.error("No stat elements found! Aborting StatisticsManager init.");
       return;
     }
 
-    console.log("🚀 StatisticsManager initializing...");
+    console.log("StatisticsManager initializing...");
 
+    // Set initial values
     if (this.articleCountElement) this.articleCountElement.textContent = "0";
     if (this.visitorCountElement) this.visitorCountElement.textContent = "0";
 
+    // Load data
     await this.loadStatisticsFromDatabase();
     await this.trackVisitorToDatabase();
 
-    console.log("📊 Starting animation with values:", {
+    console.log("Starting animation with values:", {
       articles: this.currentArticles,
       visitors: this.currentVisitors,
     });
 
+    // Start animation
     requestAnimationFrame(() => {
       this.startCounterAnimation();
     });
 
+    // Auto-refresh every 30 seconds
     setInterval(() => this.refreshStatistics(), 30000);
 
+    // Listen to data changes
     window.addEventListener("journals:changed", () => this.refreshStatistics());
     window.addEventListener("opinions:changed", () => this.refreshStatistics());
   }
@@ -48,57 +61,78 @@ class StatisticsManager {
   async loadStatisticsFromDatabase() {
     try {
       const timestamp = Date.now();
-      console.log(`📥 Fetching stats from API... (t=${timestamp})`);
+      console.log(`Fetching stats from API... (t=${timestamp})`);
 
-      const response = await fetch(`/ksmaja/api/get_stats.php?t=${timestamp}`, {
+      const data = await this.getStats();
+
+      console.log("Stats API response:", data);
+
+      if (data.ok && data.stats) {
+        this.currentArticles = data.stats.total_articles || 0;
+        this.currentVisitors = data.stats.total_visitors || 0;
+        console.log("Stats loaded:", {
+          articles: this.currentArticles,
+          visitors: this.currentVisitors,
+        });
+      } else {
+        console.warn("Stats API returned not OK");
+      }
+    } catch (error) {
+      console.error("Error loading stats:", error);
+    }
+  }
+
+  async getStats() {
+    const timestamp = Date.now();
+    const response = await fetch(
+      `${CONFIG.API_BASE_URL}/get_stats.php?t=${timestamp}`,
+      {
         cache: "no-store",
         headers: {
           "Cache-Control": "no-cache, no-store, must-revalidate",
           Pragma: "no-cache",
         },
-      });
+      },
+    );
 
-      const data = await response.json();
-      console.log("📦 Stats API response:", data);
-
-      if (data.ok && data.stats) {
-        this.currentArticles = data.stats.total_articles || 0;
-        this.currentVisitors = data.stats.total_visitors || 0;
-        console.log(" Stats loaded:", {
-          articles: this.currentArticles,
-          visitors: this.currentVisitors,
-        });
-      } else {
-        console.warn("⚠️ Stats API returned not OK");
-      }
-    } catch (error) {
-      console.error(" Error loading stats:", error);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return await response.json();
   }
 
   async trackVisitorToDatabase() {
     if (sessionStorage.getItem("visitorTracked")) {
-      console.log(" Visitor already tracked this session");
+      console.log("Visitor already tracked this session");
       return;
     }
 
     try {
-      const response = await fetch("/ksmaja/api/track_visitor.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: "page_url=" + encodeURIComponent(window.location.pathname),
-      });
-
-      const data = await response.json();
+      const data = await this.trackVisitor();
 
       if (data.ok) {
         sessionStorage.setItem("visitorTracked", "1");
-        console.log(" Visitor tracked");
+        console.log("Visitor tracked");
         if (data.new) await this.refreshStatistics();
       }
     } catch (error) {
-      console.error(" Error tracking visitor:", error);
+      console.error("Error tracking visitor:", error);
     }
+  }
+
+  async trackVisitor() {
+    const response = await fetch(`${CONFIG.API_BASE_URL}/track_visitor.php`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: "page_url=" + encodeURIComponent(window.location.pathname),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
   }
 
   async refreshStatistics() {
@@ -108,32 +142,52 @@ class StatisticsManager {
     await this.loadStatisticsFromDatabase();
 
     if (this.articleCountElement && this.currentArticles !== oldArticles) {
-      this.animateCounter(this.articleCountElement, oldArticles, this.currentArticles, 600);
+      this.animateCounter(
+        this.articleCountElement,
+        oldArticles,
+        this.currentArticles,
+        600,
+      );
     }
 
     if (this.visitorCountElement && this.currentVisitors !== oldVisitors) {
-      this.animateCounter(this.visitorCountElement, oldVisitors, this.currentVisitors, 600);
+      this.animateCounter(
+        this.visitorCountElement,
+        oldVisitors,
+        this.currentVisitors,
+        600,
+      );
     }
   }
 
   startCounterAnimation() {
-    console.log("🎬 Starting counter animation");
+    console.log("Starting counter animation");
 
     if (this.articleCountElement) {
-      console.log(`   → Animating articles: 0 → ${this.currentArticles}`);
-      this.animateCounter(this.articleCountElement, 0, this.currentArticles, 700);
+      console.log(`Animating articles: 0 → ${this.currentArticles}`);
+      this.animateCounter(
+        this.articleCountElement,
+        0,
+        this.currentArticles,
+        700,
+      );
     }
 
     if (this.visitorCountElement) {
-      console.log(`   → Animating visitors: 0 → ${this.currentVisitors}`);
-      this.animateCounter(this.visitorCountElement, 0, this.currentVisitors, 900);
+      console.log(`Animating visitors: 0 → ${this.currentVisitors}`);
+      this.animateCounter(
+        this.visitorCountElement,
+        0,
+        this.currentVisitors,
+        900,
+      );
     }
   }
 
   animateCounter(element, start, end, duration) {
     if (!element) return;
 
-    console.log(`🔄 Animating ${element.id}: ${start} → ${end}`);
+    console.log(`Animating ${element.id}: ${start} → ${end}`);
 
     element.classList.add("counting");
     const startTime = performance.now();
@@ -152,7 +206,7 @@ class StatisticsManager {
       } else {
         element.textContent = String(end);
         element.classList.remove("counting");
-        console.log(` Animation complete for ${element.id}: ${end}`);
+        console.log(`Animation complete for ${element.id}: ${end}`);
       }
     };
 
@@ -160,7 +214,6 @@ class StatisticsManager {
   }
 
   resetStatistics() {
-    localStorage.removeItem("siteStatisticsCache");
     sessionStorage.removeItem("visitorTracked");
     this.currentArticles = 0;
     this.currentVisitors = 0;
@@ -169,18 +222,21 @@ class StatisticsManager {
   }
 }
 
-// Auto init with MORE aggressive DOM checking
+// Auto init
 if (document.readyState === "loading") {
-  console.log("⏳ DOM still loading, waiting for DOMContentLoaded...");
+  console.log("DOM still loading, waiting for DOMContentLoaded...");
   document.addEventListener("DOMContentLoaded", () => {
-    console.log(" DOM ready, initializing StatisticsManager");
-    localStorage.removeItem("siteStatisticsCache");
+    console.log("DOM ready, initializing StatisticsManager");
     window.statisticsManager = new StatisticsManager();
   });
 } else {
-  console.log(" DOM already ready, initializing StatisticsManager immediately");
-  localStorage.removeItem("siteStatisticsCache");
+  console.log("DOM already ready, initializing StatisticsManager immediately");
   window.statisticsManager = new StatisticsManager();
 }
 
-console.log(" statistic.js loaded (Database Mode - No Cache)");
+// Export
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = StatisticsManager;
+}
+
+console.log("statistic.js loaded");

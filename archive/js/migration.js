@@ -118,7 +118,7 @@
     console.log(" Migration completed successfully!");
     console.log("You can now safely clear localStorage data.");
   } else {
-    console.log("ℹNo new data to migrate.");
+    console.log("No new data to migrate.");
   }
 
   return results;

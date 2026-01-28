@@ -5,7 +5,7 @@
  * Dependencies: api.js
  */
 
-import { CONFIG } from "./config.js";
+import { getStats, trackVisitor } from "./api.js";
 
 class StatisticsManager {
   constructor() {
@@ -50,7 +50,6 @@ class StatisticsManager {
       this.startCounterAnimation();
     });
 
-    // Auto-refresh every 30 seconds
     setInterval(() => this.refreshStatistics(), 30000);
 
     // Listen to data changes
@@ -60,10 +59,9 @@ class StatisticsManager {
 
   async loadStatisticsFromDatabase() {
     try {
-      const timestamp = Date.now();
-      console.log(`Fetching stats from API... (t=${timestamp})`);
+      console.log("Fetching stats from API...");
 
-      const data = await this.getStats();
+      const data = await getStats(); // ✅ Import dari api.js
 
       console.log("Stats API response:", data);
 
@@ -82,26 +80,6 @@ class StatisticsManager {
     }
   }
 
-  async getStats() {
-    const timestamp = Date.now();
-    const response = await fetch(
-      `${CONFIG.API_BASE_URL}/get_stats.php?t=${timestamp}`,
-      {
-        cache: "no-store",
-        headers: {
-          "Cache-Control": "no-cache, no-store, must-revalidate",
-          Pragma: "no-cache",
-        },
-      },
-    );
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return await response.json();
-  }
-
   async trackVisitorToDatabase() {
     if (sessionStorage.getItem("visitorTracked")) {
       console.log("Visitor already tracked this session");
@@ -109,7 +87,7 @@ class StatisticsManager {
     }
 
     try {
-      const data = await this.trackVisitor();
+      const data = await trackVisitor(window.location.pathname);
 
       if (data.ok) {
         sessionStorage.setItem("visitorTracked", "1");
@@ -119,20 +97,6 @@ class StatisticsManager {
     } catch (error) {
       console.error("Error tracking visitor:", error);
     }
-  }
-
-  async trackVisitor() {
-    const response = await fetch(`${CONFIG.API_BASE_URL}/track_visitor.php`, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: "page_url=" + encodeURIComponent(window.location.pathname),
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return await response.json();
   }
 
   async refreshStatistics() {

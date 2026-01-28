@@ -3,6 +3,16 @@ import { CONFIG } from "./config.js";
 const API_BASE = CONFIG.API_BASE;
 
 /**
+ * Private Helper: Handle response
+ */
+async function handleResponse(response) {
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  return await response.json();
+}
+
+/**
  * Private Helper: Wrapper untuk fetch request
  */
 async function sendRequest(endpoint, options = {}) {
@@ -86,7 +96,7 @@ export async function uploadFileToServer(file, onProgress) {
   }
 }
 
-//  JOURNAL API 
+// JOURNAL API
 
 export async function createJournal(metadata) {
   return await sendRequest("/create_journal.php", {
@@ -96,7 +106,6 @@ export async function createJournal(metadata) {
 }
 
 export async function listJournals(limit = 50, offset = 0) {
-  // Add timestamp to prevent caching
   const timestamp = Date.now();
   const query = `?limit=${encodeURIComponent(limit)}&offset=${encodeURIComponent(offset)}&_=${timestamp}`;
   return await sendRequest(`/list_journals.php${query}`);
@@ -120,7 +129,7 @@ export async function deleteJournal(id) {
   });
 }
 
-//  OPINION API 
+// OPINION API
 
 export async function createOpinion(opinionData) {
   const config = { method: "POST" };
@@ -136,7 +145,6 @@ export async function createOpinion(opinionData) {
 }
 
 export async function listOpinions(limit = 50, offset = 0, category = null) {
-  // Add timestamp to prevent caching
   const timestamp = Date.now();
   let query = `?limit=${encodeURIComponent(limit)}&offset=${encodeURIComponent(offset)}&_=${timestamp}`;
 
@@ -172,7 +180,28 @@ export async function deleteOpinion(id) {
   });
 }
 
-//  SYNC & VIEWS API 
+export async function getStats() {
+  const timestamp = Date.now();
+  const response = await fetch(`${API_BASE}/get_stats.php?t=${timestamp}`, {
+    cache: "no-store",
+    headers: {
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      Pragma: "no-cache",
+    },
+  });
+  return handleResponse(response);
+}
+
+export async function trackVisitor(pageUrl) {
+  const response = await fetch(`${API_BASE}/track_visitor.php`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: "page_url=" + encodeURIComponent(pageUrl),
+  });
+  return handleResponse(response);
+}
+
+// SYNC & VIEWS API
 
 export async function syncPush(changes) {
   return await sendRequest("/sync_push.php", {

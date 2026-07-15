@@ -36,6 +36,10 @@
             <div class="dropdown-menu">
               <a href="journals_user.php">Jurnal</a>
               <a href="opinions_user.php">Opini & Berita</a>
+              <a href="my_journals_user.php">Jurnal Saya</a>
+              <a href="token_history_user.php">Riwayat Token</a>
+
+
             </div>
           </div>
         </nav>

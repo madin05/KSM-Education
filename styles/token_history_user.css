@@ -1,0 +1,109 @@
+/* =========================================================
+   RIWAYAT TOKEN — summary banner & history list
+   ========================================================= */
+
+.ksm-token-summary-banner {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.06);
+  padding: 24px;
+  margin-bottom: 28px;
+}
+
+.ksm-token-summary-item {
+  text-align: center;
+  padding: 0 10px;
+  border-right: 1px solid #f0f0f0;
+}
+
+.ksm-token-summary-item:last-child {
+  border-right: none;
+}
+
+.ksm-token-summary-item .label {
+  display: block;
+  font-size: 12px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 8px;
+}
+
+.ksm-token-summary-item .value {
+  display: block;
+  font-size: 30px;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.ksm-token-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 60px;
+}
+
+.ksm-token-history-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.06);
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.ksm-token-history-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ksm-token-history-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #eef4ff;
+  color: #3b82f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ksm-token-history-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.ksm-token-history-amount {
+  font-size: 15px;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.ksm-token-history-date {
+  font-size: 12px;
+  color: #999;
+}
+
+@media (max-width: 640px) {
+  .ksm-token-summary-banner {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .ksm-token-summary-item {
+    border-right: none;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 14px;
+  }
+  .ksm-token-summary-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}

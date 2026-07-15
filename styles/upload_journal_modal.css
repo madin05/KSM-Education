@@ -1,0 +1,288 @@
+/* =========================================================
+   UPLOAD JOURNAL/OPINION MODAL — form styling
+   Reuse: .pengurus-input-group, .pengurus-input, .cover-preview,
+   .remove-cover-btn dari journal.css (sudah otomatis ter-load
+   lewat header.php di semua halaman user)
+   Prefix class baru: ksm-upload-*
+   ========================================================= */
+
+.ksm-upload-type-toggle {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.ksm-upload-type-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1.5px solid #e2e5e9;
+  background: #fafbfc;
+  font-family: "Montserrat", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ksm-upload-type-btn.active[data-type="jurnal"] {
+  background: #eaf4fc;
+  border-color: #3498db;
+  color: #3498db;
+}
+
+.ksm-upload-type-btn.active[data-type="opini"] {
+  background: #f6effa;
+  border-color: #9b59b6;
+  color: #9b59b6;
+}
+
+.ksm-upload-form-group {
+  margin-bottom: 16px;
+}
+
+.ksm-upload-form-group label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 6px;
+}
+
+.ksm-upload-form-group .req {
+  color: #e74c3c;
+}
+
+.ksm-upload-form-group input[type="text"],
+.ksm-upload-form-group input[type="email"],
+.ksm-upload-form-group input[type="tel"],
+.ksm-upload-form-group input[type="number"],
+.ksm-upload-form-group select,
+.ksm-upload-form-group textarea {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid #e2e5e9;
+  border-radius: 8px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 13.5px;
+  transition: border-color 0.2s ease;
+  background: #fff;
+}
+
+.ksm-upload-form-group input:focus,
+.ksm-upload-form-group select:focus,
+.ksm-upload-form-group textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.ksm-upload-form-group textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+.ksm-upload-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.ksm-upload-dynamic-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.ksm-upload-dynamic-row input {
+  flex: 1;
+}
+
+.ksm-upload-row-remove,
+.ksm-upload-row-add {
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.ksm-upload-row-remove {
+  width: 40px;
+  background: #fdecea;
+  color: #e74c3c;
+}
+
+.ksm-upload-row-remove:hover {
+  background: #f8d0cc;
+}
+
+.ksm-upload-row-remove svg {
+  width: 16px;
+  height: 16px;
+}
+
+.ksm-upload-row-add {
+  padding: 8px 14px;
+  background: #eef4ff;
+  color: #3b82f6;
+  font-family: "Montserrat", sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  gap: 6px;
+}
+
+.ksm-upload-row-add:hover {
+  background: #dfeaff;
+}
+
+.ksm-upload-row-add svg {
+  width: 14px;
+  height: 14px;
+}
+
+.ksm-upload-file-drop {
+  border: 1.75px dashed #cdd3da;
+  border-radius: 8px;
+  padding: 22px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #fafbfc;
+}
+
+.ksm-upload-file-drop:hover,
+.ksm-upload-file-drop.drag-over {
+  border-color: #3b82f6;
+  background: #f2f7ff;
+}
+
+.ksm-upload-file-drop svg {
+  width: 26px;
+  height: 26px;
+  color: #9aa3ad;
+  margin-bottom: 8px;
+}
+
+.ksm-upload-file-drop .drop-label {
+  font-size: 12.5px;
+  color: #888;
+}
+
+.ksm-upload-file-drop .file-chosen {
+  margin-top: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #3b82f6;
+  word-break: break-all;
+}
+
+.ksm-upload-file-input {
+  display: none;
+}
+
+.ksm-upload-footer {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ksm-upload-token-note {
+  font-size: 12.5px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ksm-upload-token-note svg {
+  width: 15px;
+  height: 15px;
+  color: #3b82f6;
+}
+
+.ksm-upload-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 26px;
+  border-radius: 8px;
+  border: none;
+  background: #2c3e50;
+  color: #fff;
+  font-family: "Montserrat", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.ksm-upload-submit-btn:hover {
+  background: #1a252f;
+  transform: translateY(-2px);
+}
+
+.ksm-upload-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.ksm-upload-submit-btn .ksm-spinner {
+  width: 15px;
+  height: 15px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: ksmSpin 0.7s linear infinite;
+  display: none;
+}
+
+.ksm-upload-submit-btn.loading .ksm-spinner {
+  display: inline-block;
+}
+
+.ksm-upload-submit-btn.loading .ksm-submit-label {
+  display: none;
+}
+
+@keyframes ksmSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ksm-upload-field-error {
+  font-size: 11.5px;
+  color: #e74c3c;
+  margin-top: 4px;
+  display: none;
+}
+
+.ksm-upload-form-group.has-error input,
+.ksm-upload-form-group.has-error select,
+.ksm-upload-form-group.has-error textarea {
+  border-color: #e74c3c;
+}
+
+.ksm-upload-form-group.has-error .ksm-upload-field-error {
+  display: block;
+}
+
+@media (max-width: 640px) {
+  .ksm-upload-row {
+    grid-template-columns: 1fr;
+  }
+}

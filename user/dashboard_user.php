@@ -1,6 +1,8 @@
 <?php
 $page_title = 'KSM Education';
-$base_css = '<link rel="stylesheet" href="../styles/dashboard_user.css?v=202501111545" />';
+$base_css = '<link rel="stylesheet" href="../styles/dashboard_user.css?v=202501111545" />
+  <link rel="stylesheet" href="../styles/token_wallet.css?v=20260715" />
+  <link rel="stylesheet" href="../styles/upload_journal_modal.css?v=20260715" />';
 include 'components/header.php';
 include 'components/navbar.php';
 ?>
@@ -26,6 +28,42 @@ include 'components/navbar.php';
             <div class="stat-number skeleton-stat" id="visitorCount"></div>
             <div class="stat-label">Pengunjung</div>
           </div>
+
+          <!-- ===== KARTU BARU: TOKEN SAYA ===== -->
+          <div class="ksm-token-card">
+            <div class="stat-icon">
+              <i data-feather="zap" style="color: #2c3e50;"></i>
+            </div>
+            <div class="stat-number" data-ksm-token-balance>0</div>
+            <div class="stat-label">Token Saya</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== BANNER CTA: PUNYA KARYA UNTUK DIBAGIKAN ===== -->
+            <!-- ini Testing Token dari token_wallet.js -->
+            <!-- <button onclick="addTestToken(50)">+50 Token (Testing)</button>
+            <button onclick="addTestToken(100)">+100 Token (Testing)</button> -->
+            <!-- sssssssssssssssssssssssssssssssssssssssssssssssss -->
+      <section class="ksm-token-cta">
+        <div class="ksm-token-cta-text">
+          <h3>Punya Karya untuk Dibagikan?</h3>
+          <p>
+            Upload jurnal atau opini Anda menggunakan token. Setiap upload
+            membutuhkan 1 token — belum punya token? Beli dulu, lalu upload
+            karya Anda ke KSM Education.
+          </p>
+        </div>
+        
+        <div class="ksm-token-cta-actions">
+          <button type="button" class="ksm-btn-outline-light" data-ksm-open-buy-token>
+            <i data-feather="shopping-cart"></i>
+            Beli Token
+          </button>
+          <button type="button" class="ksm-btn-solid-light" data-ksm-open-upload>
+            <i data-feather="upload"></i>
+            Upload Jurnal Baru
+          </button>
         </div>
       </section>
 
@@ -81,11 +119,17 @@ include 'components/navbar.php';
 
     </div>
 
+    <?php
+    // ===== MODALS: Token & Upload (shared partials) =====
+    include 'components/token_modal.php';
+    include 'components/upload_journal_modal.php';
+    ?>
+
     <!-- Main Footer -->
-    
+
 
     <!-- Scripts -->
-    
+
 <?php
 $extra_scripts = <<<'EOT'
 <script src="../js/script.js?v=2025112910"></script>
@@ -95,6 +139,8 @@ $extra_scripts = <<<'EOT'
     <script src="../js/opinions_manager.js"></script>
     <script src="../js/file_upload.js"></script>
     <script src="../js/dashboard_user.js?v=20260321"></script>
+    <script src="../js/token_wallet.js?v=20260715"></script>
+    <script src="../js/upload_journal_modal.js?v=20260715"></script>
     <script src="../js/mobile_menu.js?v=20251130"></script>
     <script>
       feather.replace();
@@ -103,3 +149,4 @@ $extra_scripts = <<<'EOT'
 EOT;
 include 'components/footer.php';
 ?>
+

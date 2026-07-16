@@ -185,6 +185,7 @@ include 'components/sidebar.php';
     
 <?php
 $extra_scripts = <<<'EOT'
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="../js/pdf_text_extractor.js"></script>
 <script src="../js/explore_jurnal_user.js"></script>
 <script src="../js/comments.js"></script>

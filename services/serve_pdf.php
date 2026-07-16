@@ -15,6 +15,14 @@ header('Access-Control-Allow-Origin: *');
 // Read ?file= parameter (e.g. /ksmaja/uploads/abc.pdf or /uploads/abc.pdf)
 $file = isset($_GET['file']) ? $_GET['file'] : '';
 
+// Decode base64 if needed to hide .pdf extension from download managers
+if ($file && preg_match('%^[a-zA-Z0-9/+]*={0,2}$%', $file)) {
+    $decoded = base64_decode($file, true);
+    if ($decoded !== false && (strpos($decoded, '/') !== false || strpos($decoded, '\\') !== false)) {
+        $file = $decoded;
+    }
+}
+
 // Basic security — block empty or path-traversal
 if (!$file || strpos($file, '..') !== false) {
     http_response_code(403);
@@ -38,12 +46,17 @@ if (!file_exists($filepath)) {
     exit;
 }
 
-// Remove global headers set by Apache (.htaccess) that would block iframe
+// Remove global headers set by Apache (.htaccess) that would block iframe or PDF plugins
 header_remove('Content-Type');
 header_remove('X-Frame-Options');
+header_remove('Content-Security-Policy');
 
 // Serve with correct PDF headers
-header('Content-Type: application/pdf');
+if (isset($_GET['preview']) && $_GET['preview'] == '1') {
+    header('Content-Type: application/octet-stream');
+} else {
+    header('Content-Type: application/pdf');
+}
 header('Content-Disposition: inline; filename="' . basename($filepath) . '"');
 header('Content-Transfer-Encoding: binary');
 header('Accept-Ranges: bytes');

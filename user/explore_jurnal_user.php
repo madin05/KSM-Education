@@ -193,6 +193,7 @@ include 'components/navbar.php';
 $extra_scripts = <<<'EOT'
 <script src="../js/script.js"></script>
     <script src="../js/custom_alerts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="../js/pdf_text_extractor.js"></script>
     <script src="../js/explore_jurnal_user.js"></script>
     <script src="../js/api.js"></script>

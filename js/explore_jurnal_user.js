@@ -363,21 +363,18 @@ async function displayArticle(article, type) {
     if (pdfUrl) {
       pdfSection.style.display = "block";
 
-      // Route through serve_pdf.php for proper headers & error handling
+      // Base64 encode the file path to hide '.pdf' from download managers (e.g. IDM)
+      const encodedFile = btoa(pdfUrl);
       const servePdfUrl =
-        window.APP_CONFIG.apiBase + "/serve_pdf.php?file=" + encodeURIComponent(pdfUrl);
+        window.APP_CONFIG.apiBase + "/serve_pdf.php?file=" + encodeURIComponent(encodedFile);
 
-      const pdfIframe = document.getElementById("pdfIframe");
-      if (pdfIframe) {
-        pdfIframe.src = servePdfUrl;
-        // Show friendly message if file is missing (404 or 500 from serve_pdf)
-        pdfIframe.onerror = () => {
-          pdfIframe.style.display = "none";
-          const msg = document.createElement("p");
-          msg.style.cssText = "text-align:center;color:#888;padding:40px 0;";
-          msg.textContent = "File PDF tidak tersedia. Silakan upload ulang dokumen.";
-          pdfIframe.parentNode.appendChild(msg);
-        };
+      const pdfViewer = document.getElementById("pdfViewer");
+      if (pdfViewer) {
+        if (typeof pdfjsLib !== "undefined") {
+          renderPdfWithPdfJs(servePdfUrl + "&preview=1", pdfViewer);
+        } else {
+          pdfViewer.innerHTML = `<iframe id="pdfIframe" src="${servePdfUrl}"></iframe>`;
+        }
       }
 
       const downloadLink = document.getElementById("pdfDownload");
@@ -532,6 +529,71 @@ function displaySearchResults(results, query) {
   `
     )
     .join("");
+}
+
+async function renderPdfWithPdfJs(pdfUrl, container) {
+  container.innerHTML = `
+    <div id="pdfLoading" style="text-align: center; padding: 3rem; color: #666;">
+      <div class="loading-spinner" style="border: 4px solid rgba(0,0,0,0.1); width: 36px; height: 36px; border-radius: 50%; border-left-color: #2c5f7d; animation: spin 1s linear infinite; margin: 0 auto 10px;"></div>
+      <style>
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      </style>
+      <p>Memuat lembar PDF...</p>
+    </div>
+  `;
+
+  try {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+    // Fetch the PDF binary stream manually to bypass extension interceptions (like IDM)
+    const response = await fetch(pdfUrl);
+    if (!response.ok) throw new Error("Gagal mengunduh file PDF.");
+    const arrayBuffer = await response.arrayBuffer();
+
+    const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) });
+    const pdf = await loadingTask.promise;
+
+    container.innerHTML = ""; // Clear loading
+
+    if (pdf.numPages === 0) {
+      container.innerHTML = `<p style="text-align:center;color:#888;padding:40px 0;">Dokumen PDF kosong.</p>`;
+      return;
+    }
+
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+      const page = await pdf.getPage(pageNum);
+      
+      const containerWidth = container.clientWidth || 800;
+      const unscaledViewport = page.getViewport({ scale: 1.0 });
+      const scale = containerWidth / unscaledViewport.width;
+      const viewport = page.getViewport({ scale: Math.min(scale, 1.5) });
+
+      const canvas = document.createElement("canvas");
+      canvas.className = "pdf-page-canvas";
+      canvas.style.display = "block";
+      canvas.style.margin = "15px auto";
+      canvas.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
+      canvas.style.maxWidth = "100%";
+      canvas.style.background = "white";
+      canvas.style.borderRadius = "8px";
+
+      const context = canvas.getContext("2d");
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+
+      const renderContext = {
+        canvasContext: context,
+        viewport: viewport,
+      };
+
+      container.appendChild(canvas);
+      await page.render(renderContext).promise;
+    }
+
+  } catch (error) {
+    console.error("PDF.js render failed:", error);
+    container.innerHTML = `<iframe id="pdfIframe" src="${pdfUrl}" style="width: 100%; height: 650px; border: none;"></iframe>`;
+  }
 }
 
 // ===== INITIALIZE =====

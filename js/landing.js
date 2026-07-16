@@ -126,6 +126,92 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+
+    // Guidelines Mobile Autoplay with Pause-on-Touch/Scroll Interaction
+    const guidelinesGrid = document.querySelector('.guidelines-grid');
+    if (guidelinesGrid) {
+        let isUserInteracting = false;
+        let autoplayInterval = null;
+        let activeIndex = 0;
+        let interactionTimeout = null;
+
+        const startAutoplay = () => {
+            if (autoplayInterval) clearInterval(autoplayInterval);
+            autoplayInterval = setInterval(() => {
+                if (isUserInteracting) return;
+                
+                const cards = guidelinesGrid.querySelectorAll('.guidelines-card');
+                if (cards.length === 0) return;
+                
+                activeIndex = (activeIndex + 1) % cards.length;
+                const targetCard = cards[activeIndex];
+                
+                guidelinesGrid.scrollTo({
+                    left: targetCard.offsetLeft - guidelinesGrid.offsetLeft - 20, // offset for visual padding alignment
+                    behavior: 'smooth'
+                });
+            }, 3000);
+        };
+
+        const stopAutoplay = () => {
+            if (autoplayInterval) {
+                clearInterval(autoplayInterval);
+                autoplayInterval = null;
+            }
+        };
+
+        const handleUserInteraction = () => {
+            isUserInteracting = true;
+            stopAutoplay();
+            
+            // Resume autoplay after 5 seconds of no interactions
+            clearTimeout(interactionTimeout);
+            interactionTimeout = setTimeout(() => {
+                isUserInteracting = false;
+                
+                // Recalculate closest index based on current manual scroll location
+                const cards = guidelinesGrid.querySelectorAll('.guidelines-card');
+                if (cards.length > 0) {
+                    const scrollLeft = guidelinesGrid.scrollLeft;
+                    let closestIndex = 0;
+                    let minDiff = Infinity;
+                    cards.forEach((card, index) => {
+                        const diff = Math.abs(card.offsetLeft - guidelinesGrid.offsetLeft - scrollLeft - 20);
+                        if (diff < minDiff) {
+                            minDiff = diff;
+                            closestIndex = index;
+                        }
+                    });
+                    activeIndex = closestIndex;
+                }
+                
+                startAutoplay();
+            }, 5000);
+        };
+
+        // Bind events for touch screens and scroll detection
+        guidelinesGrid.addEventListener('touchstart', handleUserInteraction, { passive: true });
+        guidelinesGrid.addEventListener('touchmove', handleUserInteraction, { passive: true });
+        guidelinesGrid.addEventListener('scroll', function() {
+            if (!isUserInteracting) {
+                handleUserInteraction();
+            }
+        }, { passive: true });
+
+        // Start horizontal autoplay initially if on mobile device
+        if (window.innerWidth <= 768) {
+            startAutoplay();
+        }
+
+        // React to viewport resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth <= 768) {
+                startAutoplay();
+            } else {
+                stopAutoplay();
+            }
+        });
+    }
 });
 
 // Helper function to switch languages via URL parameter

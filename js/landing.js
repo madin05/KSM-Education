@@ -9,13 +9,15 @@ document.addEventListener("DOMContentLoaded", function () {
     // Change Navigation styles on scroll
     const header = document.querySelector('.landing-header');
     if (header) {
-        window.addEventListener('scroll', () => {
+        const handleScroll = () => {
             if (window.scrollY > 50) {
                 header.classList.add('scrolled');
             } else {
                 header.classList.remove('scrolled');
             }
-        });
+        };
+        window.addEventListener('scroll', handleScroll);
+        handleScroll();
     }
 
     // Mobile Menu Toggle
@@ -46,4 +48,53 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+
+    // Language Switcher Dropdowns (Header & Footer)
+    const langBtn = document.getElementById('langBtn');
+    const langDropdown = document.getElementById('langDropdown');
+    
+    if (langBtn && langDropdown) {
+        langBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            langDropdown.classList.toggle('show');
+        });
+        document.addEventListener('click', () => {
+            langDropdown.classList.remove('show');
+        });
+    }
+
+    const langBtnFooter = document.getElementById('langBtnFooter');
+    const langDropdownFooter = document.getElementById('langDropdownFooter');
+    
+    if (langBtnFooter && langDropdownFooter) {
+        langBtnFooter.addEventListener('click', (e) => {
+            e.stopPropagation();
+            langDropdownFooter.classList.toggle('show');
+        });
+        document.addEventListener('click', () => {
+            langDropdownFooter.classList.remove('show');
+        });
+    }
+
+    // Search Form Action Router
+    const searchForm = document.getElementById('searchForm');
+    const searchFilter = document.getElementById('searchFilter');
+    
+    if (searchForm && searchFilter) {
+        searchForm.addEventListener('submit', function (e) {
+            const filterValue = searchFilter.value;
+            if (filterValue === 'articles') {
+                searchForm.action = 'user/opinions_user.php';
+            } else {
+                searchForm.action = 'user/journals_user.php';
+            }
+        });
+    }
 });
+
+// Helper function to switch languages via URL parameter
+function changeLanguage(lang) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('lang', lang);
+    window.location.href = url.toString();
+}

@@ -513,8 +513,8 @@ body {
 }
 
 .btn-hero-primary:hover {
-  background-color: var(--accent-orange-hover);
-  border-color: var(--accent-orange-hover);
+  background-color: var(--primary-navy);
+  border-color: var(--primary-hover);
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
@@ -682,7 +682,6 @@ body {
 }
 
 .academic-card:hover {
-  transform: translateY(-3px);
   box-shadow: var(--shadow-md);
   border-color: var(--accent-cyan);
 }
@@ -730,7 +729,7 @@ body {
   transition: var(--transition-smooth);
 }
 
-.academic-card:hover .academic-thumbnail {
+.academic-card:hover {
   border-color: var(--accent-cyan);
 }
 
@@ -802,7 +801,6 @@ body {
 }
 
 .news-card:hover {
-  transform: translateY(-3px);
   box-shadow: var(--shadow-md);
   border-color: var(--accent-cyan);
 }
@@ -1108,6 +1106,63 @@ body {
   height: 28px;
 }
 
+/* Guidelines Section Styles */
+.landing-guidelines-section {
+  background-color: var(--bg-slate);
+  border-radius: 20px;
+  padding: 60px 40px;
+  margin-top: 40px;
+  margin-bottom: 80px;
+  border: 1px solid var(--border-color);
+}
+
+.guidelines-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+.guidelines-card {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-smooth);
+}
+
+.guidelines-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent-cyan);
+}
+
+.guidelines-icon-wrapper {
+  background: rgba(59, 92, 146, 0.1);
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  color: var(--accent-cyan);
+}
+
+.guidelines-card h4 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary-navy);
+  margin-bottom: 8px;
+}
+
+.guidelines-card p {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
 @media (max-width: 1024px) {
   .split-grid {
     grid-template-columns: 1fr;
@@ -1223,4 +1278,30 @@ body {
   .landing-submission-content h2 {
     font-size: 28px;
   }
+
+  /* Mobile Guidelines Swipeable Horizontal Layout */
+  .landing-guidelines-section {
+    padding: 40px 20px;
+  }
+
+  .guidelines-grid {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 20px;
+    padding: 10px 4px;
+    margin: 0 -4px;
+    scrollbar-width: none; /* Hide scrollbar for Firefox */
+  }
+
+  .guidelines-grid::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for Chrome/Safari */
+  }
+
+  .guidelines-card {
+    flex: 0 0 85%;
+    scroll-snap-align: center;
+  }
 }
+

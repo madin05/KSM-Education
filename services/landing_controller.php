@@ -195,36 +195,6 @@ if (!empty($latest_journals)) {
     }
 }
 
-// Fallback mock journals if empty
-if (count($rendered_journals) < 2) {
-    $rendered_journals = array_merge($rendered_journals, [
-        [
-            'id' => '#',
-            'title' => 'Analisis Kebijakan Moneter Terhadap Pertumbuhan Ekonomi Digital di Asia Tenggara',
-            'abstract' => 'Penelitian ini menganalisis dampak implementasi kebijakan moneter bank sentral terhadap stabilitas pasar uang dan pertumbuhan ekonomi berbasis digital di kawasan Asia Tenggara dalam dekade terakhir.',
-            'authors' => 'Dr. M. Arif Syahrudin, Prof. Dr. Hendra Wijaya',
-            'date' => '15 Jul 2026',
-            'views' => 1420
-        ],
-        [
-            'id' => '#',
-            'title' => 'Penerapan Deep Learning Untuk Klasifikasi Citra Medis Deteksi Kanker Paru',
-            'abstract' => 'Penelitian ini mengajukan arsitektur convolutional neural network (CNN) yang dioptimasi untuk mendeteksi nodul paru-paru pada citra CT scan dengan tingkat akurasi mencapai 98.4%.',
-            'authors' => 'Rian Adisukma, Dr. Sarah Fitriani',
-            'date' => '14 Jul 2026',
-            'views' => 985
-        ],
-        [
-            'id' => '#',
-            'title' => 'Strategi Manajemen Pembelajaran Jarak Jauh di Era Pasca-Pandemi Global',
-            'abstract' => 'Evaluasi komprehensif mengenai efektivitas model hybrid learning pada institusi pendidikan tinggi Indonesia, serta pengembangan kurikulum yang adaptif bagi mahasiswa vokasi.',
-            'authors' => 'Dewi Lestari M.Pd., Budi Santoso',
-            'date' => '10 Jul 2026',
-            'views' => 654
-        ]
-    ]);
-}
-
 // Format the opinions list
 $rendered_opinions = [];
 if (!empty($latest_opinions)) {
@@ -234,7 +204,7 @@ if (!empty($latest_opinions)) {
             $cover = $app_root . '/' . ltrim($cover, '/');
         }
         if (!$cover) {
-            $cover = 'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=400&h=300&fit=crop';
+            $cover = 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500&h=400&fit=crop';
         }
 
         // Dynamic reading time calculation
@@ -252,32 +222,3 @@ if (!empty($latest_opinions)) {
     }
 }
 
-// Fallback mock opinions if empty
-if (count($rendered_opinions) < 2) {
-    $rendered_opinions = array_merge($rendered_opinions, [
-        [
-            'id' => '#',
-            'title' => 'Menakar Potensi AI Generatif dalam Sistem Pendidikan Menengah Atas',
-            'summary' => 'Kajian mendalam tentang pemanfaatan ChatGPT dan tool AI generatif lainnya untuk membantu guru menyusun rencana pembelajaran personal.',
-            'cover' => 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=300&fit=crop',
-            'read_time' => 4,
-            'date' => '16 Jul 2026'
-        ],
-        [
-            'id' => '#',
-            'title' => 'Pentingnya Literasi Digital di Kalangan Siswa Sekolah Dasar',
-            'summary' => 'Artikel opini mengenai ancaman paparan informasi digital tanpa filter pada anak-anak usia dini dan pentingnya kurikulum literasi internet sehat.',
-            'cover' => 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&h=300&fit=crop',
-            'read_time' => 3,
-            'date' => '12 Jul 2026'
-        ],
-        [
-            'id' => '#',
-            'title' => 'Kurikulum Merdeka: Antara Fleksibilitas dan Kesiapan Infrastruktur',
-            'summary' => 'Pembahasan kritis mengenai kesiapan sekolah-sekolah di daerah terpencil dalam mengadopsi struktur pembelajaran berbasis proyek.',
-            'cover' => 'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=400&h=300&fit=crop',
-            'read_time' => 5,
-            'date' => '08 Jul 2026'
-        ]
-    ]);
-}

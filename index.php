@@ -125,32 +125,39 @@ require_once __DIR__ . '/services/landing_controller.php';
                 </div>
 
                 <div class="academic-cards-container">
-                    <?php foreach ($rendered_journals as $journal): ?>
-                        <?php 
-                        $journal_link = ($journal['id'] === '#') ? 'user/journals_user.php' : 'user/explore_jurnal_user.php?id=' . $journal['id'] . '&type=jurnal';
-                        ?>
-                        <a href="<?php echo $journal_link; ?>" class="academic-card">
-                            <div class="academic-icon-wrapper">
-                                <i data-feather="book-open"></i>
-                            </div>
-                            <div class="academic-content">
-                                <h3 class="academic-title"><?php echo htmlspecialchars($journal['title']); ?></h3>
-                                <div class="academic-authors">
-                                    <?php echo htmlspecialchars($journal['authors']); ?>
+                    <?php if (empty($rendered_journals)): ?>
+                        <div class="landing-empty-state" style="padding: 40px 24px; text-align: center; background: var(--bg-slate); border: 1px dashed var(--border-color); border-radius: 12px; color: var(--text-muted); font-size: 14px; font-weight: 500; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; width: 100%;">
+                            <i data-feather="inbox" style="width: 32px; height: 32px; color: var(--text-muted);"></i>
+                            <p style="margin: 0;"><?php echo $lang === 'en' ? 'No academic journals published yet.' : 'Belum ada jurnal akademik terpublikasi.'; ?></p>
+                        </div>
+                    <?php else: ?>
+                        <?php foreach ($rendered_journals as $journal): ?>
+                            <?php 
+                            $journal_link = ($journal['id'] === '#') ? 'user/journals_user.php' : 'user/explore_jurnal_user.php?id=' . $journal['id'] . '&type=jurnal';
+                            ?>
+                            <a href="<?php echo $journal_link; ?>" class="academic-card">
+                                <div class="academic-icon-wrapper">
+                                    <i data-feather="book-open"></i>
                                 </div>
-                                <div class="academic-meta">
-                                    <span>
-                                        <i data-feather="calendar"></i>
-                                        <?php echo htmlspecialchars($journal['date']); ?>
-                                    </span>
-                                    <span>
-                                        <i data-feather="eye"></i>
-                                        <?php echo number_format($journal['views']); ?> <?php echo $t['views_count']; ?>
-                                    </span>
+                                <div class="academic-content">
+                                    <h3 class="academic-title"><?php echo htmlspecialchars($journal['title']); ?></h3>
+                                    <div class="academic-authors">
+                                        <?php echo htmlspecialchars($journal['authors']); ?>
+                                    </div>
+                                    <div class="academic-meta">
+                                        <span>
+                                            <i data-feather="calendar"></i>
+                                            <?php echo htmlspecialchars($journal['date']); ?>
+                                        </span>
+                                        <span>
+                                            <i data-feather="eye"></i>
+                                            <?php echo number_format($journal['views']); ?> <?php echo $t['views_count']; ?>
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
-                        </a>
-                    <?php endforeach; ?>
+                            </a>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -168,29 +175,36 @@ require_once __DIR__ . '/services/landing_controller.php';
                 </div>
 
                 <div class="news-cards-container">
-                    <?php foreach ($rendered_opinions as $opinion): ?>
-                        <?php 
-                        $opinion_link = ($opinion['id'] === '#') ? 'user/opinions_user.php' : 'user/explore_opini_user.php?id=' . $opinion['id'] . '&type=opini';
-                        ?>
-                        <a href="<?php echo $opinion_link; ?>" class="news-card">
-                            <div class="news-thumbnail">
-                                <img src="<?php echo htmlspecialchars($opinion['cover']); ?>" alt="Thumbnail News">
-                            </div>
-                            <div class="news-content">
-                                <h3 class="news-title"><?php echo htmlspecialchars($opinion['title']); ?></h3>
-                                <p class="news-summary"><?php echo htmlspecialchars($opinion['summary']); ?></p>
-                                <div class="news-meta">
-                                    <span>
-                                        <i data-feather="calendar" style="width: 12px; height: 12px; margin-right: 4px; vertical-align: middle;"></i>
-                                        <?php echo htmlspecialchars($opinion['date']); ?>
-                                    </span>
-                                    <span class="news-readtime">
-                                        <?php echo $opinion['read_time']; ?> <?php echo $t['read_time']; ?>
-                                    </span>
+                    <?php if (empty($rendered_opinions)): ?>
+                        <div class="landing-empty-state" style="padding: 40px 24px; text-align: center; background: var(--bg-slate); border: 1px dashed var(--border-color); border-radius: 12px; color: var(--text-muted); font-size: 14px; font-weight: 500; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; width: 100%;">
+                            <i data-feather="inbox" style="width: 32px; height: 32px; color: var(--text-muted);"></i>
+                            <p style="margin: 0;"><?php echo $lang === 'en' ? 'No news or opinions published yet.' : 'Belum ada opini atau berita terpublikasi.'; ?></p>
+                        </div>
+                    <?php else: ?>
+                        <?php foreach ($rendered_opinions as $opinion): ?>
+                            <?php 
+                            $opinion_link = ($opinion['id'] === '#') ? 'user/opinions_user.php' : 'user/explore_opini_user.php?id=' . $opinion['id'] . '&type=opini';
+                            ?>
+                            <a href="<?php echo $opinion_link; ?>" class="news-card">
+                                <div class="news-thumbnail">
+                                    <img src="<?php echo htmlspecialchars($opinion['cover']); ?>" alt="Thumbnail News">
                                 </div>
-                            </div>
-                        </a>
-                    <?php endforeach; ?>
+                                <div class="news-content">
+                                    <h3 class="news-title"><?php echo htmlspecialchars($opinion['title']); ?></h3>
+                                    <p class="news-summary"><?php echo htmlspecialchars($opinion['summary']); ?></p>
+                                    <div class="news-meta">
+                                        <span>
+                                            <i data-feather="calendar" style="width: 12px; height: 12px; margin-right: 4px; vertical-align: middle;"></i>
+                                            <?php echo htmlspecialchars($opinion['date']); ?>
+                                        </span>
+                                        <span class="news-readtime">
+                                            <?php echo $opinion['read_time']; ?> <?php echo $t['read_time']; ?>
+                                        </span>
+                                    </div>
+                                </div>
+                            </a>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
             </div>
 

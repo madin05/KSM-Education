@@ -76,9 +76,45 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // Custom Search Filter Dropdown
+    const filterTrigger = document.getElementById('filterTrigger');
+    const filterDropdownMenu = document.getElementById('filterDropdownMenu');
+    const searchFilter = document.getElementById('searchFilter');
+    const filterCurrent = document.getElementById('filterCurrent');
+    
+    if (filterTrigger && filterDropdownMenu && searchFilter && filterCurrent) {
+        filterTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            filterDropdownMenu.classList.toggle('show');
+        });
+
+        filterDropdownMenu.querySelectorAll('li').forEach(item => {
+            item.addEventListener('click', function () {
+                const val = this.getAttribute('data-value');
+                const txt = this.textContent;
+                
+                // Update hidden input value
+                searchFilter.value = val;
+                
+                // Update visible text
+                filterCurrent.textContent = txt;
+                
+                // Toggle active class
+                filterDropdownMenu.querySelectorAll('li').forEach(el => el.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Close dropdown
+                filterDropdownMenu.classList.remove('show');
+            });
+        });
+
+        document.addEventListener('click', () => {
+            filterDropdownMenu.classList.remove('show');
+        });
+    }
+
     // Search Form Action Router
     const searchForm = document.getElementById('searchForm');
-    const searchFilter = document.getElementById('searchFilter');
     
     if (searchForm && searchFilter) {
         searchForm.addEventListener('submit', function (e) {

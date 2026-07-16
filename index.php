@@ -41,12 +41,16 @@ require_once __DIR__ . '/services/landing_controller.php';
             <!-- Search Bar Box with Dropdown filter beside it -->
             <div class="landing-search-container">
                 <form id="searchForm" action="user/journals_user.php" method="GET" class="landing-search-box">
-                    <div class="search-filter-wrapper">
-                        <select id="searchFilter" class="search-filter-select">
-                            <option value="journals" selected><?php echo $t['search_opt_journals']; ?></option>
-                            <option value="articles"><?php echo $t['search_opt_articles']; ?></option>
-                        </select>
-                        <i data-feather="chevron-down" class="caret-icon"></i>
+                    <div class="search-filter-custom" id="searchFilterCustom">
+                        <button type="button" class="filter-trigger" id="filterTrigger">
+                            <span id="filterCurrent"><?php echo $t['search_opt_journals']; ?></span>
+                            <i data-feather="chevron-down" class="caret-icon"></i>
+                        </button>
+                        <ul class="filter-dropdown-menu" id="filterDropdownMenu">
+                            <li data-value="journals" class="active"><?php echo $t['search_opt_journals']; ?></li>
+                            <li data-value="articles"><?php echo $t['search_opt_articles']; ?></li>
+                        </ul>
+                        <input type="hidden" name="filter" id="searchFilter" value="journals">
                     </div>
 
                     <i data-feather="search" class="search-icon"></i>

@@ -131,8 +131,9 @@ try {
 
     // Fetch latest 4 journals
     $stmtJ = $pdo->query("
-        SELECT j.id, j.title, j.abstract, j.authors, j.created_at, COALESCE(j.views, 0) as views 
+        SELECT j.id, j.title, j.abstract, j.authors, j.created_at, COALESCE(j.views, 0) as views, u.url as cover_url 
         FROM journals j 
+        LEFT JOIN uploads u ON j.cover_upload_id = u.id
         ORDER BY j.created_at DESC 
         LIMIT 4
     ");
@@ -184,10 +185,18 @@ if (!empty($latest_journals)) {
             }
         }
         
+        $cover = $art['cover_url'];
+        if ($cover) {
+            $cover = 'uploads/' . basename($cover);
+        } else {
+            $cover = 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500&h=400&fit=crop';
+        }
+        
         $rendered_journals[] = [
             'id' => $art['id'],
             'title' => $art['title'],
             'abstract' => $art['abstract'],
+            'cover' => $cover,
             'authors' => !empty($authors) ? implode(', ', $authors) : 'KSM Author',
             'date' => date('d M Y', strtotime($art['created_at'])),
             'views' => $art['views']
@@ -200,21 +209,20 @@ $rendered_opinions = [];
 if (!empty($latest_opinions)) {
     foreach ($latest_opinions as $op) {
         $cover = $op['cover_url'];
-        if ($cover && $app_root && strpos($cover, $app_root) !== 0) {
-            $cover = $app_root . '/' . ltrim($cover, '/');
-        }
-        if (!$cover) {
+        if ($cover) {
+            $cover = 'uploads/' . basename($cover);
+        } else {
             $cover = 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500&h=400&fit=crop';
         }
 
         // Dynamic reading time calculation
-        $words = str_word_count(strip_tags($op['content']));
+        $words = str_word_count(strip_tags($op['description']));
         $read_time = max(1, ceil($words / 200));
 
         $rendered_opinions[] = [
             'id' => $op['id'],
             'title' => $op['title'],
-            'summary' => substr(strip_tags($op['content']), 0, 140) . '...',
+            'summary' => substr(strip_tags($op['description']), 0, 140) . '...',
             'cover' => $cover,
             'read_time' => $read_time,
             'date' => date('d M Y', strtotime($op['created_at']))

@@ -136,8 +136,8 @@ require_once __DIR__ . '/services/landing_controller.php';
                             $journal_link = ($journal['id'] === '#') ? 'user/journals_user.php' : 'user/explore_jurnal_user.php?id=' . $journal['id'] . '&type=jurnal';
                             ?>
                             <a href="<?php echo $journal_link; ?>" class="academic-card">
-                                <div class="academic-icon-wrapper">
-                                    <i data-feather="book-open"></i>
+                                <div class="academic-thumbnail">
+                                    <img src="<?php echo htmlspecialchars($journal['cover']); ?>" alt="Cover Jurnal">
                                 </div>
                                 <div class="academic-content">
                                     <h3 class="academic-title"><?php echo htmlspecialchars($journal['title']); ?></h3>

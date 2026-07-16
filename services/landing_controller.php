@@ -140,7 +140,7 @@ try {
 
     // Fetch latest 4 opinions (News & Articles)
     $stmtO = $pdo->query("
-        SELECT o.id, o.title, o.content, o.created_at, COALESCE(o.views, 0) as views, u.url as cover_url 
+        SELECT o.id, o.title, o.description, o.created_at, COALESCE(o.views, 0) as views, u.url as cover_url 
         FROM opinions o 
         LEFT JOIN uploads u ON o.cover_upload_id = u.id 
         ORDER BY o.created_at DESC 
@@ -148,7 +148,7 @@ try {
     ");
     $latest_opinions = $stmtO->fetchAll();
 } catch (Exception $e) {
-    // Fallback silent
+    error_log("Landing controller DB error: " . $e->getMessage());
 }
 
 // Compute APP_ROOT prefix

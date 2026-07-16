@@ -349,7 +349,13 @@ class PaginationUser {
           );
           return;
         }
-        fileUrl = data.data?.file_url || data.file_url || data.fileUrl;
+        fileUrl =
+          data.journal?.file_url ||
+          data.opinion?.file_url ||
+          data.result?.file_url ||
+          data.data?.file_url ||
+          data.file_url ||
+          data.fileUrl;
       }
 
       if (!fileUrl) {
@@ -357,10 +363,13 @@ class PaginationUser {
         return;
       }
 
+      // Route through serve_pdf.php for proper headers & security
+      const servePdfUrl =
+        `${window.APP_CONFIG.apiBase}/serve_pdf.php?file=` + encodeURIComponent(fileUrl);
+
       // Trigger download
       const link = document.createElement("a");
-      link.href = fileUrl;
-      link.download = itemTitle + ".pdf";
+      link.href = servePdfUrl;
       link.target = "_blank";
       document.body.appendChild(link);
       link.click();

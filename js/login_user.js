@@ -105,7 +105,87 @@ if (loginForm) {
     });
 }
 
-// ===== SOCIAL LOGIN HANDLERS =====
+// ===== GOOGLE IDENTITY SERVICES INITIALIZATION =====
+if (window.GOOGLE_CLIENT_ID) {
+    window.addEventListener('load', () => {
+        if (typeof google !== 'undefined') {
+            google.accounts.id.initialize({
+                client_id: window.GOOGLE_CLIENT_ID,
+                callback: handleGoogleLogin
+            });
+            
+            const btnContainer = document.getElementById('googleButtonContainer');
+            if (btnContainer) {
+                google.accounts.id.renderButton(
+                    btnContainer,
+                    { 
+                        theme: 'outline', 
+                        size: 'large', 
+                        width: btnContainer.offsetWidth || 300,
+                        text: 'signin_with'
+                    }
+                );
+            }
+        }
+    });
+}
+
+// Handler for Google Token
+async function handleGoogleLogin(response) {
+    const credential = response.credential; // JWT ID Token from Google
+    
+    if (!loginButton) return;
+
+    // Show loading state
+    loginButton.classList.add('loading-state');
+    const originalText = loginButton.textContent;
+    loginButton.textContent = 'Memproses Google Login...';
+
+    try {
+        const res = await fetch(`${window.APP_CONFIG.SERVICES}/auth_google.php`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ credential })
+        });
+
+        const result = await res.json();
+
+        if (result.ok && result.user) {
+            showAlert('Login Google berhasil! Mengalihkan...', 'success');
+
+            // Store JWT tokens
+            if (result.access_token && window.TokenManager) {
+                window.TokenManager.setTokens(
+                    result.access_token,
+                    result.refresh_token,
+                    result.expires_in
+                );
+            }
+
+            sessionStorage.setItem('userLoggedIn', 'true');
+            sessionStorage.setItem('userEmail', result.user.email || '');
+            sessionStorage.setItem('userName', result.user.name);
+            sessionStorage.setItem('userType', result.user.role || 'user');
+
+            setTimeout(() => {
+                window.location.href = './dashboard_user.php';
+            }, 1000);
+        } else {
+            showAlert(result.message || 'Login Google gagal!', 'error');
+            loginButton.classList.remove('loading-state');
+            loginButton.textContent = originalText;
+        }
+    } catch (error) {
+        console.error('Google Auth Error:', error);
+        showAlert('Terjadi kesalahan server saat login Google.', 'error');
+        if (loginButton) {
+            loginButton.classList.remove('loading-state');
+            loginButton.textContent = originalText;
+        }
+    }
+}
+
+// ===== SOCIAL LOGIN HANDLERS (OTHERS) =====
 const setupSocial = (id) => {
     const btn = document.getElementById(id);
     if (btn) {

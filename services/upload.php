@@ -6,7 +6,8 @@ require_once __DIR__ . '/jwt_middleware.php';
 // ===== JWT AUTH: Any Authenticated User =====
 require_auth();
 
-$uploadDir = __DIR__ . '/../../uploads';
+// Fix: Save inside ksmaja/uploads/ (one level up from services/, not two)
+$uploadDir = __DIR__ . '/../uploads';
 if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -62,8 +63,9 @@ if (!move_uploaded_file($file['tmp_name'], $target)) {
     exit;
 }
 
-// Build public url path (adjust if project in subfolder)
-$publicUrl = '/uploads/' . $safeName;
+// Build public url path — include APP_ROOT prefix so URL is directly usable
+// APP_ROOT is defined in db.php (e.g. '/ksmaja' or '' if at root)
+$publicUrl = APP_ROOT . '/uploads/' . $safeName;
 
 $mime = $file['type'] ?? mime_content_type($target);
 $size = (int)$file['size'];

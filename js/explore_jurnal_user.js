@@ -363,22 +363,35 @@ async function displayArticle(article, type) {
     if (pdfUrl) {
       pdfSection.style.display = "block";
 
+      // Route through serve_pdf.php for proper headers & error handling
+      const servePdfUrl =
+        window.APP_CONFIG.apiBase + "/serve_pdf.php?file=" + encodeURIComponent(pdfUrl);
+
       const pdfIframe = document.getElementById("pdfIframe");
       if (pdfIframe) {
-        pdfIframe.src = pdfUrl; // sekarang: /ksmaja/serve_pdf.php?file=/ksmaja/uploads/xxx.pdf
+        pdfIframe.src = servePdfUrl;
+        // Show friendly message if file is missing (404 or 500 from serve_pdf)
+        pdfIframe.onerror = () => {
+          pdfIframe.style.display = "none";
+          const msg = document.createElement("p");
+          msg.style.cssText = "text-align:center;color:#888;padding:40px 0;";
+          msg.textContent = "File PDF tidak tersedia. Silakan upload ulang dokumen.";
+          pdfIframe.parentNode.appendChild(msg);
+        };
       }
 
       const downloadLink = document.getElementById("pdfDownload");
       if (downloadLink) {
-        downloadLink.href = pdfUrl;
-        downloadLink.download = `${
-          article.title || article.judul || "artikel"
-        }.pdf`;
+        // Use serve_pdf.php so the server sends correct Content-Disposition header
+        downloadLink.href = servePdfUrl;
+        downloadLink.removeAttribute("download"); // let serve_pdf handle disposition
+        downloadLink.setAttribute("target", "_blank");
       }
     } else {
       pdfSection.style.display = "none";
     }
   }
+
 
   // Replace feather icons
   if (typeof feather !== "undefined") {

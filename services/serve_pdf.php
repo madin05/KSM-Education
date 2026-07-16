@@ -1,40 +1,48 @@
 <?php
-// Dynamic path for API endpoint, e.g., /api/serve_pdf.php
+// serve_pdf.php — Serves PDF files with correct headers for inline preview & download
 error_reporting(0);
 ini_set('display_errors', 0);
 
-require_once __DIR__ . '/db.php';
+// Compute APP_ROOT directly (avoids including db.php which sets Content-Type: application/json)
+$_abs      = realpath(__FILE__);
+$_docroot  = realpath($_SERVER['DOCUMENT_ROOT']);
+$_rel      = str_replace('\\', '/', str_replace($_docroot, '', $_abs));
+$_app_root = dirname(dirname($_rel)); // e.g. /ksmaja (services/serve_pdf.php → 2 levels up)
+$APP_ROOT  = ($_app_root === '/' || $_app_root === '.') ? '' : $_app_root;
 
 header('Access-Control-Allow-Origin: *');
 
-// Ambil parameter ?file=/uploads/xxx.pdf
+// Read ?file= parameter (e.g. /ksmaja/uploads/abc.pdf or /uploads/abc.pdf)
 $file = isset($_GET['file']) ? $_GET['file'] : '';
 
-// Cek basic security
+// Basic security — block empty or path-traversal
 if (!$file || strpos($file, '..') !== false) {
     http_response_code(403);
     echo 'Invalid file path';
     exit;
 }
 
-// Pastikan selalu pakai path absolut mulai dari APP_ROOT
-if (strpos($file, APP_ROOT . '/') !== 0) {
-    // kalau yang dikirim cuma /uploads/... atau nama file
-    $file = APP_ROOT . '/uploads/' . ltrim($file, '/');
+// Normalize: ensure path starts with APP_ROOT prefix
+// Old DB records store bare /uploads/abc.pdf — prepend APP_ROOT
+// New records already have /ksmaja/uploads/abc.pdf — leave as-is
+if ($APP_ROOT && strpos($file, $APP_ROOT) !== 0) {
+    $file = $APP_ROOT . '/' . ltrim($file, '/');
 }
 
-// Path absolut di server
+// Absolute filesystem path
 $filepath = $_SERVER['DOCUMENT_ROOT'] . $file;
 
-// Kalau file gak ketemu -> 404
 if (!file_exists($filepath)) {
     http_response_code(404);
     echo 'File not found: ' . htmlspecialchars($file);
     exit;
 }
 
-// Paksa browser preview PDF
+// Remove global headers set by Apache (.htaccess) that would block iframe
 header_remove('Content-Type');
+header_remove('X-Frame-Options');
+
+// Serve with correct PDF headers
 header('Content-Type: application/pdf');
 header('Content-Disposition: inline; filename="' . basename($filepath) . '"');
 header('Content-Transfer-Encoding: binary');

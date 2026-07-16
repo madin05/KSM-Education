@@ -33,6 +33,14 @@ try {
     $updateViews = $pdo->prepare("UPDATE opinions SET views = views + 1 WHERE id = ?");
     $updateViews->execute([$id]);
 
+    // Fix file_url & cover_url — prepend APP_ROOT if not already prefixed
+    if (!empty($opinion['file_url']) && APP_ROOT && strpos($opinion['file_url'], APP_ROOT) !== 0) {
+        $opinion['file_url'] = APP_ROOT . '/' . ltrim($opinion['file_url'], '/');
+    }
+    if (!empty($opinion['cover_url']) && APP_ROOT && strpos($opinion['cover_url'], APP_ROOT) !== 0) {
+        $opinion['cover_url'] = APP_ROOT . '/' . ltrim($opinion['cover_url'], '/');
+    }
+
     echo json_encode([
         'ok' => true,
         'result' => $opinion,

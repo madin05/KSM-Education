@@ -39,6 +39,16 @@ try {
     $updateViews = $pdo->prepare("UPDATE journals SET views = views + 1 WHERE id = ?");
     $updateViews->execute([$id]);
 
+    //  Fix file_url & cover_url — prepend APP_ROOT if not already prefixed
+    //  uploads table stores bare paths like /uploads/xxx.pdf
+    //  but the browser needs /ksmaja/uploads/xxx.pdf when running in a subfolder
+    if (!empty($journal['file_url']) && APP_ROOT && strpos($journal['file_url'], APP_ROOT) !== 0) {
+        $journal['file_url'] = APP_ROOT . '/' . ltrim($journal['file_url'], '/');
+    }
+    if (!empty($journal['cover_url']) && APP_ROOT && strpos($journal['cover_url'], APP_ROOT) !== 0) {
+        $journal['cover_url'] = APP_ROOT . '/' . ltrim($journal['cover_url'], '/');
+    }
+
     //  Return with UPDATED file URLs
     echo json_encode([
         'ok' => true,

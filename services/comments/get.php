@@ -54,7 +54,8 @@ if (!in_array($article_type, ['jurnal', 'opini'], true)) {
 
 try {
     $stmt = $pdo->prepare(
-        "SELECT c.id, c.parent_id, c.user_id, c.user_name, c.content, c.created_at, u.role
+        "SELECT c.id, c.parent_id, c.user_id, c.user_name, c.content, c.created_at,
+                IFNULL(u.role, 'user') AS role
          FROM comments c
          LEFT JOIN users u ON c.user_id = u.id
          WHERE c.article_id = ? AND c.article_type = ?
@@ -73,5 +74,5 @@ try {
     echo json_encode(['ok' => true, 'comments' => $comments, 'total' => count($comments)]);
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['ok' => false, 'message' => 'Server error']);
+    echo json_encode(['ok' => false, 'message' => $e->getMessage()]);
 }

@@ -32,12 +32,18 @@ try {
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Ambil file_url dan cover_url
+    // APP_ROOT is defined in db.php (e.g. '/ksmaja') — prepend so URLs are correct on any subdirectory install
     foreach ($rows as &$row) {
         if (!empty($row['file_upload_id'])) {
             $fileStmt = $pdo->prepare("SELECT url FROM uploads WHERE id = ?");
             $fileStmt->execute([$row['file_upload_id']]);
             $file = $fileStmt->fetch(PDO::FETCH_ASSOC);
-            $row['file_url'] = $file ? $file['url'] : '';
+            $rawUrl = $file ? $file['url'] : '';
+            // Prepend APP_ROOT only if not already prefixed
+            if ($rawUrl && APP_ROOT && strpos($rawUrl, APP_ROOT) !== 0) {
+                $rawUrl = APP_ROOT . '/' . ltrim($rawUrl, '/');
+            }
+            $row['file_url'] = $rawUrl;
         } else {
             $row['file_url'] = '';
         }
@@ -46,7 +52,12 @@ try {
             $coverStmt = $pdo->prepare("SELECT url FROM uploads WHERE id = ?");
             $coverStmt->execute([$row['cover_upload_id']]);
             $cover = $coverStmt->fetch(PDO::FETCH_ASSOC);
-            $row['cover_url'] = $cover ? $cover['url'] : '';
+            $rawCover = $cover ? $cover['url'] : '';
+            // Prepend APP_ROOT only if not already prefixed
+            if ($rawCover && APP_ROOT && strpos($rawCover, APP_ROOT) !== 0) {
+                $rawCover = APP_ROOT . '/' . ltrim($rawCover, '/');
+            }
+            $row['cover_url'] = $rawCover;
         } else {
             $row['cover_url'] = '';
         }

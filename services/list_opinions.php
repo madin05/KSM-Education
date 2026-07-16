@@ -50,6 +50,17 @@ try {
 
     $opinions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    // Fix URLs: prepend APP_ROOT so paths resolve correctly on subdirectory installs (e.g. /ksmaja)
+    foreach ($opinions as &$op) {
+        if (!empty($op['file_url']) && APP_ROOT && strpos($op['file_url'], APP_ROOT) !== 0) {
+            $op['file_url'] = APP_ROOT . '/' . ltrim($op['file_url'], '/');
+        }
+        if (!empty($op['cover_url']) && APP_ROOT && strpos($op['cover_url'], APP_ROOT) !== 0) {
+            $op['cover_url'] = APP_ROOT . '/' . ltrim($op['cover_url'], '/');
+        }
+    }
+    unset($op);
+
     error_log("Found " . count($opinions) . " opinions");
 
     // Get total count

@@ -17,14 +17,19 @@ function get_env_var($name, $default = '')
     return ($val !== false) ? $val : $default;
 }
 
-// Dynamic Root Detection
-$script_name = $_SERVER['SCRIPT_NAME'] ?? '/services/db.php';
-$app_root = dirname(dirname($script_name));
-if ($app_root === DIRECTORY_SEPARATOR || $app_root === '.') {
+// Dynamic Root Detection — uses db.php's own location, not the calling script.
+// db.php lives at: {docroot}/{app_root}/services/db.php
+// So APP_ROOT = dirname(dirname(__FILE__)) relative to DOCUMENT_ROOT
+$_db_abs   = realpath(__FILE__);                          // absolute path to db.php
+$_doc_root = realpath($_SERVER['DOCUMENT_ROOT']);         // absolute document root
+$_rel      = str_replace($_doc_root, '', $_db_abs);       // e.g. /ksmaja/services/db.php
+$_rel      = str_replace('\\', '/', $_rel);               // normalize Windows slashes
+$app_root  = dirname(dirname($_rel));                      // e.g. /ksmaja
+if ($app_root === '/' || $app_root === '.') {
     $app_root = '';
 }
-define('APP_ROOT', $app_root);
-define('UPLOAD_DIR_ABS', $_SERVER['DOCUMENT_ROOT'] . APP_ROOT . '/uploads/');
+if (!defined('APP_ROOT'))  define('APP_ROOT',  $app_root);
+if (!defined('UPLOAD_DIR_ABS')) define('UPLOAD_DIR_ABS', $_SERVER['DOCUMENT_ROOT'] . APP_ROOT . '/uploads/');
 
 // Load environment variables
 require_once __DIR__ . '/env_loader.php';

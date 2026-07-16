@@ -16,7 +16,7 @@ $user_name = $user_name ?? '';
         </a>
         
         <nav class="landing-nav-links" id="landingNavMenu">
-            <a href="#home"><?php echo $t['nav_home']; ?></a>
+            <a href=""><?php echo $t['nav_home']; ?></a>
             <a href="user/journals_user.php"><?php echo $t['nav_journals']; ?></a>
             <a href="user/opinions_user.php"><?php echo $t['nav_articles']; ?></a>
             <a href="#about"><?php echo $t['nav_about']; ?></a>

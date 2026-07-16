@@ -37,7 +37,7 @@ $t = $t ?? [];
             </div>
             <div class="footer-contact-item">
                 <i data-feather="phone"></i>
-                <span>+6285814991897</span>
+                <span>+6285814991899</span>
             </div>
             <div class="footer-contact-item">
                 <i data-feather="map-pin"></i>

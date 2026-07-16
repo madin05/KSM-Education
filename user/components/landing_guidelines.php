@@ -13,7 +13,7 @@ $t = $t ?? [];
 
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px;">
         <div style="background: white; padding: 24px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
-            <div style="background: rgba(14, 165, 233, 0.1); width: 44px; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; color: var(--accent-cyan);">
+            <div style="background: rgba(59, 92, 146, 0.1); width: 44px; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; color: var(--accent-cyan);">
                 <i data-feather="layout"></i>
             </div>
             <h4 style="font-size: 16px; font-weight: 700; color: var(--primary-navy); margin-bottom: 8px;"><?php echo $t['g1_title']; ?></h4>
@@ -21,7 +21,7 @@ $t = $t ?? [];
         </div>
         
         <div style="background: white; padding: 24px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
-            <div style="background: rgba(14, 165, 233, 0.1); width: 44px; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; color: var(--accent-cyan);">
+            <div style="background: rgba(59, 92, 146, 0.1); width: 44px; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; color: var(--accent-cyan);">
                 <i data-feather="key"></i>
             </div>
             <h4 style="font-size: 16px; font-weight: 700; color: var(--primary-navy); margin-bottom: 8px;"><?php echo $t['g2_title']; ?></h4>
@@ -29,7 +29,7 @@ $t = $t ?? [];
         </div>
 
         <div style="background: white; padding: 24px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
-            <div style="background: rgba(14, 165, 233, 0.1); width: 44px; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; color: var(--accent-cyan);">
+            <div style="background: rgba(59, 92, 146, 0.1); width: 44px; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; color: var(--accent-cyan);">
                 <i data-feather="check-circle"></i>
             </div>
             <h4 style="font-size: 16px; font-weight: 700; color: var(--primary-navy); margin-bottom: 8px;"><?php echo $t['g3_title']; ?></h4>

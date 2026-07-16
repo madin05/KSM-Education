@@ -3,6 +3,8 @@
  * user/components/landing_footer.php
  * Footer component for the landing page.
  */
+$lang = $lang ?? 'id';
+$t = $t ?? [];
 ?>
 <footer id="about" class="landing-footer">
     <div class="landing-footer-grid">

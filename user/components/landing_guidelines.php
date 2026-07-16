@@ -3,6 +3,7 @@
  * user/components/landing_guidelines.php
  * Guidelines component for the landing page.
  */
+$t = $t ?? [];
 ?>
 <section id="guidelines" class="landing-content" style="background-color: var(--bg-slate); border-radius: 20px; padding: 60px 40px; margin-top: 40px; margin-bottom: 80px; border: 1px solid var(--border-color);">
     <div class="landing-section-header" style="margin-bottom: 40px; text-align: center;">

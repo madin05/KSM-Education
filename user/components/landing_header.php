@@ -3,6 +3,11 @@
  * user/components/landing_header.php
  * Header component for the landing page.
  */
+$lang = $lang ?? 'id';
+$t = $t ?? [];
+$is_logged_in = $is_logged_in ?? false;
+$user_avatar_char = $user_avatar_char ?? '';
+$user_name = $user_name ?? '';
 ?>
 <header class="landing-header">
     <div class="landing-nav-container">

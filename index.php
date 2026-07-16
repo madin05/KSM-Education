@@ -21,18 +21,13 @@ $user_name = $is_logged_in ? $_SESSION['name'] : '';
 $user_avatar_char = $is_logged_in ? strtoupper(substr($user_name, 0, 1)) : '';
 
 try {
-    // Database connection using environment variables
-    require_once __DIR__ . '/services/env_loader.php';
-    $DB_HOST = getenv('DB_HOST') ?: 'localhost';
-    $DB_NAME = getenv('DB_NAME') ?: 'journal_system2';
-    $DB_USER = getenv('DB_USER') ?: 'root';
-    $DB_PASS = getenv('DB_PASS') ?: '';
-    $DB_PORT = getenv('DB_PORT') ?: '3306';
+    // Memanggil koneksi database utama
+    require_once __DIR__ . '/services/db.php';
     
-    $pdo = new PDO("mysql:host={$DB_HOST};dbname={$DB_NAME};port={$DB_PORT};charset=utf8mb4", $DB_USER, $DB_PASS, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    ]);
+    // PENTING: db.php mengatur header Content-Type menjadi application/json.
+    // Karena ini adalah halaman HTML, kita harus menimpanya kembali menjadi text/html
+    // agar browser me-render tampilannya (bukan menampilkan teks mentah/JSON).
+    header('Content-Type: text/html; charset=utf-8');
 
     // Fetch dynamic counts
     $stmtCountJ = $pdo->query("SELECT COUNT(*) as total FROM journals");
@@ -408,48 +403,6 @@ if (count($rendered_articles) < 3) {
     </footer>
 
     <!-- Interactive Scripts -->
-    <script>
-        // Initialize Feather icons
-        feather.replace();
-
-        // Change Navigation styles on scroll
-        const header = document.querySelector('.landing-header');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
-            }
-        });
-
-        // Mobile Menu Toggle
-        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-        const landingNavMenu = document.getElementById('landingNavMenu');
-        
-        if (mobileMenuBtn && landingNavMenu) {
-            mobileMenuBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                landingNavMenu.classList.toggle('active');
-                
-                // Toggle between menu and x icon
-                const icon = mobileMenuBtn.querySelector('i');
-                if (landingNavMenu.classList.contains('active')) {
-                    icon.setAttribute('data-feather', 'x');
-                } else {
-                    icon.setAttribute('data-feather', 'menu');
-                }
-                feather.replace();
-            });
-
-            // Close menu if user clicks outside
-            document.addEventListener('click', () => {
-                if (landingNavMenu.classList.contains('active')) {
-                    landingNavMenu.classList.remove('active');
-                    mobileMenuBtn.querySelector('i').setAttribute('data-feather', 'menu');
-                    feather.replace();
-                }
-            });
-        }
-    </script>
+    <script src="js/landing.js?v=20260716"></script>
 </body>
 </html>

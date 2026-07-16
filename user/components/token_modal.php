@@ -13,7 +13,7 @@
  * // konfigurasi (mis. config.php / API settings) bukan hardcode di
  * // beberapa file. Untuk sekarang disamakan dengan nomor di footer.
  */
-$admin_whatsapp_number = $admin_whatsapp_number ?? '6281234567890';
+$admin_whatsapp_number = $admin_whatsapp_number ?? '6285814991897';
 ?>
 <!-- ===== MODAL: BELI TOKEN ===== -->
 <div class="ksm-modal-overlay" id="ksmBuyTokenModal">

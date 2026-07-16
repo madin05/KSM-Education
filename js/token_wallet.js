@@ -17,7 +17,7 @@
 (function (global) {
   const BALANCE_KEY = "ksm_token_balance";
   const HISTORY_KEY = "ksm_token_history";
-  const ADMIN_WA_NUMBER = "6281234567890"; // TODO backend: samakan dgn footer/config
+  const ADMIN_WA_NUMBER = "6285814991897"; // TODO backend: samakan dgn footer/config
 
   const KsmTokenWallet = {
     // ---------- Saldo ----------

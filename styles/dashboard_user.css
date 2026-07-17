@@ -430,6 +430,267 @@ body.menu-open {
   letter-spacing: 0.5px;
 }
 
+/* ===== ARTIKEL SAYA + AKTIVITAS TERBARU (two-column dashboard cards) ===== */
+.dashboard-two-col {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 24px;
+  margin-bottom: 45px;
+}
+
+@media (max-width: 860px) {
+  .dashboard-two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.my-articles-card,
+.activity-card {
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+}
+
+.my-articles-card {
+  background: linear-gradient(135deg, #22303f 0%, #2c3e50 100%);
+  color: white;
+}
+
+.activity-card {
+  background: white;
+  color: #2c3e50;
+}
+
+.dtc-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.dtc-card-header h3 {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.dtc-see-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  padding: 6px 12px;
+  border-radius: 20px;
+  transition: background 0.2s ease;
+  white-space: nowrap;
+}
+
+.dtc-see-all:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.dtc-see-all svg {
+  width: 14px;
+  height: 14px;
+}
+
+.dtc-see-all-dark {
+  color: #2c3e50;
+  border-color: #e0e0e0;
+}
+
+.dtc-see-all-dark:hover {
+  background: #f5f5f5;
+}
+
+.my-articles-list,
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ----- Artikel Saya item ----- */
+.my-article-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.mai-thumb {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.mai-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mai-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.mai-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mai-status-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.mai-status-badge.published {
+  background: rgba(16, 185, 129, 0.18);
+  color: #34d399;
+}
+
+.mai-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.mai-meta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mai-meta svg {
+  width: 12px;
+  height: 12px;
+}
+
+.mai-actions {
+  flex-shrink: 0;
+}
+
+.mai-edit-btn {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 7px 14px;
+  border-radius: 6px;
+  border: none;
+  background: white;
+  color: #2c3e50;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.mai-edit-btn:hover {
+  background: #e5e7eb;
+}
+
+/* ----- Aktivitas Terbaru item ----- */
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.activity-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.activity-icon svg {
+  width: 15px;
+  height: 15px;
+  color: white;
+}
+
+.activity-icon--success {
+  background: #10b981;
+}
+
+.activity-icon--info {
+  background: #3b82f6;
+}
+
+.activity-icon--warning {
+  background: #f59e0b;
+}
+
+.activity-icon--purple {
+  background: #8b5cf6;
+}
+
+.activity-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.activity-text p {
+  font-size: 13px;
+  color: #333;
+  line-height: 1.4;
+}
+
+.activity-time {
+  font-size: 11px;
+  color: #999;
+  flex-shrink: 0;
+  white-space: nowrap;
+  padding-top: 2px;
+}
+
+/* ----- Empty state for both cards ----- */
+.dtc-empty {
+  text-align: center;
+  padding: 30px 10px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.activity-card .dtc-empty {
+  color: #999;
+}
+
+.dtc-empty svg {
+  width: 30px;
+  height: 30px;
+  margin-bottom: 10px;
+  opacity: 0.5;
+}
+
+.dtc-empty p {
+  font-size: 12px;
+}
+
 /* ===== ARTICLES SECTION ===== */
 .articles-section {
   margin-bottom: 50px;
@@ -1222,4 +1483,3 @@ a[class*="quickshare"]:hover {
 .user-dashboard .journal-card {
   cursor: pointer !important;
 }
-

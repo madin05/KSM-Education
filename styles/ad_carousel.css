@@ -1,0 +1,249 @@
+/* =========================================================
+   AD CAROUSEL — slider iklan/promosi di atas Statistik
+   Mengikuti palet warna utama & prefix class ksm-ad-*
+   Setiap slide punya panel gambar di sisi kanan.
+   ========================================================= */
+
+.ksm-ad-carousel {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 44px;
+  box-shadow: 0 4px 22px rgba(0, 0, 0, 0.1);
+}
+
+.ksm-ad-track {
+  display: flex;
+  transition: transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+  will-change: transform;
+}
+
+.ksm-ad-slide {
+  flex: 0 0 100%;
+  min-height: 190px;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 32px 0 32px 40px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+.ksm-ad-slide-icon {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  position: relative;
+}
+
+.ksm-ad-slide-icon svg {
+  width: 28px;
+  height: 28px;
+  stroke-width: 2;
+}
+
+.ksm-ad-slide-text {
+  flex: 1;
+  min-width: 0;
+  z-index: 2;
+  position: relative;
+}
+
+.ksm-ad-slide-text h3 {
+  font-size: 21px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.ksm-ad-slide-text p {
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.6;
+  max-width: 420px;
+}
+
+.ksm-ad-cta {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: 8px;
+  border: none;
+  background: #fff;
+  color: #2c3e50;
+  font-family: "Montserrat", sans-serif;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+  z-index: 2;
+  position: relative;
+}
+
+.ksm-ad-cta:hover {
+  background: #eef1f4;
+  transform: translateY(-2px);
+}
+
+.ksm-ad-cta svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* ----- Panel gambar di sisi kanan slide ----- */
+.ksm-ad-slide-image {
+  flex: 0 0 240px;
+  align-self: stretch;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  margin-left: 8px;
+}
+
+/* Fade dari warna slide ke foto, supaya nyatu bukan potongan kotak */
+.ksm-ad-slide-image::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    var(--slide-color, #2c3e50) 0%,
+    rgba(0, 0, 0, 0) 55%
+  );
+}
+
+/* Scrim tipis di seluruh foto supaya arrow/dots tetap kebaca di atasnya */
+.ksm-ad-slide-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+/* ----- Panah navigasi ----- */
+.ksm-ad-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 3;
+}
+
+.ksm-ad-arrow:hover {
+  background: rgba(255, 255, 255, 0.38);
+}
+
+.ksm-ad-arrow svg {
+  width: 18px;
+  height: 18px;
+}
+
+.ksm-ad-arrow-prev {
+  left: 14px;
+}
+
+.ksm-ad-arrow-next {
+  right: 14px;
+}
+
+/* ----- Dots ----- */
+.ksm-ad-dots {
+  position: absolute;
+  bottom: 14px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  z-index: 3;
+}
+
+.ksm-ad-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50px;
+  border: none;
+  background: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.25s ease;
+}
+
+.ksm-ad-dot.active {
+  width: 22px;
+  background: #fff;
+}
+
+@media (max-width: 900px) {
+  .ksm-ad-slide-image {
+    flex-basis: 160px;
+  }
+}
+
+@media (max-width: 720px) {
+  .ksm-ad-slide {
+    padding: 26px 0 26px 22px;
+    gap: 14px;
+  }
+  .ksm-ad-slide-icon {
+    width: 48px;
+    height: 48px;
+  }
+  .ksm-ad-slide-icon svg {
+    width: 22px;
+    height: 22px;
+  }
+  .ksm-ad-slide-text h3 {
+    font-size: 16px;
+  }
+  .ksm-ad-slide-text p {
+    display: none;
+  }
+  .ksm-ad-cta {
+    padding: 10px 14px;
+    font-size: 11px;
+  }
+  /* Sembunyikan panel gambar di layar sempit, ruang tidak cukup */
+  .ksm-ad-slide-image {
+    display: none;
+  }
+  /* Kembalikan padding kanan supaya CTA tidak ketiban tombol panah */
+  .ksm-ad-slide {
+    padding-right: 90px;
+  }
+}
+
+@media (max-width: 520px) {
+  .ksm-ad-slide {
+    flex-wrap: wrap;
+    padding: 22px 60px 22px 22px;
+  }
+  .ksm-ad-cta {
+    width: 100%;
+    justify-content: center;
+  }
+}

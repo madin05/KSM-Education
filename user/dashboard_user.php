@@ -1,8 +1,9 @@
 <?php
 $page_title = 'KSM Education';
-$base_css = '<link rel="stylesheet" href="../styles/dashboard_user.css?v=202501111545" />
+$base_css = '<link rel="stylesheet" href="../styles/dashboard_user.css?v=20260718" />
   <link rel="stylesheet" href="../styles/token_wallet.css?v=20260715" />
-  <link rel="stylesheet" href="../styles/upload_journal_modal.css?v=20260715" />';
+  <link rel="stylesheet" href="../styles/upload_journal_modal.css?v=20260715" />
+  <link rel="stylesheet" href="../styles/ad_carousel.css?v=20260717" />';
 include 'components/header.php';
 include 'components/navbar.php';
 ?>
@@ -10,6 +11,12 @@ include 'components/navbar.php';
 
     <!-- Main Content -->
     <div class="container">
+
+      <?php
+      // ===== CAROUSEL IKLAN / PROMOSI (auto-geser tiap beberapa detik) =====
+      include 'components/ad_carousel.php';
+      ?>
+
       <!-- Statistics Section -->
       <section class="statistics">
         <h2>Statistik</h2>
@@ -29,7 +36,7 @@ include 'components/navbar.php';
             <div class="stat-label">Pengunjung</div>
           </div>
 
-          <!-- ===== KARTU BARU: TOKEN SAYA ===== -->
+          <!-- ===== KARTU TOKEN SAYA ===== -->
           <div class="ksm-token-card">
             <div class="stat-icon">
               <i data-feather="zap" style="color: #2c3e50;"></i>
@@ -40,11 +47,51 @@ include 'components/navbar.php';
         </div>
       </section>
 
+      <!--
+        Tombol testing di bawah ini murni bantu development —
+        menambah token secara instan tanpa lewat WhatsApp admin.
+        Hapus baris ini setelah endpoint saldo token asli
+        tersambung ke backend.
+      -->
+      <div style="text-align:right; margin: -30px 0 30px;">
+        <button type="button" onclick="addTestToken(50)" style="font-size:11px; padding:6px 12px; border-radius:6px; border:1px dashed #cbd2d9; background:transparent; color:#8a8f98; cursor:pointer;">+50 Token (Testing)</button>
+        <button type="button" onclick="addTestToken(100)" style="font-size:11px; padding:6px 12px; border-radius:6px; border:1px dashed #cbd2d9; background:transparent; color:#8a8f98; cursor:pointer;">+100 Token (Testing)</button>
+      </div>
+
+      <!-- ===== ARTIKEL SAYA + AKTIVITAS TERBARU (two-column) ===== -->
+      <section class="dashboard-two-col">
+
+        <!-- LEFT: Artikel Terbaru Saya -->
+        <div class="my-articles-card">
+          <div class="dtc-card-header">
+            <h3>Artikel Terbaru Saya</h3>
+            <a href="my_journals_user.php" class="dtc-see-all">
+              Lihat Semua
+              <i data-feather="arrow-right"></i>
+            </a>
+          </div>
+          <div class="my-articles-list" id="myArticlesList">
+            <!-- Rendered by JS: renderMyArticles() -->
+          </div>
+        </div>
+
+        <!-- RIGHT: Aktivitas Terbaru -->
+        <div class="activity-card">
+          <div class="dtc-card-header">
+            <h3>Aktivitas Terbaru</h3>
+            <a href="token_history_user.php" class="dtc-see-all dtc-see-all-dark">
+              Lihat Semua
+              <i data-feather="arrow-right"></i>
+            </a>
+          </div>
+          <div class="activity-list" id="activityList">
+            <!-- Rendered by JS: renderActivityFeed() -->
+          </div>
+        </div>
+
+      </section>
+
       <!-- ===== BANNER CTA: PUNYA KARYA UNTUK DIBAGIKAN ===== -->
-            <!-- ini Testing Token dari token_wallet.js -->
-            <!-- <button onclick="addTestToken(50)">+50 Token (Testing)</button>
-            <button onclick="addTestToken(100)">+100 Token (Testing)</button> -->
-            <!-- sssssssssssssssssssssssssssssssssssssssssssssssss -->
       <section class="ksm-token-cta">
         <div class="ksm-token-cta-text">
           <h3>Punya Karya untuk Dibagikan?</h3>
@@ -54,7 +101,6 @@ include 'components/navbar.php';
             karya Anda ke KSM Education.
           </p>
         </div>
-        
         <div class="ksm-token-cta-actions">
           <button type="button" class="ksm-btn-outline-light" data-ksm-open-buy-token>
             <i data-feather="shopping-cart"></i>
@@ -138,9 +184,10 @@ $extra_scripts = <<<'EOT'
     <script src="../js/jurnal.js?v=20260321"></script>
     <script src="../js/opinions_manager.js"></script>
     <script src="../js/file_upload.js"></script>
-    <script src="../js/dashboard_user.js?v=20260321"></script>
+    <script src="../js/dashboard_user.js?v=20260718"></script>
     <script src="../js/token_wallet.js?v=20260715"></script>
     <script src="../js/upload_journal_modal.js?v=20260715"></script>
+    <script src="../js/ad_carousel.js?v=20260717"></script>
     <script src="../js/mobile_menu.js?v=20251130"></script>
     <script>
       feather.replace();
@@ -149,4 +196,3 @@ $extra_scripts = <<<'EOT'
 EOT;
 include 'components/footer.php';
 ?>
-

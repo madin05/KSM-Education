@@ -1,5 +1,7 @@
 // ===== DASHBOARD USER - COMPLETE FIXED VERSION =====
 // Fixed: Share button positioning konsisten
+// Added: renderMyArticles() + renderActivityFeed() untuk dua kartu baru
+//        (Artikel Terbaru Saya & Aktivitas Terbaru)
 
 feather.replace();
 
@@ -344,6 +346,188 @@ function showSkeletonUI() {
   }
 }
 
+// ===== ARTIKEL TERBARU SAYA =====
+// CATATAN JUJUR: filter ini masih dilakukan di sisi client, dengan
+// mencocokkan nama author terhadap nama user yang sedang login
+// (diturunkan dari sessionStorage userEmail, sama seperti setUserName()).
+// ini BUKAN filter user_id yang sesungguhnya. Begitu backend punya
+// endpoint "punya saya" (mis. list_journals.php?mine=1 dengan auth),
+// ganti bagian filter di bawah ini dengan hasil fetch dari endpoint itu.
+function getCurrentUserDisplayName() {
+  const userEmail = sessionStorage.getItem("userEmail");
+  if (!userEmail) return null;
+  return userEmail.split("@")[0].toUpperCase();
+}
+
+function renderMyArticles() {
+  const list = document.getElementById("myArticlesList");
+  if (!list) return;
+
+  const myName = getCurrentUserDisplayName();
+  const mine = myName
+    ? articles.filter((a) => {
+        const author = Array.isArray(a.authors)
+          ? a.authors[0]
+          : Array.isArray(a.author)
+            ? a.author[0]
+            : a.author;
+        return (author || "").toUpperCase().includes(myName);
+      })
+    : [];
+
+  if (mine.length === 0) {
+    list.innerHTML = `
+      <div class="dtc-empty">
+        <i data-feather="file-text"></i>
+        <p>Belum ada artikel yang Anda upload.</p>
+      </div>
+    `;
+    feather.replace();
+    return;
+  }
+
+  list.innerHTML = mine
+    .slice(0, 4)
+    .map((a) => {
+      const title = a.title || a.judul || "Untitled";
+      const cover =
+        a.coverImage ||
+        a.cover ||
+        "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=200&h=200&fit=crop";
+      const views = a.views || 0;
+      const dateStr = new Date(
+        a.date || a.uploadDate || Date.now(),
+      ).toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
+
+      return `
+        <div class="my-article-item">
+          <img class="mai-thumb" src="${cover}" alt="${escapeForAttribute(title)}"
+               onerror="this.src='https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=200&h=200&fit=crop'">
+          <div class="mai-info">
+            <div class="mai-title-row">
+              <span class="mai-title">${title}</span>
+              <span class="mai-status-badge published">Published</span>
+            </div>
+            <div class="mai-meta">
+              <span><i data-feather="eye"></i> ${views} Views</span>
+              <span><i data-feather="calendar"></i> ${dateStr}</span>
+            </div>
+          </div>
+          <div class="mai-actions">
+            <button type="button" class="mai-edit-btn" onclick="window.editUserArticle('${a.id}', '${a.type}')">
+              Edit
+            </button>
+          </div>
+        </div>
+      `;
+    })
+    .join("");
+
+  feather.replace();
+}
+
+// TODO: arahkan ke route edit yang sebenarnya. Placeholder ini
+// mengasumsikan halaman detail punya mode edit lewat query "?edit=1" —
+// sesuaikan kalau route edit Anda berbeda (mis. modal upload dengan
+// mode edit, atau halaman khusus edit_jurnal_user.php).
+window.editUserArticle = function (id, type) {
+  const target =
+    type === "opini" ? "explore_opini_user.php" : "explore_jurnal_user.php";
+  window.location.href = `${target}?id=${id}&type=${type}&edit=1`;
+};
+
+// ===== AKTIVITAS TERBARU =====
+// CATATAN JUJUR: ini menggabungkan dua sumber yang sudah ada di sisi
+// client: (1) riwayat penambahan token dari localStorage
+// ("ksm_token_history", kalau ada), dan (2) artikel yang baru
+// dipublikasikan (dari data yang sama dipakai renderArticles()).
+// Ini simulasi, bukan activity_log sungguhan dari backend. Kalau nanti
+// backend punya tabel log aktivitas, ganti kedua fungsi getter di
+// bawah ini dengan satu fetch ke endpoint log tersebut.
+function timeAgo(dateStr) {
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return "";
+  const diffMs = Date.now() - date.getTime();
+  const diffMin = Math.floor(diffMs / 60000);
+  if (diffMin < 1) return "Baru saja";
+  if (diffMin < 60) return `${diffMin} menit yang lalu`;
+  const diffHour = Math.floor(diffMin / 60);
+  if (diffHour < 24) return `${diffHour} jam yang lalu`;
+  const diffDay = Math.floor(diffHour / 24);
+  if (diffDay < 30) return `${diffDay} hari yang lalu`;
+  const diffMonth = Math.floor(diffDay / 30);
+  return `${diffMonth} bulan yang lalu`;
+}
+
+function getTokenHistoryEntries() {
+  try {
+    const raw = localStorage.getItem("ksm_token_history");
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map((entry) => ({
+      icon: "plus-circle",
+      colorClass: "activity-icon--purple",
+      text: `Token bertambah +${entry.amount || entry.jumlah || 0}`,
+      time: entry.date || entry.tanggal || new Date().toISOString(),
+    }));
+  } catch (e) {
+    console.warn("Gagal membaca ksm_token_history:", e);
+    return [];
+  }
+}
+
+function getArticlePublishEntries() {
+  return (articles || []).slice(0, 5).map((a) => ({
+    icon: "check",
+    colorClass: "activity-icon--success",
+    text: `Artikel "${a.title || a.judul}" dipublikasikan`,
+    time: a.date || a.uploadDate || new Date().toISOString(),
+  }));
+}
+
+function renderActivityFeed() {
+  const list = document.getElementById("activityList");
+  if (!list) return;
+
+  const combined = [...getTokenHistoryEntries(), ...getArticlePublishEntries()]
+    .sort((a, b) => new Date(b.time) - new Date(a.time))
+    .slice(0, 6);
+
+  if (combined.length === 0) {
+    list.innerHTML = `
+      <div class="dtc-empty">
+        <i data-feather="activity"></i>
+        <p>Belum ada aktivitas terbaru.</p>
+      </div>
+    `;
+    feather.replace();
+    return;
+  }
+
+  list.innerHTML = combined
+    .map(
+      (entry) => `
+        <div class="activity-item">
+          <span class="activity-icon ${entry.colorClass}">
+            <i data-feather="${entry.icon}"></i>
+          </span>
+          <div class="activity-text">
+            <p>${entry.text}</p>
+          </div>
+          <span class="activity-time">${timeAgo(entry.time)}</span>
+        </div>
+      `,
+    )
+    .join("");
+
+  feather.replace();
+}
+
 // ===== LOGOUT HANDLER =====
 function setupLogout() {
   const logoutBtn = document.getElementById("logoutBtn");
@@ -486,6 +670,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupSearch();
 
   await renderArticles();
+  renderMyArticles();
+  renderActivityFeed();
 
   feather.replace();
   console.log("User Dashboard ready");

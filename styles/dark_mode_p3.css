@@ -1,0 +1,154 @@
+/* =========================================================
+   DARK MODE — BAGIAN 3 (koreksi target berdasarkan pagination_user.js)
+
+   Muat file ini SETELAH dark_mode_p2.css di header.php. Bagian #1 di
+   dark_mode_p2.css yang menyasar .journal-item ternyata salah target —
+   kartu yang benar-benar dipakai di journals_user.php/opinions_user.php
+   adalah .journal-card / .opinion-card, hasil generate dari
+   pagination_user.js. File ini fokus ke situ.
+   ========================================================= */
+
+/* ===== Kartu Jurnal & Opini (list-view, hasil pagination_user.js) ===== */
+[data-theme="dark"] .journal-card,
+[data-theme="dark"] .opinion-card {
+  background: #1e293b;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .journal-card:hover,
+[data-theme="dark"] .opinion-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .journal-title,
+[data-theme="dark"] .opinion-title {
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .journal-abstract,
+[data-theme="dark"] .opinion-description {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .journal-meta,
+[data-theme="dark"] .opinion-meta {
+  color: #64748b;
+  border-top-color: #334155;
+}
+
+[data-theme="dark"] .journal-author,
+[data-theme="dark"] .opinion-author {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .journal-date,
+[data-theme="dark"] .opinion-date {
+  color: #64748b;
+}
+
+/* Tag / tag-more di dalam kartu */
+[data-theme="dark"] .journal-tags .tag,
+[data-theme="dark"] .opinion-tags .tag {
+  background: #334155;
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .journal-tags .tag-more,
+[data-theme="dark"] .opinion-tags .tag-more {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+/* ===== Pagination baru (.pill-pagination) ===== */
+[data-theme="dark"] .pill-pagination {
+  background: #1e293b;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .page-info {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .prev-page,
+[data-theme="dark"] .next-page {
+  background: transparent;
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .prev-page:hover:not(:disabled),
+[data-theme="dark"] .next-page:hover:not(:disabled) {
+  background: #334155;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .prev-page:disabled,
+[data-theme="dark"] .next-page:disabled {
+  opacity: 0.35;
+}
+
+/* ===== Dropdown aksi kartu (Download / Share) =====
+   Class ini dipakai di banyak tempat (dashboard, journals_user,
+   opinions_user, my_journals_user), jadi override di sini otomatis
+   berlaku di semua halaman itu sekaligus. */
+[data-theme="dark"] .dropdown-toggle {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .dropdown-toggle:hover {
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .dropdown-content {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .dropdown-item-btn {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .dropdown-item-btn:hover {
+  background: #334155;
+}
+
+/* Warna ikon per-aksi (download biru, share hijau, dst) tetap dipakai
+   apa adanya karena masih cukup kontras di atas dropdown gelap —
+   tidak perlu diubah. */
+
+/* ===== Modal Share (userShareModal / dashboardShareModal) ===== */
+[data-theme="dark"] .modal-content {
+  background: #1e293b;
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .modal-content h2 {
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] #shareUrlInput,
+[data-theme="dark"] #dashboardShareUrlInput {
+  background: #0f172a;
+  border-color: #334155;
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .close-modal {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .close-modal:hover {
+  color: #f1f5f9;
+}
+
+/* ===== Skeleton loading (biar tidak flash putih terang saat data load) ===== */
+[data-theme="dark"] .skeleton {
+  background: linear-gradient(90deg, #1e293b 25%, #334155 37%, #1e293b 63%);
+  background-size: 400% 100%;
+}
+
+[data-theme="dark"] .skeleton-card,
+[data-theme="dark"] .skeleton-list {
+  background: #1e293b;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+}

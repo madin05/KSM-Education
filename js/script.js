@@ -1276,16 +1276,53 @@ async function updateNavbarAuth() {
             const user = result.user;
             const avatarChar = (user.name || 'U').charAt(0).toUpperCase();
             const avatarColor = getAvatarColor(user.name);
-            
+            const logoutUrl = `${window.APP_CONFIG.apiBase}/auth_logout.php?redirect=${encodeURIComponent(window.location.origin + window.APP_CONFIG.root + '/user/dashboard_user.php')}`;
+
+            // ===== PROFILE DROPDOWN (Profil Saya / Jurnal Saya / Riwayat Token / Pengaturan / Logout) =====
+            // NOTE: trigger di navbar sekarang HANYA avatar + caret (tanpa
+            // nama) supaya nama yang sangat panjang tidak merusak layout
+            // navbar. Nama & email lengkap dipindah ke bagian header di
+            // dalam dropdown-nya sendiri, yang punya lebar tetap sehingga
+            // aman dipotong dengan ellipsis kalau kepanjangan.
+            // Pakai class (bukan id) untuk trigger & menu karena bisa ada
+            // lebih dari satu authContainer (desktop + beberapa
+            // .nav-auth-section di drawer mobile). Toggle buka/tutupnya
+            // ditangani oleh setupProfileDropdownToggle() lewat event
+            // delegation di bawah, supaya tidak perlu daftar listener ulang
+            // tiap render.
             const profileHTML = `
                 <div class="user-profile">
-                    <div class="user-avatar" style="background: ${avatarColor}">${avatarChar}</div>
-                    <span class="user-name">${user.name}</span>
-                    <a href="${window.APP_CONFIG.apiBase}/auth_logout.php?redirect=${encodeURIComponent(window.location.origin + window.APP_CONFIG.root + '/user/dashboard_user.php')}" class="btn-logout" id="btnLogout">Logout</a>
+                    <button type="button" class="user-profile-trigger" aria-label="Menu akun ${user.name}" title="${user.name}">
+                        <span class="user-avatar" style="background: ${avatarColor}">${avatarChar}</span>
+                        <svg class="user-profile-caret" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+                    <div class="user-profile-menu">
+                        <div class="user-profile-menu-header">
+                            <strong>${user.name}</strong>
+                            <span>${user.email}</span>
+                        </div>
+                        <a href="profil_user.php" class="user-profile-menu-item">
+                            <i data-feather="user"></i> Profil Saya
+                        </a>
+                        <a href="my_journals_user.php" class="user-profile-menu-item">
+                            <i data-feather="file-text"></i> Jurnal Saya
+                        </a>
+                        <a href="token_history_user.php" class="user-profile-menu-item">
+                            <i data-feather="zap"></i> Riwayat Token
+                        </a>
+                        <a href="pengaturan_user.php" class="user-profile-menu-item">
+                            <i data-feather="settings"></i> Pengaturan
+                        </a>
+                        <a href="${logoutUrl}" class="user-profile-menu-item user-profile-menu-item--danger" id="btnLogout">
+                            <i data-feather="log-out"></i> Logout
+                        </a>
+                    </div>
                 </div>
             `;
 
-            // Mobile Header HTML (Avatar only, with hidden dropdown)
+            // Mobile Header HTML (Avatar only, with hidden dropdown) — tetap seperti semula
             const mobileHeaderHTML = `
                 <div class="mobile-avatar-container">
                     <div class="user-avatar mobile-header-avatar" id="mobileAvatar" style="background: ${avatarColor}">${avatarChar}</div>
@@ -1294,6 +1331,12 @@ async function updateNavbarAuth() {
                             <strong>${user.name}</strong>
                             <span>${user.email}</span>
                         </div>
+                        <a href="my_journals_user.php" class="btn-logout-mobile" style="color:#334155;">
+                            <i data-feather="file-text"></i> Jurnal Saya
+                        </a>
+                        <a href="token_history_user.php" class="btn-logout-mobile" style="color:#334155;">
+                            <i data-feather="zap"></i> Riwayat Token
+                        </a>
                         <a href="#" class="btn-logout-mobile" id="btnMobileLogout">
                             <i data-feather="log-out"></i> Logout
                         </a>
@@ -1346,7 +1389,48 @@ async function updateNavbarAuth() {
     }
 }
 
-// Dropdown logic removed as guest icon now links directly to login
+// ===== PROFILE DROPDOWN TOGGLE (event delegation, dipasang sekali saja) =====
+// Menangani buka/tutup .user-profile-menu tanpa perlu re-bind tiap kali
+// updateNavbarAuth() mengganti innerHTML container-nya.
+function setupProfileDropdownToggle() {
+    document.addEventListener('click', (e) => {
+        const trigger = e.target.closest('.user-profile-trigger');
+
+        if (trigger) {
+            e.preventDefault();
+            e.stopPropagation();
+            const profile = trigger.closest('.user-profile');
+            if (!profile) return;
+
+            const wasOpen = profile.classList.contains('open');
+
+            // Tutup dropdown profil lain yang mungkin lagi kebuka (mis. kalau
+            // ada beberapa authContainer di halaman yang sama)
+            document.querySelectorAll('.user-profile.open').forEach((el) => {
+                if (el !== profile) el.classList.remove('open');
+            });
+
+            profile.classList.toggle('open', !wasOpen);
+            return;
+        }
+
+        // Klik di luar trigger & menu -> tutup semua dropdown profil yang kebuka
+        if (!e.target.closest('.user-profile-menu')) {
+            document.querySelectorAll('.user-profile.open').forEach((el) => {
+                el.classList.remove('open');
+            });
+        }
+    });
+
+    // Tutup dropdown saat menekan Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.user-profile.open').forEach((el) => {
+                el.classList.remove('open');
+            });
+        }
+    });
+}
 
 // Function to handle mobile header auth interactions
 function setupMobileHeaderAuth() {
@@ -1446,8 +1530,12 @@ document.addEventListener('click', async (e) => {
 
 // Initialize navbar auth on load
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', updateNavbarAuth);
+    document.addEventListener('DOMContentLoaded', () => {
+        setupProfileDropdownToggle();
+        updateNavbarAuth();
+    });
 } else {
+    setupProfileDropdownToggle();
     updateNavbarAuth();
 }
 

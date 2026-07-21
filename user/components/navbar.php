@@ -1,5 +1,6 @@
 <?php
 // user/components/navbar.php
+$current_page = basename($_SERVER['PHP_SELF']);
 ?>
     <header>
       <div class="header-container">
@@ -17,36 +18,15 @@
         </div>
 
         <nav>
-          <a href="dashboard_user.php">HOME</a>
-          <div class="nav-dropdown">
-            <button class="nav-link has-caret" type="button">
-              ARTIKEL
-              <svg
-                class="caret"
-                viewBox="0 0 24 24"
-                width="14"
-                height="14"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </button>
-            <div class="dropdown-menu">
-              <a href="journals_user.php">Jurnal</a>
-              <a href="opinions_user.php">Opini & Berita</a>
-              <a href="my_journals_user.php">Jurnal Saya</a>
-              <a href="token_history_user.php">Riwayat Token</a>
-
-
-            </div>
-          </div>
+          <a href="dashboard_user.php" class="<?= $current_page === 'dashboard_user.php' ? 'active' : '' ?>">Beranda</a>
+          <a href="journals_user.php" class="<?= $current_page === 'journals_user.php' ? 'active' : '' ?>">Jurnal</a>
+          <a href="opinions_user.php" class="<?= $current_page === 'opinions_user.php' ? 'active' : '' ?>">Opini</a>
+          <a href="tentang_user.php" class="<?= $current_page === 'tentang_user.php' ? 'active' : '' ?>">Tentang</a>
+          <a href="kontak_user.php" class="<?= $current_page === 'kontak_user.php' ? 'active' : '' ?>">Kontak</a>
         </nav>
 
-        <?php 
-        $current_page = basename($_SERVER['PHP_SELF']);
-        if ($current_page === 'dashboard_user.php'): 
+        <?php
+        if ($current_page === 'dashboard_user.php'):
         ?>
         <div class="navbar-search-container">
           <input type="checkbox" class="navbar-search-checkbox" id="navbarSearchToggle" checked>

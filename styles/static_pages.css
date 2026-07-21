@@ -1,0 +1,384 @@
+/* ===== STATIC PAGES (Tentang / Kontak) =====
+   Konsisten dengan desain utama: navy #2c3e50, biru aksen #3b82f6,
+   Montserrat, kartu putih shadow lembut. */
+
+/* ----- Hero ----- */
+.static-hero {
+  max-width: 720px;
+  margin: 20px auto 50px;
+  text-align: center;
+}
+
+.static-hero-tag {
+  display: inline-block;
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+}
+
+.static-hero h1 {
+  font-size: 30px;
+  font-weight: 700;
+  color: #2c3e50;
+  line-height: 1.3;
+  margin-bottom: 14px;
+}
+
+.static-hero p {
+  font-size: 14.5px;
+  color: #64748b;
+  line-height: 1.7;
+}
+
+.static-section {
+  margin-bottom: 55px;
+}
+
+.section-heading {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 26px;
+  text-align: center;
+}
+
+/* ----- Visi & Misi ----- */
+.vision-mission-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.vm-card {
+  background: white;
+  border-radius: 14px;
+  padding: 30px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+}
+
+.vm-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #2c3e50, #3b82f6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.vm-icon svg {
+  width: 24px;
+  height: 24px;
+  color: white;
+}
+
+.vm-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 12px;
+}
+
+.vm-card p {
+  font-size: 13.5px;
+  color: #64748b;
+  line-height: 1.7;
+}
+
+.vm-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vm-list li {
+  font-size: 13.5px;
+  color: #64748b;
+  line-height: 1.6;
+  padding-left: 20px;
+  position: relative;
+}
+
+.vm-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #3b82f6;
+}
+
+/* ----- Statistik highlight ----- */
+.stat-highlight-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.stat-highlight-card {
+  background: white;
+  border-radius: 14px;
+  padding: 28px 20px;
+  text-align: center;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+}
+
+.stat-highlight-number {
+  font-size: 34px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 6px;
+}
+
+.stat-highlight-label {
+  font-size: 12px;
+  color: #666;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+/* ----- Feature grid (kenapa KSM) ----- */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.feature-card {
+  background: white;
+  border-radius: 14px;
+  padding: 26px 20px;
+  text-align: center;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+.feature-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(59, 130, 246, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.feature-icon svg {
+  width: 22px;
+  height: 22px;
+  color: #3b82f6;
+}
+
+.feature-card h4 {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 8px;
+}
+
+.feature-card p {
+  font-size: 12.5px;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+/* ----- CTA penutup ----- */
+.static-cta {
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  color: white;
+  border-radius: 14px;
+  padding: 45px 30px;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.static-cta h3 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.static-cta p {
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 24px;
+}
+
+.static-cta-actions {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.static-btn-primary,
+.static-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.static-btn-primary {
+  background: white;
+  color: #2c3e50;
+}
+
+.static-btn-primary:hover {
+  background: #eef1f4;
+  transform: translateY(-2px);
+}
+
+.static-btn-outline {
+  background: transparent;
+  color: white;
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+}
+
+.static-btn-outline:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.static-btn-primary svg,
+.static-btn-outline svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ===== KONTAK ===== */
+.contact-layout {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: 30px;
+  margin-bottom: 60px;
+  align-items: start;
+}
+
+.contact-info-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.contact-info-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.contact-info-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(59, 130, 246, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.contact-info-icon svg {
+  width: 18px;
+  height: 18px;
+  color: #3b82f6;
+}
+
+.contact-info-card h4 {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 3px;
+}
+
+.contact-info-card p {
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.contact-social {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.contact-social a {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2c3e50;
+  transition: all 0.2s ease;
+}
+
+.contact-social a:hover {
+  background: #2c3e50;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.contact-social svg {
+  width: 17px;
+  height: 17px;
+}
+
+@media (max-width: 900px) {
+  .vision-mission-grid,
+  .contact-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .feature-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stat-highlight-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .static-hero h1 {
+    font-size: 22px;
+  }
+}

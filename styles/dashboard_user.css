@@ -388,8 +388,8 @@ body.menu-open {
 
 .stat-card {
   background-color: white;
-  padding: 20px;
-  border-radius: 10px;
+  padding: 26px 20px;
+  border-radius: 12px;
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
   text-align: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -401,20 +401,20 @@ body.menu-open {
 }
 
 .stat-icon {
-  margin-bottom: 15px;
+  margin-bottom: 12px;
 }
 
 .stat-icon svg {
-  width: 70px;
-  height: 70px;
+  width: 34px;
+  height: 34px;
   color: #2c3e50;
 }
 
 .stat-number {
-  font-size: 48px;
+  font-size: 38px;
   font-weight: 700;
   color: #2c3e50;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
   transition: color 0.3s ease;
 }
 
@@ -423,11 +423,30 @@ body.menu-open {
 }
 
 .stat-label {
-  font-size: 14px;
+  font-size: 12px;
   color: #666;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+/* Kartu Token Saya — pakai .stat-icon/.stat-number/.stat-label yang sama,
+   jadi otomatis ikut ukuran di atas. Ini cuma tambahan warna latar
+   krem supaya beda dari 2 kartu lain. !important dipakai karena
+   token_wallet.css dimuat setelah file ini dan mungkin sudah punya
+   aturan background sendiri untuk .ksm-token-card. */
+.ksm-token-card {
+  background: #fdf6e3 !important;
+  padding: 26px 20px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ksm-token-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
 }
 
 /* ===== ARTIKEL SAYA + AKTIVITAS TERBARU (two-column dashboard cards) ===== */

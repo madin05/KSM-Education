@@ -56,16 +56,33 @@ body.menu-open header {
   color: #2c3e50;
 }
 
-/* ===== NAVIGATION ===== */
+/* Logo di dalam drawer nav mobile — HARUS disembunyikan di desktop
+   di sini (bukan cuma di dashboard_user.css), karena header.css
+   ini dimuat di SEMUA halaman termasuk yang tidak memuat
+   dashboard_user.css (Tentang, Kontak, Profil, Pengaturan). Tanpa
+   baris ini, elemen .nav-logo tampil full-size tanpa constraint di
+   halaman-halaman tersebut. Di-override jadi display:block lagi
+   khusus di dalam media query mobile di bawah. */
+.nav-logo {
+  display: none;
+}
+
+/* ===== NAVIGATION =====
+   Sebelumnya nav di-posisikan absolute+left:50% supaya selalu di
+   tengah header, TAPI itu membuat nav tidak ikut diperhitungkan oleh
+   flexbox sama sekali — jadi begitu isi nav bertambah (dari 2 item
+   jadi 5 item setelah dropdown ARTIKEL diratakan), lebarnya menabrak
+   search bar yang posisinya dihitung terpisah lewat flex order.
+   Sekarang nav jadi flex item biasa (flex:1, justify-content:center)
+   supaya ruang di antara logo dan search/avatar otomatis menyesuaikan
+   lebar nav, berapa pun jumlah link-nya. */
 nav {
   display: flex;
   align-items: center;
-  gap: 30px;
-  /* Centering the nav group absolutely within the header */
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
+  justify-content: center;
+  gap: 22px;
+  flex: 1;
+  min-width: 0;
 }
 
 nav a {
@@ -113,7 +130,7 @@ nav a.active {
   background: transparent;
 }
 
-/* ===== NAV DROPDOWN ===== */
+/* ===== NAV DROPDOWN (masih dipakai di komponen lain, mis. mobile drawer) ===== */
 .nav-dropdown {
   position: relative;
   display: flex;
@@ -248,16 +265,41 @@ nav a.active {
   display: none;
 }
 
-/* User Profile Section in Navbar (Shared) */
+/* ===== USER PROFILE + DROPDOWN MENU (Profil Saya / Jurnal Saya / Riwayat Token / Pengaturan / Logout) ===== */
+/* .user-profile sekarang murni wrapper posisi relative untuk menu dropdown.
+   Style pill (border, padding, dsb) dipindah ke .user-profile-trigger. */
 .user-profile {
+  position: relative;
   display: flex !important;
   align-items: center;
-  gap: 10px;
-  border-radius: 160px;
+}
+
+.user-profile-trigger {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 50px;
   transition: all 0.2s ease;
   background: transparent;
   border: 1.5px solid #2c3e50;
   color: #2c3e50;
+  padding: 4px 8px 4px 4px;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.user-profile-trigger:hover {
+  background: #f8fafc;
+}
+
+.user-profile-caret {
+  color: #64748b;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.user-profile.open .user-profile-caret {
+  transform: rotate(180deg);
 }
 
 .user-avatar {
@@ -274,6 +316,9 @@ nav a.active {
   flex-shrink: 0;
 }
 
+/* .user-name tetap dipertahankan untuk kompatibilitas (dipakai di
+   tempat lain seperti dashboard_user.js setUserName()), tapi sudah
+   tidak dirender lagi di dalam trigger navbar. */
 .user-name {
   font-size: 14px;
   font-weight: 600;
@@ -281,20 +326,92 @@ nav a.active {
   white-space: nowrap;
 }
 
-.btn-logout {
-  font-size: 12px;
-  color: #ef4444 !important;
-  text-decoration: none;
-  font-weight: 700;
-  margin-left: 8px;
-  border-left: 1px solid #e2e8f0;
-  padding-left: 10px;
-  transition: opacity 0.2s;
+/* Header nama+email di dalam dropdown — di sinilah nama lengkap
+   ditampilkan sekarang, dengan ellipsis kalau kepanjangan karena
+   dropdown punya lebar tetap (beda dari navbar yang harus ikut
+   melebar/rusak kalau isinya dipaksa muat). */
+.user-profile-menu-header {
+  padding: 10px 12px 12px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.btn-logout:hover {
-  opacity: 0.8;
-  text-decoration: underline;
+.user-profile-menu-header strong {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-profile-menu-header span {
+  font-size: 12px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-profile-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 210px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  padding: 8px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+  z-index: 1000;
+}
+
+.user-profile.open .user-profile-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.user-profile-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #334155;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+.user-profile-menu-item svg,
+.user-profile-menu-item i {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.user-profile-menu-item:hover {
+  background: #f1f5f9;
+}
+
+.user-profile-menu-item--danger {
+  color: #ef4444;
+  border-top: 1px solid #f1f5f9;
+  margin-top: 6px;
+  padding-top: 12px;
+}
+
+.user-profile-menu-item--danger:hover {
+  background: #fef2f2;
 }
 
 /* ===== GUEST PROFILE (Global) ===== */
@@ -347,6 +464,85 @@ nav a.active {
 .guest-profile:hover .guest-label {
   color: #2c3e50;
 }
+
+/* =====================================================
+   NAVBAR SEARCH BAR (Desktop) — STATIS, KOTAK
+   Diganti total dari model "checkbox expand/collapse" (yang tadinya
+   posisi absolute, lingkaran 44px yang melebar jadi 230px, dst) jadi
+   search box biasa: selalu terlihat penuh, kotak dengan sudut agak
+   membulat, duduk normal di flex flow sebagai flex item (order:3,
+   lihat "Flex Order for Desktop Layout" di bawah).
+
+   Kalau masih ada <input type="checkbox" class="navbar-search-checkbox">
+   di navbar.php, boleh dihapus — sudah tidak dipakai. Tapi aman juga
+   dibiarkan karena di bawah ini dia dipaksa display:none.
+===================================================== */
+.navbar-search-container {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  margin-right: 24px;
+}
+
+.navbar-search-checkbox {
+  display: none !important;
+}
+
+.navbar-search-mainbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 220px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.navbar-search-mainbox:focus-within {
+  background-color: #ffffff;
+  border-color: #2c3e50;
+}
+
+.navbar-search-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.navbar-search-icon {
+  width: 16px;
+  height: 16px;
+  fill: #94a3b8;
+}
+
+.navbar-search-mainbox:focus-within .navbar-search-icon {
+  fill: #2c3e50;
+}
+
+.navbar-search-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  font-family: 'Montserrat', sans-serif;
+  color: #1e293b;
+  width: 100%;
+  padding: 0;
+}
+
+.navbar-search-input::placeholder {
+  color: #94a3b8;
+}
+
+/* Flex Order for Desktop Layout */
+.logo { order: 1; }
+nav { order: 2; }
+.navbar-search-container { order: 3; }
+.auth-section { order: 4; }
 
 /* Responsive untuk mobile */
 @media (max-width: 768px) {
@@ -454,7 +650,7 @@ nav a.active {
     align-items: center;
     gap: 8px;
     padding: 10px 12px;
-    color: #ef4444;
+    color: #334155;
     text-decoration: none;
     font-size: 13px;
     font-weight: 600;
@@ -463,6 +659,17 @@ nav a.active {
   }
 
   .btn-logout-mobile:hover {
+    background: #f1f5f9;
+  }
+
+  .btn-logout-mobile#btnMobileLogout {
+    color: #ef4444;
+    border-top: 1px solid #f1f5f9;
+    margin-top: 6px;
+    padding-top: 12px;
+  }
+
+  .btn-logout-mobile#btnMobileLogout:hover {
     background: #fef2f2;
   }
 
@@ -525,6 +732,23 @@ nav a.active {
     margin-top: auto !important;
   }
 
+  /* Dropdown profil di dalam drawer mobile ditampilkan statis (bukan absolute) */
+  .nav-auth-section .user-profile-menu {
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    box-shadow: none;
+    border: none;
+    padding: 8px 0 0;
+    margin-top: 10px;
+    display: none;
+  }
+
+  .nav-auth-section .user-profile.open .user-profile-menu {
+    display: block;
+  }
+
   .nav-dropdown {
     width: 100% !important;
     position: static !important;
@@ -559,172 +783,11 @@ nav a.active {
   .nav-dropdown .dropdown-menu a {
     padding: 10px 16px;
   }
-}
 
-/* ===== NAVBAR SEARCH BAR (Desktop) ===== */
-.navbar-search-container {
-  position: relative;
-  box-sizing: border-box;
-  width: 44px; 
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center; 
-  margin-left: auto; 
-  margin-right: 20px; 
-  order: 3;
-}
-
-.navbar-search-mainbox {
-  box-sizing: border-box;
-  position: absolute; /* Take out of flow to prevent shifting siblings */
-  right: 0; /* Pin to right edge of container */
-  width: 230px;
-  height: 44px;
-  display: flex;
-  flex-direction: row-reverse;
-  align-items: center;
-  justify-content: center;
-  border-radius: 160px;
-  background-color: #2c3e50;
-  transition: all 0.3s ease;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.navbar-search-checkbox {
-  box-sizing: border-box;
-  width: 44px; /* Same as container */
-  height: 44px; /* Same as container */
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 9;
-  cursor: pointer;
-  appearance: none;
-  margin: 0;
-}
-
-.navbar-search-checkbox:checked ~ .navbar-search-mainbox {
-  width: 44px;
-}
-
-.navbar-search-checkbox:checked ~ .navbar-search-mainbox .navbar-search-input {
-  width: 0;
-  opacity: 0;
-  padding: 0;
-  pointer-events: none;
-}
-
-.navbar-search-input {
-  box-sizing: border-box;
-  height: 100%;
-  width: 170px;
-  background-color: transparent;
-  border: none;
-  outline: none;
-  padding-bottom: 2px;
-  padding-left: 15px;
-  font-size: 14px;
-  color: #f1f5f9;
-  transition: all 0.3s ease;
-}
-
-.navbar-search-icon-container {
-  box-sizing: border-box;
-  padding-top: 4px;
-  width: fit-content;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.navbar-search-icon {
-  fill: #f1f5f9;
-  font-size: 1.3em;
-  
-}
-
-/* Flex Order for Desktop Layout */
-.logo { order: 1; }
-nav { order: 2; }
-.auth-section { order: 4; }
-
-/* ===== MOBILE RESPONSIVE (Search & Layout) ===== */
-@media (max-width: 768px) {
-  .header-container .logo {
-    order: 1 !important;
-    margin-right: auto !important;
-  }
-
-  .header-container .navbar-search-container {
-    left: 0;
-    order: 2 !important;
-    display: block !important;
-    position: relative;
-    z-index: 1010;
-    width: 42px;
-    height: 42px;
-    margin-right: 0;
-  }
-
-  .navbar-search-icon {
-    margin-right: 15px; /* mobile-only offset */
-  }
-
-  .header-container .header-right {
-    order: 3 !important;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .header-container .hamburger-menu {
-    order: 4 !important;
-    position: relative;
-    display: flex !important;
-  }
-
-  /* Mobile Search Bar Behavior */
-  .navbar-search-mainbox {
-    width: 42px;
-    height: 42px;
-    background-color: transparent;
-    box-shadow: none;
-  }
-
-  .navbar-search-checkbox:checked ~ .navbar-search-mainbox {
-    width: 42px;
-  }
-
-  .navbar-search-checkbox:checked ~ .navbar-search-mainbox .navbar-search-icon {
-    fill: #2c3e50;
-    font-size: 1.5em;
-  }
-
-  .navbar-search-checkbox:not(:checked) ~ .navbar-search-mainbox {
-    width: 85vw;
-    height: 48px;
-    position: fixed;
-    top: 85px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 2000;
-    background-color: #2c3e50;
-    border-radius: 100px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-    display: flex;
-    flex-direction: row-reverse;
-  }
-
-  .navbar-search-checkbox:not(:checked) ~ .navbar-search-mainbox .navbar-search-input {
-    width: 100%;
-    opacity: 1;
-    pointer-events: auto;
-    padding-left: 15px;
-    color: white;
+  /* Search disembunyikan di top bar mobile — nav & search dipindah ke
+     drawer/mobile menu supaya top bar tidak sesak. Sesuaikan kalau
+     versi mobile kamu memang ingin search tetap tampil di top bar. */
+  .navbar-search-container {
+    display: none !important;
   }
 }
-

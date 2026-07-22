@@ -1540,14 +1540,12 @@ if (document.readyState === 'loading') {
 }
 
 /**
- * Global Navbar Search Handler
+ * Global Navbar Search Handler — kotak pencarian biasa, selalu terlihat
+ * (tidak ada lagi animasi expand/collapse checkbox).
  */
 function setupNavbarSearch() {
-  const container = document.querySelector(".navbar-search-container");
   const input = document.getElementById("navbarSearchInput");
-  const toggle = document.getElementById("navbarSearchToggle");
-
-  if (!input || !toggle || !container) return;
+  if (!input) return;
 
   input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
@@ -1559,29 +1557,6 @@ function setupNavbarSearch() {
       }
     }
   });
-
-  // Close on outside click
-  document.addEventListener("click", (e) => {
-    // If click is outside container AND search is currently expanded (toggle.checked is false)
-    if (!container.contains(e.target) && !toggle.checked) {
-      toggle.checked = true; // Set to collapsed state
-    }
-  });
-
-  // Trigger search on icon click if expanded
-  const iconContainer = container.querySelector(".navbar-search-icon-container");
-  if (iconContainer) {
-    iconContainer.addEventListener("click", () => {
-      if (!toggle.checked) {
-        const query = input.value.trim();
-        if (query) {
-          const isAdmin = window.location.pathname.includes("/admin/");
-          const target = isAdmin ? "journals.php" : "journals_user.php";
-          window.location.href = `${target}?search=${encodeURIComponent(query)}`;
-        }
-      }
-    });
-  }
 }
 
 document.addEventListener("DOMContentLoaded", setupNavbarSearch);

@@ -39,7 +39,7 @@ include 'components/navbar.php';
           <!-- ===== KARTU TOKEN SAYA ===== -->
           <div class="ksm-token-card">
             <div class="stat-icon">
-              <i data-feather="zap" style="color: #2c3e50;"></i>
+              <i data-feather="zap" ></i>
             </div>
             <div class="stat-number" data-ksm-token-balance>0</div>
             <div class="stat-label">Token Saya</div>

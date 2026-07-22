@@ -42,8 +42,9 @@
     <link rel="stylesheet" href="../styles/journal.css?v=20260321" />
     <link rel="stylesheet" href="../styles/footer.css" />
     <link rel="stylesheet" href="../styles/skeleton.css" />
-    <link rel="stylesheet" href="../styles/dark_mode_p2.css" />
-    <link rel="stylesheet" href="../styles/dark_mode_p3.css" />
+    <link rel="stylesheet" href="../styles/dark_mode_p2.css?v=20260722" />
+    <link rel="stylesheet" href="../styles/dark_mode_p3.css?v=20260722" />
+    <link rel="stylesheet" href="../styles/dark_mode.css?v=20260722" />
     <!--
       dark_mode.css dimuat PALING TERAKHIR supaya override-nya menang
       di atas semua CSS lain (dashboard_user.css, header.css, dst),

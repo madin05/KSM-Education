@@ -114,8 +114,26 @@
   color: #94a3b8;
 }
 
-[data-theme="dark"] .navbar-search-mainbox {
-  background-color: #1e293b;
+[data-theme="dark"] .navbar-search-box {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .navbar-search-box:focus-within {
+  background: #0f172a;
+  border-color: #3b82f6;
+}
+
+[data-theme="dark"] .navbar-search-box-input {
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .navbar-search-box-input::placeholder {
+  color: #64748b;
+}
+
+[data-theme="dark"] .navbar-search-box-icon {
+  color: #64748b;
 }
 
 /* ===== MAIN CONTAINER / GENERIC TEXT ===== */
@@ -147,8 +165,16 @@
 }
 
 [data-theme="dark"] .ksm-token-card {
-  background: #2b2412 !important;
+  background: #1e293b;
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="dark"] .ksm-token-card .stat-icon svg {
+  color: #93c5fd;
+}
+
+[data-theme="dark"] .ksm-token-card .stat-label {
+  color: #94a3b8;
 }
 
 /* ===== AD CAROUSEL ===== */

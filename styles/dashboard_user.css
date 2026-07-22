@@ -436,7 +436,7 @@ body.menu-open {
    token_wallet.css dimuat setelah file ini dan mungkin sudah punya
    aturan background sendiri untuk .ksm-token-card. */
 .ksm-token-card {
-  background: #fdf6e3 !important;
+  background: #ffffff;
   padding: 26px 20px;
   border-radius: 12px;
   text-align: center;

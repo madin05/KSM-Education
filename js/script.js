@@ -1514,6 +1514,8 @@ function setupProfileDropdownToggle() {
 }
 
 // Function to handle mobile header auth interactions
+let mobileHeaderAuthController = null;
+
 function setupMobileHeaderAuth() {
     const avatar = document.getElementById('mobileAvatar');
     const dropdown = document.getElementById('mobileLogoutDropdown');
@@ -1521,11 +1523,15 @@ function setupMobileHeaderAuth() {
 
     if (!avatar || !dropdown) return;
 
+    mobileHeaderAuthController?.abort();
+    mobileHeaderAuthController = new AbortController();
+    const listenerOptions = { signal: mobileHeaderAuthController.signal };
+
     avatar.addEventListener('click', (e) => {
         e.stopPropagation();
         const isOpen = dropdown.classList.toggle('active');
         avatar.setAttribute('aria-expanded', String(isOpen));
-    });
+    }, listenerOptions);
 
     if (mobileLogoutBtn) {
         mobileLogoutBtn.addEventListener('click', async (e) => {
@@ -1557,7 +1563,7 @@ function setupMobileHeaderAuth() {
             } catch (err) {
                 console.error('Mobile logout error:', err);
             }
-        });
+        }, listenerOptions);
     }
 
     // Close dropdown when clicking outside
@@ -1568,7 +1574,7 @@ function setupMobileHeaderAuth() {
                 avatar.setAttribute('aria-expanded', 'false');
             }
         }
-    });
+    }, listenerOptions);
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && dropdown.classList.contains('active')) {
@@ -1576,7 +1582,7 @@ function setupMobileHeaderAuth() {
             avatar.setAttribute('aria-expanded', 'false');
             avatar.focus();
         }
-    });
+    }, listenerOptions);
 }
 
 // ===== GLOBAL LOGOUT HANDLER (EVENT DELEGATION) =====

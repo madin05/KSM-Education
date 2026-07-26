@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Clone logo into nav for mobile side menu (at the top)
   const logoEl = document.querySelector(".logo");
-  if (logoEl) {
+  if (logoEl && !nav.querySelector(":scope > .nav-logo")) {
     const navLogo = document.createElement("div");
     navLogo.className = "nav-logo";
     navLogo.innerHTML = logoEl.innerHTML;
@@ -29,9 +29,12 @@ document.addEventListener("DOMContentLoaded", function () {
   // The auth section in the sidebar has been removed, as the icon in the mobile header is sufficient.
 
   // Create overlay for mobile menu
-  const overlay = document.createElement("div");
-  overlay.className = "nav-overlay";
-  document.body.appendChild(overlay);
+  let overlay = document.querySelector(".nav-overlay");
+  if (!overlay) {
+    overlay = document.createElement("div");
+    overlay.className = "nav-overlay";
+    document.body.appendChild(overlay);
+  }
 
   /**
    * Open mobile menu

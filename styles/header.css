@@ -5,7 +5,10 @@ header {
   position: sticky;
   top: 0;
   z-index: 1000;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Jangan animasikan layout (tinggi/lebar/posisi) saat auth navbar
+     dirender async atau class scrolled berubah. Ini mencegah flicker. */
+  transition: background-color 0.2s ease, box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
 header.scrolled {
@@ -21,6 +24,9 @@ body.menu-open header {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   background-color: white !important;
+  /* Overlay berada di luar header. Naikkan stacking context header saat
+     drawer terbuka agar nav dan tombol hamburger tetap di atas overlay. */
+  z-index: 10000;
 }
 
 .header-container {
@@ -38,6 +44,68 @@ body.menu-open header {
 }
 
 /* Mobile Header Profiling - visible only on mobile */
+
+/* ===== SHARED MOBILE CONTROLS =====
+   Disimpan di header.css supaya semua halaman user, termasuk Tentang
+   dan Kontak, memiliki hamburger dan overlay yang identik. */
+.hamburger-menu {
+  display: none;
+  width: 42px;
+  height: 42px;
+  padding: 10px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  z-index: 10001;
+}
+
+.hamburger-menu span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: #1e293b;
+  border-radius: 999px;
+  transform-origin: center;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.hamburger-menu.active span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.hamburger-menu.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger-menu.active span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+.nav-overlay {
+  position: fixed;
+  inset: 0;
+  display: block;
+  background: rgba(15, 23, 42, 0.52);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+  z-index: 9999;
+}
+
+.nav-overlay.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+body.menu-open {
+  overflow: hidden;
+}
 
 .logo {
   display: flex;
@@ -212,6 +280,9 @@ nav a.active {
   display: flex;
   align-items: center;
   gap: 12px;
+  /* Ruang tetap mencegah header bergeser saat Guest/profil selesai dimuat. */
+  min-width: 76px;
+  justify-content: flex-end;
 }
 
 .auth-section .btn-user-login,
@@ -547,7 +618,7 @@ nav a.active {
     top: calc(100% + 12px);
     right: -10px;
     background: white;
-    min-width: 200px;
+    width: min(280px, calc(100vw - 28px));
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
     border: 1px solid #e2e8f0;
@@ -573,11 +644,17 @@ nav a.active {
     font-size: 14px;
     color: #1e293b;
     display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .dropdown-user-info span {
     font-size: 12px;
     color: #64748b;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .btn-logout-mobile {
@@ -623,33 +700,45 @@ nav a.active {
   nav {
     position: fixed !important;
     top: 0 !important;
-    left: -100% !important;
-    transform: none !important; 
-    width: 80% !important;
-    max-width: 300px !important;
-    height: 100vh !important;
+    left: 0 !important;
+    transform: translateX(-105%) !important;
+    width: min(84vw, 320px) !important;
+    height: 100dvh !important;
     background: white !important;
     flex-direction: column !important;
-    padding: 2.5rem 0 !important;
+    padding: max(1rem, env(safe-area-inset-top)) 0 1.5rem !important;
     gap: 0 !important;
-    transition: left 0.3s ease !important;
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
     box-shadow: 15px 0 40px rgba(0, 0, 0, 0.1) !important;
-    z-index: 9999 !important; 
+    z-index: 10000 !important;
     display: flex !important;
     overflow-y: auto !important;
     align-items: stretch !important;
   }
 
   nav.active {
-    left: 0 !important;
+    transform: translateX(0) !important;
+  }
+
+  nav > a {
+    width: auto;
+    margin: 2px 12px;
+    padding: 13px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+  }
+
+  nav > a.active {
+    background: #eef2f7;
+    color: #1e293b;
   }
 
   /* Logo inside sidebar */
   .nav-logo {
     display: block !important;
-    padding: 1rem 1.5rem 2rem !important;
+    padding: 0.5rem 1.5rem 1.25rem !important;
     border-bottom: 1px solid #f0f0f0 !important;
-    margin-bottom: 8px !important;
+    margin-bottom: 12px !important;
   }
 
   .nav-logo img {
@@ -720,88 +809,62 @@ nav a.active {
   }
 }
 
-/* ===== NAVBAR SEARCH BAR (kotak sederhana, selalu terlihat) ===== */
-.navbar-search-box {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 210px;
-  padding: 9px 14px;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  margin-left: auto;
-  margin-right: 20px;
-  order: 3;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
-}
-
-.navbar-search-box:focus-within {
-  border-color: #3b82f6;
-  background: white;
-}
-
-.navbar-search-box-icon {
-  width: 16px;
-  height: 16px;
-  color: #94a3b8;
-  flex-shrink: 0;
-}
-
-.navbar-search-box-input {
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: 13px;
-  font-family: "Montserrat", sans-serif;
-  color: #2c3e50;
-  width: 100%;
-}
-
-.navbar-search-box-input::placeholder {
-  color: #94a3b8;
-}
-
-/* Flex Order for Desktop Layout */
+/* Flex Order for Desktop Layout (search bar dihapus, jadi cuma 3 item) */
 .logo { order: 1; }
 nav { order: 2; }
-.auth-section { order: 4; }
+.auth-section { order: 3; }
 
-/* ===== MOBILE RESPONSIVE (Search & Layout) ===== */
+/* ===== MOBILE RESPONSIVE ===== */
 @media (max-width: 768px) {
   .header-container .logo {
     order: 1 !important;
     margin-right: auto !important;
   }
 
-  .header-container .navbar-search-box {
-    order: 2 !important;
-    width: 130px;
-    margin-left: 0;
-    margin-right: 10px;
-    padding: 7px 10px;
-  }
-
-  .navbar-search-box-input {
-    font-size: 12px;
-  }
-
   .header-container .header-right {
-    order: 3 !important;
+    order: 2 !important;
     display: flex;
     align-items: center;
     gap: 12px;
   }
 
   .header-container .hamburger-menu {
-    order: 4 !important;
+    order: 3 !important;
     position: relative;
     display: flex !important;
   }
 }
 
-@media (max-width: 420px) {
-  .header-container .navbar-search-box {
-    width: 100px;
+@media (max-width: 480px) {
+  .header-container {
+    padding: 10px 14px;
+  }
+
+  .logo img {
+    width: 72px;
+  }
+
+  .header-container .header-right {
+    gap: 8px;
+  }
+
+  .hamburger-menu {
+    width: 40px;
+    height: 40px;
+    padding: 9px;
+  }
+
+  .container {
+    margin: 28px auto;
+    padding: 0 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  header,
+  nav,
+  .nav-overlay,
+  .hamburger-menu span {
+    transition: none !important;
   }
 }

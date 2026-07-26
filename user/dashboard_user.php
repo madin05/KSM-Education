@@ -178,7 +178,7 @@ include 'components/navbar.php';
 
 <?php
 $extra_scripts = <<<'EOT'
-<script src="../js/script.js?v=2025112910"></script>
+    <script src="../js/script.js?v=20260722"></script>
     <script src="../js/custom_alerts.js"></script>
     <script src="../js/statistic.js?v=20251130"></script>
     <script src="../js/jurnal.js?v=20260321"></script>

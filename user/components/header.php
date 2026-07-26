@@ -50,7 +50,6 @@
       di atas semua CSS lain (dashboard_user.css, header.css, dst),
       tanpa perlu !important di mana-mana.
     -->
-    <link rel="stylesheet" href="../styles/dark_mode.css?v=20260719" />
     <script src="../js/config.js"></script>
     <script src="https://unpkg.com/feather-icons"></script>
     <?php if (isset($extra_head)) echo $extra_head; ?>

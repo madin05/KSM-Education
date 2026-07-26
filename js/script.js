@@ -1241,7 +1241,129 @@ function getAvatarColor(name) {
     return AVATAR_COLORS[index];
 }
 
-// ===== NAVBAR AUTH DYNAMIC CONTENT =====
+// =========================================================
+// ===== NAVBAR AUTH DYNAMIC CONTENT (ANTI-FLICKER) =====
+//
+// Sebelumnya navbar profil (avatar+nama) selalu kosong dulu di setiap
+// halaman baru, baru "muncul" setelah fetch ke auth_me.php selesai —
+// urutan kosong->muncul itu yang kelihatan seperti kedipan/glitch
+// setiap pindah halaman.
+//
+// Sekarang: begitu profil berhasil dimuat, disimpan ke localStorage.
+// Di kunjungan halaman berikutnya, render DULU dari cache itu secara
+// instan (tanpa nunggu server), sambil tetap fetch data asli di
+// belakang layar untuk validasi. Kalau ternyata beda/logout, hasil
+// fetch otomatis menimpa tampilan cache begitu selesai.
+// =========================================================
+
+const NAVBAR_PROFILE_CACHE_KEY = 'ksm_navbar_profile_cache';
+
+function getCachedNavbarProfile() {
+    try {
+        const raw = localStorage.getItem(NAVBAR_PROFILE_CACHE_KEY);
+        return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+        return null;
+    }
+}
+
+function setCachedNavbarProfile(user) {
+    try {
+        localStorage.setItem(NAVBAR_PROFILE_CACHE_KEY, JSON.stringify(user));
+    } catch (e) {
+        /* localStorage penuh/tidak tersedia — abaikan, bukan fatal */
+    }
+}
+
+function clearCachedNavbarProfile() {
+    try {
+        localStorage.removeItem(NAVBAR_PROFILE_CACHE_KEY);
+    } catch (e) {}
+}
+
+// Dipisah jadi fungsi sendiri supaya bisa dipakai dua kali: sekali untuk
+// render instan dari cache (sebelum fetch selesai), sekali lagi untuk
+// render data asli setelah fetch selesai (validasi).
+function buildNavbarProfileHTML(user) {
+    const avatarChar = (user.name || 'U').charAt(0).toUpperCase();
+    const avatarColor = getAvatarColor(user.name);
+    const logoutUrl = `${window.APP_CONFIG.apiBase}/auth_logout.php?redirect=${encodeURIComponent(window.location.origin + window.APP_CONFIG.root + '/user/dashboard_user.php')}`;
+
+    // ===== PROFILE DROPDOWN (Profil Saya / Jurnal Saya / Riwayat Token / Pengaturan / Logout) =====
+    // NOTE: trigger di navbar sekarang HANYA avatar + caret (tanpa
+    // nama) supaya nama yang sangat panjang tidak merusak layout
+    // navbar. Nama & email lengkap dipindah ke bagian header di
+    // dalam dropdown-nya sendiri, yang punya lebar tetap sehingga
+    // aman dipotong dengan ellipsis kalau kepanjangan.
+    // Pakai class (bukan id) untuk trigger & menu karena bisa ada
+    // lebih dari satu authContainer (desktop + beberapa
+    // .nav-auth-section di drawer mobile). Toggle buka/tutupnya
+    // ditangani oleh setupProfileDropdownToggle() lewat event
+    // delegation di bawah, supaya tidak perlu daftar listener ulang
+    // tiap render.
+    const profileHTML = `
+        <div class="user-profile">
+            <button type="button" class="user-profile-trigger" aria-label="Menu akun ${user.name}" title="${user.name}">
+                <span class="user-avatar" style="background: ${avatarColor}">${avatarChar}</span>
+                <svg class="user-profile-caret" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </button>
+            <div class="user-profile-menu">
+                <div class="user-profile-menu-header">
+                    <strong>${user.name}</strong>
+                    <span>${user.email}</span>
+                </div>
+                <a href="profil_user.php" class="user-profile-menu-item">
+                    <i data-feather="user"></i> Profil Saya
+                </a>
+                <a href="my_journals_user.php" class="user-profile-menu-item">
+                    <i data-feather="file-text"></i> Jurnal Saya
+                </a>
+                <a href="token_history_user.php" class="user-profile-menu-item">
+                    <i data-feather="zap"></i> Riwayat Token
+                </a>
+                <a href="pengaturan_user.php" class="user-profile-menu-item">
+                    <i data-feather="settings"></i> Pengaturan
+                </a>
+                <a href="${logoutUrl}" class="user-profile-menu-item user-profile-menu-item--danger" id="btnLogout">
+                    <i data-feather="log-out"></i> Logout
+                </a>
+            </div>
+        </div>
+    `;
+
+    // Mobile Header HTML (Avatar only, with hidden dropdown) — tetap seperti semula
+    const mobileHeaderHTML = `
+        <div class="mobile-avatar-container">
+            <button type="button" class="user-avatar mobile-header-avatar" id="mobileAvatar" style="background: ${avatarColor}" aria-label="Menu akun ${user.name}" aria-expanded="false">${avatarChar}</button>
+            <div class="mobile-logout-dropdown" id="mobileLogoutDropdown">
+                <div class="dropdown-user-info">
+                    <strong>${user.name}</strong>
+                    <span>${user.email}</span>
+                </div>
+                <a href="profil_user.php" class="btn-logout-mobile">
+                    <i data-feather="user"></i> Profil Saya
+                </a>
+                <a href="my_journals_user.php" class="btn-logout-mobile">
+                    <i data-feather="file-text"></i> Jurnal Saya
+                </a>
+                <a href="token_history_user.php" class="btn-logout-mobile">
+                    <i data-feather="zap"></i> Riwayat Token
+                </a>
+                <a href="pengaturan_user.php" class="btn-logout-mobile">
+                    <i data-feather="settings"></i> Pengaturan
+                </a>
+                <a href="#" class="btn-logout-mobile" id="btnMobileLogout">
+                    <i data-feather="log-out"></i> Logout
+                </a>
+            </div>
+        </div>
+    `;
+
+    return { profileHTML, mobileHeaderHTML };
+}
+
 async function updateNavbarAuth() {
     // Skip auth update if we are on an admin page to avoid leaking user session into admin UI
     if (window.location.pathname.includes('/admin/')) {
@@ -1252,13 +1374,30 @@ async function updateNavbarAuth() {
     const authContainers = [];
     const desktopAuth = document.getElementById('navbarAuth');
     if (desktopAuth) authContainers.push(desktopAuth);
-    
+
     const mobileAuth = document.querySelectorAll('.nav-auth-section');
     mobileAuth.forEach(el => authContainers.push(el));
 
     const mobileHeaderAuth = document.getElementById('mobileAuthHeader');
 
     if (authContainers.length === 0 && !mobileHeaderAuth) return;
+
+    // ===== RENDER INSTAN DARI CACHE (anti-flicker) =====
+    // Kalau ada profil tersimpan dari kunjungan sebelumnya, tampilkan
+    // langsung TANPA nunggu fetch ke server dulu — ini yang
+    // menghilangkan "kedipan kosong" saat pindah halaman. Data ini
+    // tetap divalidasi ulang lewat fetch di bawah; kalau ternyata
+    // sudah beda/logout, akan otomatis diganti begitu fetch selesai.
+    const cachedUser = getCachedNavbarProfile();
+    if (cachedUser) {
+        const { profileHTML, mobileHeaderHTML } = buildNavbarProfileHTML(cachedUser);
+        authContainers.forEach(container => { container.innerHTML = profileHTML; });
+        if (mobileHeaderAuth) {
+            mobileHeaderAuth.innerHTML = mobileHeaderHTML;
+            setupMobileHeaderAuth();
+        }
+        if (typeof feather !== 'undefined') feather.replace();
+    }
 
     try {
         // Fetch current user from API
@@ -1274,76 +1413,8 @@ async function updateNavbarAuth() {
         if (result.ok && result.user) {
             // Logged in
             const user = result.user;
-            const avatarChar = (user.name || 'U').charAt(0).toUpperCase();
-            const avatarColor = getAvatarColor(user.name);
-            const logoutUrl = `${window.APP_CONFIG.apiBase}/auth_logout.php?redirect=${encodeURIComponent(window.location.origin + window.APP_CONFIG.root + '/user/dashboard_user.php')}`;
+            const { profileHTML, mobileHeaderHTML } = buildNavbarProfileHTML(user);
 
-            // ===== PROFILE DROPDOWN (Profil Saya / Jurnal Saya / Riwayat Token / Pengaturan / Logout) =====
-            // NOTE: trigger di navbar sekarang HANYA avatar + caret (tanpa
-            // nama) supaya nama yang sangat panjang tidak merusak layout
-            // navbar. Nama & email lengkap dipindah ke bagian header di
-            // dalam dropdown-nya sendiri, yang punya lebar tetap sehingga
-            // aman dipotong dengan ellipsis kalau kepanjangan.
-            // Pakai class (bukan id) untuk trigger & menu karena bisa ada
-            // lebih dari satu authContainer (desktop + beberapa
-            // .nav-auth-section di drawer mobile). Toggle buka/tutupnya
-            // ditangani oleh setupProfileDropdownToggle() lewat event
-            // delegation di bawah, supaya tidak perlu daftar listener ulang
-            // tiap render.
-            const profileHTML = `
-                <div class="user-profile">
-                    <button type="button" class="user-profile-trigger" aria-label="Menu akun ${user.name}" title="${user.name}">
-                        <span class="user-avatar" style="background: ${avatarColor}">${avatarChar}</span>
-                        <svg class="user-profile-caret" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
-                    </button>
-                    <div class="user-profile-menu">
-                        <div class="user-profile-menu-header">
-                            <strong>${user.name}</strong>
-                            <span>${user.email}</span>
-                        </div>
-                        <a href="profil_user.php" class="user-profile-menu-item">
-                            <i data-feather="user"></i> Profil Saya
-                        </a>
-                        <a href="my_journals_user.php" class="user-profile-menu-item">
-                            <i data-feather="file-text"></i> Jurnal Saya
-                        </a>
-                        <a href="token_history_user.php" class="user-profile-menu-item">
-                            <i data-feather="zap"></i> Riwayat Token
-                        </a>
-                        <a href="pengaturan_user.php" class="user-profile-menu-item">
-                            <i data-feather="settings"></i> Pengaturan
-                        </a>
-                        <a href="${logoutUrl}" class="user-profile-menu-item user-profile-menu-item--danger" id="btnLogout">
-                            <i data-feather="log-out"></i> Logout
-                        </a>
-                    </div>
-                </div>
-            `;
-
-            // Mobile Header HTML (Avatar only, with hidden dropdown) — tetap seperti semula
-            const mobileHeaderHTML = `
-                <div class="mobile-avatar-container">
-                    <div class="user-avatar mobile-header-avatar" id="mobileAvatar" style="background: ${avatarColor}">${avatarChar}</div>
-                    <div class="mobile-logout-dropdown" id="mobileLogoutDropdown">
-                        <div class="dropdown-user-info">
-                            <strong>${user.name}</strong>
-                            <span>${user.email}</span>
-                        </div>
-                        <a href="my_journals_user.php" class="btn-logout-mobile" style="color:#334155;">
-                            <i data-feather="file-text"></i> Jurnal Saya
-                        </a>
-                        <a href="token_history_user.php" class="btn-logout-mobile" style="color:#334155;">
-                            <i data-feather="zap"></i> Riwayat Token
-                        </a>
-                        <a href="#" class="btn-logout-mobile" id="btnMobileLogout">
-                            <i data-feather="log-out"></i> Logout
-                        </a>
-                    </div>
-                </div>
-            `;
-            
             authContainers.forEach(container => {
                 container.innerHTML = profileHTML;
             });
@@ -1352,7 +1423,10 @@ async function updateNavbarAuth() {
                 mobileHeaderAuth.innerHTML = mobileHeaderHTML;
                 setupMobileHeaderAuth();
             }
-            
+
+            // Simpan ke cache untuk kunjungan halaman berikutnya
+            setCachedNavbarProfile(user);
+
             // Sync sessionStorage just in case
             sessionStorage.setItem('userLoggedIn', 'true');
             sessionStorage.setItem('userEmail', user.email);
@@ -1360,6 +1434,8 @@ async function updateNavbarAuth() {
             sessionStorage.setItem('userType', user.role);
         } else {
             // Not logged in
+            clearCachedNavbarProfile();
+
             const loginHTML = `
                 <a href="${window.APP_CONFIG.root}/user/login_user.php" class="guest-profile" style="text-decoration: none;">
                     <div class="guest-avatar">
@@ -1368,7 +1444,7 @@ async function updateNavbarAuth() {
                     <span class="guest-label">Guest</span>
                 </a>
             `;
-            
+
             authContainers.forEach(container => {
                 container.innerHTML = loginHTML;
             });
@@ -1376,16 +1452,21 @@ async function updateNavbarAuth() {
             if (mobileHeaderAuth) {
                 mobileHeaderAuth.innerHTML = loginHTML;
             }
-            
+
             sessionStorage.setItem('userLoggedIn', 'false');
         }
 
         if (typeof feather !== 'undefined') feather.replace();
     } catch (error) {
         console.error('Navbar auth error:', error);
-        authContainers.forEach(container => {
-            container.innerHTML = `<a href="${window.APP_CONFIG.root}/user/login_user.php" class="btn-login">Login</a>`;
-        });
+        // Kalau fetch gagal (mis. koneksi putus) TAPI ada cache valid,
+        // biarkan hasil render dari cache tadi tetap tampil — jangan
+        // ditimpa pesan error, supaya tidak "flicker" balik ke Login.
+        if (!cachedUser) {
+            authContainers.forEach(container => {
+                container.innerHTML = `<a href="${window.APP_CONFIG.root}/user/login_user.php" class="btn-login">Login</a>`;
+            });
+        }
     }
 }
 
@@ -1442,7 +1523,8 @@ function setupMobileHeaderAuth() {
 
     avatar.addEventListener('click', (e) => {
         e.stopPropagation();
-        dropdown.classList.toggle('active');
+        const isOpen = dropdown.classList.toggle('active');
+        avatar.setAttribute('aria-expanded', String(isOpen));
     });
 
     if (mobileLogoutBtn) {
@@ -1468,6 +1550,7 @@ function setupMobileHeaderAuth() {
                 const out = await res.json();
                 if (out.ok) {
                     if (window.TokenManager) window.TokenManager.clearTokens();
+                    clearCachedNavbarProfile();
                     sessionStorage.clear();
                     window.location.href = window.location.origin + window.APP_CONFIG.root + '/user/dashboard_user.php';
                 }
@@ -1482,7 +1565,16 @@ function setupMobileHeaderAuth() {
         if (dropdown.classList.contains('active')) {
             if (!avatar.contains(e.target) && !dropdown.contains(e.target)) {
                 dropdown.classList.remove('active');
+                avatar.setAttribute('aria-expanded', 'false');
             }
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && dropdown.classList.contains('active')) {
+            dropdown.classList.remove('active');
+            avatar.setAttribute('aria-expanded', 'false');
+            avatar.focus();
         }
     });
 }
@@ -1510,9 +1602,10 @@ document.addEventListener('click', async (e) => {
                 body: JSON.stringify(logoutBody)
             });
             const out = await res.json();
-            
+
             if (out.ok) {
                 if (window.TokenManager) window.TokenManager.clearTokens();
+                clearCachedNavbarProfile();
                 sessionStorage.clear();
                 localStorage.removeItem('authToken');
                 localStorage.removeItem('adminLoggedIn');
@@ -1539,24 +1632,6 @@ if (document.readyState === 'loading') {
     updateNavbarAuth();
 }
 
-/**
- * Global Navbar Search Handler — kotak pencarian biasa, selalu terlihat
- * (tidak ada lagi animasi expand/collapse checkbox).
- */
-function setupNavbarSearch() {
-  const input = document.getElementById("navbarSearchInput");
-  if (!input) return;
-
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      const query = input.value.trim();
-      if (query) {
-        const isAdmin = window.location.pathname.includes("/admin/");
-        const target = isAdmin ? "journals.php" : "journals_user.php";
-        window.location.href = `${target}?search=${encodeURIComponent(query)}`;
-      }
-    }
-  });
-}
-
-document.addEventListener("DOMContentLoaded", setupNavbarSearch);
+// Search bar navbar sudah dihapus (lihat navbar.php) — fungsi
+// setupNavbarSearch() dan pemanggilannya turut dihapus karena sudah
+// tidak ada elemen #navbarSearchInput lagi di DOM manapun.

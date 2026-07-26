@@ -38,3 +38,12 @@ Thumbs.db
 
 # Google verification files (hacker artifacts)
 google*.html
+
+
+# OpenClaw
+memory/
+AGENTS.md.bak
+*.session
+*.sessions
+.openclaw/
+*.md

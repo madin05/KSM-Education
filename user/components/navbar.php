@@ -25,15 +25,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
           <a href="kontak_user.php" class="<?= $current_page === 'kontak_user.php' ? 'active' : '' ?>">Kontak</a>
         </nav>
 
-        <?php
-        if ($current_page === 'dashboard_user.php'):
-        ?>
-        <div class="navbar-search-box">
-          <i data-feather="search" class="navbar-search-box-icon"></i>
-          <input type="text" id="navbarSearchInput" class="navbar-search-box-input" placeholder="Cari artikel..." autocomplete="off">
-        </div>
-        <?php endif; ?>
-
         <div class="auth-section" id="navbarAuth">
           <!-- Dynamically populated by script.js -->
         </div>

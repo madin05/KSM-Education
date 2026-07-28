@@ -48,17 +48,48 @@ Web-based application for managing academic journals and opinion articles for ed
 
 ## Database setup and migrations
 
-1. Import `database/journal_system2.sql` for a new installation.
-2. Apply migrations in filename order. Phase 1 starts with:
+The commands below assume the default XAMPP database name, `journal_system2`.
+Use the value configured in `DB_NAME` if your installation uses another name.
+
+1. Back up an existing database before applying a migration:
 
    ```powershell
-   Get-Content -Raw database/migrations/001_phase1_foundation.sql | C:\xampp\mysql\bin\mysql.exe -u root journal_system
+   cmd /c "C:\xampp\mysql\bin\mysqldump.exe -u root journal_system2 > database\backup_before_phase1.sql"
+   ```
+
+2. For a new installation, create `journal_system2` and import
+   `database/journal_system2.sql`. Skip this step for an existing installation.
+3. Apply migrations in filename order. Phase 1 starts with:
+
+   ```powershell
+   cmd /c "C:\xampp\mysql\bin\mysql.exe -u root journal_system2 < database\migrations\001_phase1_foundation.sql"
    ```
 
 Migration `001_phase1_foundation.sql` is idempotent and may be rerun safely. It
 adds article ownership/review workflow, token wallets and immutable ledger,
 purchase requests, comments, and the JWT blacklist. Existing articles are
 backfilled as `published` to preserve current public content.
+
+Phase 2 adds upload ownership and the journal submission workflow. Apply its
+migration after Phase 1:
+
+```powershell
+cmd /c "C:\xampp\mysql\bin\mysql.exe -u root journal_system2 < database\migrations\002_phase2_submissions.sql"
+```
+
+Authenticated users submit through `services/submit_journal.php` and manage
+their records through the `my_journals`, `update_my_journal`, and
+`delete_my_journal` endpoints. Admins read the moderation queue from
+`services/admin_review_queue.php` and approve or reject pending records through
+`services/admin_review_journal.php`.
+
+The migration was verified against both a clean schema and a legacy schema
+containing the former runtime-created comments/JWT tables, including a second
+run to validate idempotency. After deployment, confirm the main objects with:
+
+```powershell
+C:\xampp\mysql\bin\mysql.exe -u root -D journal_system2 -e "SHOW TABLES LIKE 'token_transactions'; SHOW COLUMNS FROM journals LIKE 'status'; SHOW COLUMNS FROM opinions LIKE 'user_id';"
+```
 
 Before using authentication endpoints, copy `.env.example` to `.env`, set the
 database credentials, and replace `JWT_SECRET` with a random value of at least

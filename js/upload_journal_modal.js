@@ -4,40 +4,11 @@
 // - Toggle tipe Jurnal/Opini (field berubah)
 // - Dynamic rows: Penulis & Pengurus
 // - Preview file cover & nama file PDF
-// - Submit: simulasi frontend (kurangi token, simpan ke "my_journals")
-//
-// // TODO backend:
-// // 1. Endpoint nyata: POST /api/upload_journal.php atau
-// //    /api/upload_opinion.php (multipart/form-data).
-// // 2. Validasi & pemotongan token WAJIB diulang di server —
-// //    JANGAN percaya saldo token dari frontend/localStorage.
-// // 3. Field author/pengurus perlu disesuaikan dgn skema tabel
-// //    yang dipakai backend (JSON column atau tabel relasi).
+// - Submit: upload file, lalu kirim submission jurnal ke API Phase 2
 // =========================================================
 
 (function (global) {
-  const MY_JOURNALS_KEY = "ksm_my_journals";
   let currentType = "jurnal";
-
-  function getMyJournals() {
-    try {
-      return JSON.parse(localStorage.getItem(MY_JOURNALS_KEY) || "[]");
-    } catch (e) {
-      return [];
-    }
-  }
-
-  function saveMyJournals(list) {
-    localStorage.setItem(MY_JOURNALS_KEY, JSON.stringify(list));
-  }
-
-  function addMyJournal(entry) {
-    const list = getMyJournals();
-    list.unshift(entry);
-    saveMyJournals(list);
-  }
-
-  global.KsmMyJournals = { getMyJournals, saveMyJournals, addMyJournal };
 
   function createAuthorRow(prefill = "") {
     const row = document.createElement("div");
@@ -205,7 +176,7 @@
     return valid;
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -248,43 +219,54 @@
       phone: document.getElementById("ksmFieldPhone").value.trim(),
     };
 
-    console.log("Upload payload (frontend simulation):", payload);
+    const uploadedIds = [];
+    try {
+      if (currentType !== "jurnal") throw new Error("Submission opini belum termasuk scope Fase 2.");
+      if (typeof uploadFileToServer !== "function" || typeof authFetch !== "function") throw new Error("Layanan API belum siap. Muat ulang halaman dan coba lagi.");
 
-    // ----- TODO backend -----
-    // fetch(`${window.APP_CONFIG.apiBase}/upload_${currentType === 'jurnal' ? 'journal' : 'opinion'}.php`, {
-    //   method: 'POST',
-    //   body: buildFormDataFromPayloadAndFiles(payload),
-    // });
-    // Server HARUS mengecek & memotong token user di sisi backend.
+      const pdfUpload = await uploadFileToServer(document.getElementById("ksmPdfInput").files[0]);
+      if (!pdfUpload.ok || !pdfUpload.id) throw new Error(pdfUpload.message || "Upload PDF gagal.");
+      uploadedIds.push(pdfUpload.id);
 
-    setTimeout(() => {
-      // Simulasi: kurangi token & simpan ke daftar "Jurnal Saya" berstatus Pending
-      if (typeof KsmTokenWallet !== "undefined") {
-        KsmTokenWallet.deduct(1);
+      const coverFile = document.getElementById("ksmCoverInput").files[0] || null;
+      let coverUpload = null;
+      if (coverFile) {
+        coverUpload = await uploadFileToServer(coverFile);
+        if (!coverUpload.ok || !coverUpload.id) throw new Error(coverUpload.message || "Upload cover gagal.");
+        uploadedIds.push(coverUpload.id);
       }
 
-      if (typeof KsmMyJournals !== "undefined") {
-        KsmMyJournals.addMyJournal({
-          id: "LOCAL" + Date.now(),
-          title: payload.title,
-          type: payload.type,
-          status: "pending", // pending | published | rejected
-          createdAt: new Date().toISOString(),
-        });
+      const response = await authFetch(`${window.APP_CONFIG.apiBase}/submit_journal.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: payload.title, abstract: payload.abstract, volume: payload.volume, authors: payload.authors, pengurus: payload.pengurus, email: payload.email, contact: payload.phone, tags: payload.tags, file_upload_id: pdfUpload.id, cover_upload_id: coverUpload?.id || null }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !result.ok) {
+        const error = new Error(result.message || "Submission jurnal gagal.");
+        error.status = response.status;
+        throw error;
       }
 
+      uploadedIds.length = 0;
+      closeUploadModal();
+      if (typeof showToast === "function") showToast(result.message || "Jurnal berhasil dikirim.", "success");
+      global.dispatchEvent(new CustomEvent("ksm:journal-submitted", { detail: result.submission || null }));
+    } catch (error) {
+      await Promise.all(uploadedIds.map(async (uploadId) => {
+        try {
+          await authFetch(`${window.APP_CONFIG.apiBase}/delete_upload.php?id=${encodeURIComponent(uploadId)}`, { method: "DELETE" });
+        } catch (cleanupError) {
+          console.warn("Gagal membersihkan upload yatim:", cleanupError);
+        }
+      }));
+      if (error.status === 402 && typeof global.ksmOpenInsufficientModal === "function") global.ksmOpenInsufficientModal();
+      if (typeof showToast === "function") showToast(error.message || "Submission jurnal gagal.", "error");
+    } finally {
       submitBtn.classList.remove("loading");
       submitBtn.disabled = false;
-
-      if (typeof showToast === "function") {
-        showToast(
-          "Karya berhasil dikirim, menunggu review admin.",
-          "success",
-        );
-      }
-
-      closeUploadModal();
-    }, 700);
+      if (typeof feather !== "undefined") feather.replace();
+    }
   }
 
   function initDragDrop(dropEl, inputEl, fileNameEl) {

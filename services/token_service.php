@@ -53,6 +53,78 @@ function token_get_history(PDO $pdo, int $userId, int $limit = 100): array
 }
 
 /**
+ * Debit an upload token inside the caller's database transaction.
+ *
+ * The journal/opinion must be inserted first so its id can be used as the
+ * immutable ledger reference. The unique ledger key makes retries safe.
+ */
+function token_debit_upload(
+    PDO $pdo,
+    int $userId,
+    string $referenceType,
+    int $referenceId,
+    int $cost = 1,
+    string $description = 'Content submission'
+): array {
+    if (!$pdo->inTransaction()) {
+        throw new LogicException('Upload token debit must run inside a database transaction.');
+    }
+
+    if ($userId < 1 || $referenceId < 1 || $cost < 1) {
+        throw new InvalidArgumentException('Invalid upload token debit parameters.');
+    }
+
+    if (!preg_match('/^[a-z0-9_]{1,50}$/', $referenceType)) {
+        throw new InvalidArgumentException('Invalid token reference type.');
+    }
+
+    $stmt = $pdo->prepare(
+        'INSERT INTO user_token_wallets (user_id, balance) VALUES (?, 0)
+         ON DUPLICATE KEY UPDATE user_id = VALUES(user_id)'
+    );
+    $stmt->execute([$userId]);
+
+    $stmt = $pdo->prepare(
+        'SELECT balance FROM user_token_wallets WHERE user_id = ? FOR UPDATE'
+    );
+    $stmt->execute([$userId]);
+    $currentBalance = (int)$stmt->fetchColumn();
+
+    if ($currentBalance < $cost) {
+        throw new RuntimeException('Saldo token tidak mencukupi.', 402);
+    }
+
+    $newBalance = $currentBalance - $cost;
+    $stmt = $pdo->prepare(
+        'UPDATE user_token_wallets
+         SET balance = ?, updated_at = CURRENT_TIMESTAMP
+         WHERE user_id = ?'
+    );
+    $stmt->execute([$newBalance, $userId]);
+
+    $stmt = $pdo->prepare(
+        "INSERT INTO token_transactions
+           (user_id, type, amount, balance_after, reference_type, reference_id,
+            status, description, processed_at)
+         VALUES (?, 'upload', ?, ?, ?, ?, 'completed', ?, CURRENT_TIMESTAMP)"
+    );
+    $stmt->execute([
+        $userId,
+        -$cost,
+        $newBalance,
+        $referenceType,
+        $referenceId,
+        substr($description, 0, 500),
+    ]);
+
+    return [
+        'cost' => $cost,
+        'balance' => $newBalance,
+        'transaction_id' => (int)$pdo->lastInsertId(),
+    ];
+}
+
+/**
  * Approve once and credit the wallet atomically.
  * Repeated Telegram callbacks return the existing balance without crediting it.
  */

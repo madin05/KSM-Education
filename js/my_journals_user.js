@@ -1,55 +1,23 @@
-// =========================================================
-// JURNAL SAYA — render daftar upload user, filter status, hapus draft
-//
-// Data disimpan di localStorage key "ksm_my_journals" (lihat
-// js/upload_journal_modal.js -> KsmMyJournals). Di-seed dengan data
-// dummy kalau kosong supaya halaman ini enak dilihat saat demo.
-//
-// // TODO backend:
-// // 1. Ganti seedDummyIfEmpty()/getMyJournals() dengan fetch API
-// //    (mis. GET /api/my_journals.php) yang mengembalikan daftar
-// //    upload milik user yang sedang login beserta status approve.
-// // 2. Hapus (DELETE) & Edit harus memanggil endpoint sungguhan,
-// //    dan idealnya hanya diizinkan untuk status "pending".
-// =========================================================
-
+// JURNAL SAYA — data server, filter status, dan aksi berbasis ownership.
 (function () {
+  "use strict";
+
   let currentFilter = "all";
+  let journals = [];
+  let loading = false;
 
-  function seedDummyIfEmpty() {
-    const existing =
-      typeof KsmMyJournals !== "undefined" ? KsmMyJournals.getMyJournals() : [];
-    if (existing.length > 0) return;
-
-    const dummy = [
-      {
-        id: "DUMMY1",
-        title: "Dampak Digitalisasi terhadap Pendidikan Karakter",
-        type: "jurnal",
-        status: "published",
-        createdAt: new Date(Date.now() - 86400000 * 12).toISOString(),
-      },
-      {
-        id: "DUMMY2",
-        title: "Refleksi Kebijakan Pendidikan Inklusif di Indonesia",
-        type: "opini",
-        status: "pending",
-        createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-      },
-      {
-        id: "DUMMY3",
-        title: "Analisis Kesenjangan Akses Internet di Daerah 3T",
-        type: "jurnal",
-        status: "rejected",
-        createdAt: new Date(Date.now() - 86400000 * 20).toISOString(),
-      },
-    ];
-
-    KsmMyJournals.saveMyJournals(dummy);
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
   }
 
   function statusBadge(status) {
     const map = {
+      draft: { label: "Draft", icon: "file", cls: "ksm-status-pending" },
       pending: { label: "Pending Review", icon: "clock", cls: "ksm-status-pending" },
       published: { label: "Terbit", icon: "check-circle", cls: "ksm-status-published" },
       rejected: { label: "Ditolak", icon: "x-circle", cls: "ksm-status-rejected" },
@@ -59,7 +27,9 @@
   }
 
   function formatDate(iso) {
-    return new Date(iso).toLocaleDateString("id-ID", {
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return "-";
+    return date.toLocaleDateString("id-ID", {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -70,20 +40,22 @@
     const container = document.getElementById("ksmMyJournalsList");
     if (!container) return;
 
-    const all =
-      typeof KsmMyJournals !== "undefined" ? KsmMyJournals.getMyJournals() : [];
+    if (loading) {
+      container.innerHTML = `<div class="ksm-my-journals-empty"><p>Memuat jurnal Anda...</p></div>`;
+      return;
+    }
 
     const filtered =
       currentFilter === "all"
-        ? all
-        : all.filter((item) => item.status === currentFilter);
+        ? journals
+        : journals.filter((item) => item.status === currentFilter);
 
     if (filtered.length === 0) {
       container.innerHTML = `
         <div class="ksm-my-journals-empty">
           <i data-feather="inbox"></i>
-          <h3>Belum ada karya di kategori ini</h3>
-          <p>Upload jurnal atau opini baru untuk mulai membangun portofolio Anda.</p>
+          <h3>Belum ada jurnal di kategori ini</h3>
+          <p>Upload jurnal baru untuk mulai membangun portofolio Anda.</p>
         </div>
       `;
       if (typeof feather !== "undefined") feather.replace();
@@ -92,24 +64,25 @@
 
     container.innerHTML = filtered
       .map((item) => {
-        const isPending = item.status === "pending";
-        const typeIconClass =
-          item.type === "opini" ? "type-opini" : "type-jurnal";
-        const typeIcon = item.type === "opini" ? "message-square" : "book-open";
+        const canChange = ["draft", "pending", "rejected"].includes(item.status);
+        const rejectionReason = item.status === "rejected" && item.rejection_reason
+          ? `<div class="ksm-my-journal-meta"><span>Alasan: ${escapeHtml(item.rejection_reason)}</span></div>`
+          : "";
 
         return `
           <div class="ksm-my-journal-card" data-id="${item.id}">
             <div class="ksm-my-journal-info">
-              <div class="ksm-my-journal-type-icon ${typeIconClass}">
-                <i data-feather="${typeIcon}"></i>
+              <div class="ksm-my-journal-type-icon type-jurnal">
+                <i data-feather="book-open"></i>
               </div>
               <div class="ksm-my-journal-text">
-                <div class="ksm-my-journal-title">${item.title}</div>
+                <div class="ksm-my-journal-title">${escapeHtml(item.title)}</div>
                 <div class="ksm-my-journal-meta">
-                  <span>${item.type === "opini" ? "Opini" : "Jurnal"}</span>
+                  <span>Jurnal</span>
                   <span>&bull;</span>
-                  <span>${formatDate(item.createdAt)}</span>
+                  <span>${formatDate(item.created_at)}</span>
                 </div>
+                ${rejectionReason}
               </div>
             </div>
 
@@ -117,12 +90,12 @@
               ${statusBadge(item.status)}
               <div class="ksm-my-journal-actions">
                 <button type="button" class="ksm-icon-btn" data-action="edit" title="Edit" ${
-                  isPending ? "" : "disabled"
+                  canChange ? "" : "disabled"
                 }>
                   <i data-feather="edit-2"></i>
                 </button>
                 <button type="button" class="ksm-icon-btn ksm-icon-btn-danger" data-action="delete" title="Hapus" ${
-                  isPending ? "" : "disabled"
+                  canChange ? "" : "disabled"
                 }>
                   <i data-feather="trash-2"></i>
                 </button>
@@ -136,7 +109,30 @@
     if (typeof feather !== "undefined") feather.replace();
   }
 
-  function handleListClick(e) {
+  async function apiJson(url, options = {}) {
+    if (typeof authFetch !== "function") throw new Error("Layanan autentikasi belum siap.");
+    const response = await authFetch(url, options);
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.message || "Permintaan gagal.");
+    return data;
+  }
+
+  async function loadJournals() {
+    loading = true;
+    render();
+    try {
+      const data = await apiJson(`${window.APP_CONFIG.apiBase}/my_journals.php?limit=100&offset=0`);
+      journals = Array.isArray(data.results) ? data.results : [];
+    } catch (error) {
+      journals = [];
+      if (typeof showToast === "function") showToast(error.message, "error");
+    } finally {
+      loading = false;
+      render();
+    }
+  }
+
+  async function handleListClick(e) {
     const btn = e.target.closest(".ksm-icon-btn");
     if (!btn || btn.disabled) return;
 
@@ -156,25 +152,39 @@
 
         if (!confirmed) return;
 
-        const all = KsmMyJournals.getMyJournals();
-        const updated = all.filter((item) => item.id !== id);
-        KsmMyJournals.saveMyJournals(updated);
-        render();
-
-        if (typeof showToast === "function") {
-          showToast("Karya berhasil dihapus.", "success");
+        try {
+          await apiJson(`${window.APP_CONFIG.apiBase}/delete_my_journal.php?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+          journals = journals.filter((item) => String(item.id) !== String(id));
+          render();
+          if (typeof showToast === "function") showToast("Jurnal berhasil dihapus.", "success");
+        } catch (error) {
+          if (typeof showToast === "function") showToast(error.message, "error");
         }
       })();
     }
 
     if (action === "edit") {
-      // TODO backend: idealnya membuka ksmUploadModal dalam mode edit
-      // dengan field terisi data lama, lalu PUT/PATCH ke endpoint update.
-      if (typeof showToast === "function") {
-        showToast(
-          "Fitur edit akan tersedia setelah endpoint update siap dari backend.",
-          "info",
-        );
+      const journal = journals.find((item) => String(item.id) === String(id));
+      if (!journal) return;
+      const title = prompt("Judul jurnal:", journal.title || "");
+      if (title === null) return;
+      const abstract = prompt("Abstrak jurnal:", journal.abstract || "");
+      if (abstract === null) return;
+      const volume = prompt("Volume jurnal:", journal.volume || "");
+      if (volume === null) return;
+      try {
+        const data = await apiJson(`${window.APP_CONFIG.apiBase}/update_my_journal.php`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: Number(id), title, abstract, volume }),
+        });
+        journals = journals.map((item) => String(item.id) === String(id)
+          ? { ...item, ...(data.submission || {}), status: "pending", rejection_reason: null }
+          : item);
+        render();
+        if (typeof showToast === "function") showToast(data.message || "Jurnal berhasil diperbarui.", "success");
+      } catch (error) {
+        if (typeof showToast === "function") showToast(error.message, "error");
       }
     }
   }
@@ -194,11 +204,11 @@
   }
 
   document.addEventListener("DOMContentLoaded", () => {
-    seedDummyIfEmpty();
     initFilters();
-    render();
 
     const list = document.getElementById("ksmMyJournalsList");
     if (list) list.addEventListener("click", handleListClick);
+    window.addEventListener("ksm:journal-submitted", loadJournals);
+    loadJournals();
   });
 })();

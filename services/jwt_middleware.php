@@ -26,11 +26,28 @@ require_once __DIR__ . '/jwt_helper.php';
  * Returns the authenticated user array or null.
  */
 function authenticate_request(): ?array {
-    global $auth_user;
+    global $auth_user, $pdo;
 
     // === STRATEGY 1: JWT Token ===
     $jwt_payload = validate_jwt();
     if ($jwt_payload) {
+        // Account lifecycle is authoritative in the database.  This prevents
+        // an access token issued before a disable/delete from using legacy
+        // protected endpoints after the account has been closed.
+        if (isset($pdo) && $pdo instanceof PDO) {
+            try {
+                $statusStmt = $pdo->prepare("SELECT account_status FROM users WHERE id = ? LIMIT 1");
+                $statusStmt->execute([(int)$jwt_payload['sub']]);
+                $accountStatus = $statusStmt->fetchColumn();
+                if ($accountStatus !== 'active') {
+                    $auth_user = null;
+                    return null;
+                }
+            } catch (Throwable $e) {
+                // Preserve the existing middleware behavior for legacy
+                // installations that have not applied the Phase 3 migration.
+            }
+        }
         $auth_user = [
             'id'          => (int) $jwt_payload['sub'],
             'name'        => $jwt_payload['name'] ?? '',
@@ -48,6 +65,19 @@ function authenticate_request(): ?array {
     }
 
     if (!empty($_SESSION['user_id'])) {
+        if (isset($pdo) && $pdo instanceof PDO) {
+            try {
+                $statusStmt = $pdo->prepare("SELECT account_status FROM users WHERE id = ? LIMIT 1");
+                $statusStmt->execute([(int)$_SESSION['user_id']]);
+                $accountStatus = $statusStmt->fetchColumn();
+                if ($accountStatus !== 'active') {
+                    $auth_user = null;
+                    return null;
+                }
+            } catch (Throwable $e) {
+                // Preserve session fallback for legacy installations.
+            }
+        }
         $auth_user = [
             'id'          => (int) $_SESSION['user_id'],
             'role'        => $_SESSION['role'] ?? 'user',

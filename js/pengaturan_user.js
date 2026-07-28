@@ -1,31 +1,46 @@
 // ===== PENGATURAN =====
-// TODO backend: endpoint change_password.php dan delete_account.php
-// belum tentu ada — form ini akan menampilkan error yang jelas kalau
-// endpoint belum tersedia, bukan gagal diam-diam.
-// Preferensi notifikasi masih disimpan di localStorage (simulasi
-// frontend) sampai backend punya kolom/tabel untuk ini.
-
-const NOTIF_PREFS_KEY = "ksm_notif_prefs";
-
-function loadNotifPrefs() {
-  try {
-    const raw = localStorage.getItem(NOTIF_PREFS_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw);
-  } catch (e) {
-    return null;
-  }
-}
-
-function applyNotifPrefsToUI() {
-  const prefs = loadNotifPrefs();
+function applyNotifPrefsToUI(prefs) {
   if (!prefs) return;
   const newArticle = document.getElementById("toggleNewArticle");
   const uploadStatus = document.getElementById("toggleUploadStatus");
   const promo = document.getElementById("togglePromo");
-  if (newArticle && typeof prefs.newArticle === "boolean") newArticle.checked = prefs.newArticle;
-  if (uploadStatus && typeof prefs.uploadStatus === "boolean") uploadStatus.checked = prefs.uploadStatus;
-  if (promo && typeof prefs.promo === "boolean") promo.checked = prefs.promo;
+  if (newArticle && typeof prefs.notification_new_article === "boolean") newArticle.checked = prefs.notification_new_article;
+  if (uploadStatus && typeof prefs.notification_upload_status === "boolean") uploadStatus.checked = prefs.notification_upload_status;
+  if (promo && typeof prefs.notification_promo === "boolean") promo.checked = prefs.notification_promo;
+}
+
+async function getSettingsAuthHeaders(includeJson = false) {
+  const headers = includeJson ? { "Content-Type": "application/json" } : {};
+  if (window.TokenManager && window.TokenManager.hasTokens()) {
+    const token = await window.TokenManager.getValidToken();
+    if (token) headers.Authorization = `Bearer ${token}`;
+  }
+  return headers;
+}
+
+async function loadNotifPrefsFromServer() {
+  try {
+    const response = await fetch(`${window.APP_CONFIG.apiBase}/preferences.php`, {
+      credentials: "include",
+      headers: await getSettingsAuthHeaders(),
+    });
+    const result = await response.json();
+    if (result.ok) {
+      applyNotifPrefsToUI(result.preferences);
+      if (result.preferences?.theme === "dark" || result.preferences?.theme === "light") {
+        applyTheme(result.preferences.theme);
+        const toggle = document.getElementById("toggleDarkMode");
+        if (toggle) toggle.checked = result.preferences.theme === "dark";
+        try {
+          localStorage.setItem(THEME_KEY, result.preferences.theme);
+        } catch (e) {
+          /* localStorage hanya cache; database tetap source of truth */
+        }
+      }
+    }
+  } catch (e) {
+    console.warn("Gagal memuat preferensi dari server:", e);
+  }
 }
 
 function setupPasswordForm() {
@@ -82,12 +97,7 @@ function setupPasswordForm() {
       form.reset();
     } catch (error) {
       console.error("Change password error:", error);
-      showToast(
-        "Endpoint change_password.php belum tersedia di backend, atau terjadi error: " +
-          error.message,
-        "error",
-        "GAGAL",
-      );
+      showToast(`Gagal mengubah password: ${error.message}`, "error", "GAGAL");
     } finally {
       submitBtn.disabled = false;
       submitBtn.innerHTML = originalText;
@@ -100,20 +110,28 @@ function setupNotifPrefs() {
   const btn = document.getElementById("btnSaveNotif");
   if (!btn) return;
 
-  applyNotifPrefsToUI();
+  loadNotifPrefsFromServer();
 
-  btn.addEventListener("click", () => {
+  btn.addEventListener("click", async () => {
     const prefs = {
-      newArticle: document.getElementById("toggleNewArticle")?.checked ?? true,
-      uploadStatus: document.getElementById("toggleUploadStatus")?.checked ?? true,
-      promo: document.getElementById("togglePromo")?.checked ?? false,
+      notification_new_article: document.getElementById("toggleNewArticle")?.checked ?? true,
+      notification_upload_status: document.getElementById("toggleUploadStatus")?.checked ?? true,
+      notification_promo: document.getElementById("togglePromo")?.checked ?? false,
     };
 
     try {
-      localStorage.setItem(NOTIF_PREFS_KEY, JSON.stringify(prefs));
-      showToast("Preferensi notifikasi disimpan di perangkat ini.", "success", "TERSIMPAN");
+      const response = await fetch(`${window.APP_CONFIG.apiBase}/preferences.php`, {
+        method: "PUT",
+        credentials: "include",
+        headers: await getSettingsAuthHeaders(true),
+        body: JSON.stringify({ preferences: prefs }),
+      });
+      const result = await response.json();
+      if (!result.ok) throw new Error(result.message || "Gagal menyimpan preferensi.");
+      applyNotifPrefsToUI(result.preferences);
+      showToast("Preferensi notifikasi tersimpan.", "success", "TERSIMPAN");
     } catch (e) {
-      showToast("Gagal menyimpan preferensi.", "error", "ERROR");
+      showToast(`Gagal menyimpan preferensi: ${e.message}`, "error", "ERROR");
     }
   });
 }
@@ -130,16 +148,15 @@ function setupDeleteAccount() {
     if (!confirmed) return;
 
     try {
-      const authHeaders = {};
-      if (window.TokenManager && window.TokenManager.hasTokens()) {
-        const token = await window.TokenManager.getValidToken();
-        if (token) authHeaders["Authorization"] = `Bearer ${token}`;
-      }
+      const authHeaders = await getSettingsAuthHeaders(true);
+      const password = window.prompt("Masukkan password lama untuk mengonfirmasi penghapusan akun:");
+      if (!password) return;
 
       const response = await fetch(`${window.APP_CONFIG.apiBase}/delete_account.php`, {
         method: "POST",
         credentials: "include",
         headers: authHeaders,
+        body: JSON.stringify({ old_password: password }),
       });
       const result = await response.json();
 
@@ -148,29 +165,21 @@ function setupDeleteAccount() {
       }
 
       sessionStorage.clear();
-      localStorage.clear();
+      if (window.TokenManager) window.TokenManager.clearTokens();
       showToast("Akun Anda telah dihapus.", "success", "SELESAI");
       setTimeout(() => {
         window.location.href = "./login_user.php";
       }, 1200);
     } catch (error) {
       console.error("Delete account error:", error);
-      showToast(
-        "Endpoint delete_account.php belum tersedia di backend, atau terjadi error: " +
-          error.message,
-        "error",
-        "GAGAL",
-      );
+      showToast(`Gagal menghapus akun: ${error.message}`, "error", "GAGAL");
     }
   });
 }
 
 // ===== DARK MODE =====
-// Preferensi disimpan di localStorage key "ksm_theme" ("dark" / "light").
-// Nilai ini juga dibaca oleh script anti-flash di header.php (dijalankan
-// paling awal di <head>, sebelum CSS lain), jadi toggle di sini hanya
-// perlu update localStorage + atribut data-theme secara langsung —
-// tidak perlu reload halaman.
+// Database adalah source of truth untuk tema. localStorage key "ksm_theme"
+// hanya cache anti-flash yang dibaca header sebelum request API selesai.
 const THEME_KEY = "ksm_theme";
 
 function applyTheme(theme) {
@@ -194,7 +203,7 @@ function setupDarkModeToggle() {
 
   toggle.checked = saved === "dark";
 
-  toggle.addEventListener("change", () => {
+  toggle.addEventListener("change", async () => {
     const theme = toggle.checked ? "dark" : "light";
     try {
       localStorage.setItem(THEME_KEY, theme);
@@ -202,11 +211,19 @@ function setupDarkModeToggle() {
       console.warn("Gagal menyimpan preferensi tema:", e);
     }
     applyTheme(theme);
-    showToast(
-      theme === "dark" ? "Mode gelap diaktifkan." : "Mode gelap dinonaktifkan.",
-      "success",
-      "TAMPILAN",
-    );
+    try {
+      const response = await fetch(`${window.APP_CONFIG.apiBase}/preferences.php`, {
+        method: "PUT",
+        credentials: "include",
+        headers: await getSettingsAuthHeaders(true),
+        body: JSON.stringify({ preferences: { theme } }),
+      });
+      const result = await response.json();
+      if (!result.ok) throw new Error(result.message || "Gagal menyimpan tema.");
+      showToast(theme === "dark" ? "Mode gelap diaktifkan." : "Mode gelap dinonaktifkan.", "success", "TAMPILAN");
+    } catch (e) {
+      showToast(`Tema diterapkan sebagai cache, tetapi gagal disimpan: ${e.message}`, "warning", "TAMPILAN");
+    }
   });
 }
 

@@ -17,7 +17,7 @@ include 'components/navbar.php';
             <div class="settings-toggle-row">
               <div class="settings-toggle-text">
                 <strong>Mode Gelap</strong>
-                <p>Ubah tampilan seluruh halaman jadi warna gelap. Pilihan ini tersimpan otomatis di perangkat ini.</p>
+                <p>Ubah tampilan seluruh halaman jadi warna gelap. Pilihan tersimpan di akun Anda; perangkat ini hanya menyimpan cache tampilan.</p>
               </div>
               <label class="switch">
                 <input type="checkbox" id="toggleDarkMode" />
@@ -104,9 +104,9 @@ include 'components/navbar.php';
         <div class="profile-card profile-card--danger">
           <h3 class="profile-form-title profile-form-title--danger">Zona Berbahaya</h3>
           <p class="danger-zone-desc">
-            Menghapus akun akan menghapus seluruh data profil Anda secara permanen.
-            Jurnal &amp; opini yang sudah dipublikasikan akan tetap tayang tanpa
-            kepemilikan akun.
+            Menghapus akun akan menonaktifkan akses Anda secara permanen.
+            Jurnal &amp; opini yang sudah dipublikasikan akan tetap tayang dan
+            riwayat kepemilikannya tetap dipertahankan.
           </p>
           <button type="button" id="btnDeleteAccount" class="btn-delete-account">
             <i data-feather="trash-2"></i>

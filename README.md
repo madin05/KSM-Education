@@ -83,6 +83,18 @@ their records through the `my_journals`, `update_my_journal`, and
 `services/admin_review_queue.php` and approve or reject pending records through
 `services/admin_review_journal.php`.
 
+Phase 3 adds profile fields, account lifecycle state, and user-id ownership for
+preferences. Apply it after Phase 2:
+
+```powershell
+cmd /c "C:\xampp\mysql\bin\mysql.exe -u root journal_system2 < database\migrations\003_phase3_account_preferences.sql"
+```
+
+The authenticated Phase 3 endpoints are `auth_me.php`, `update_profile.php`,
+`change_password.php`, `delete_account.php`, and GET/PUT `preferences.php`.
+Account deletion is a soft delete: published content and its ownership records
+are not removed.
+
 The migration was verified against both a clean schema and a legacy schema
 containing the former runtime-created comments/JWT tables, including a second
 run to validate idempotency. After deployment, confirm the main objects with:

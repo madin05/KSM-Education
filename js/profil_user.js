@@ -4,11 +4,6 @@
 // (jumlah artikel & total views) dari list_journals.php/list_opinions.php
 // dengan filter nama author yang sama seperti di dashboard_user.js.
 //
-// TODO backend: endpoint PUT/POST untuk menyimpan perubahan profil
-// (nama, bio) belum ada. Form ini mengirim ke `update_profile.php`
-// yang perlu dibuat di sisi backend — kalau endpoint itu belum ada,
-// submit form akan gagal dengan pesan error yang jelas (bukan silent fail).
-
 function getAvatarColorSafe(name) {
   if (typeof getAvatarColor === "function") return getAvatarColor(name);
   return "#3b82f6";
@@ -44,6 +39,15 @@ async function loadProfileData() {
     document.getElementById("inputNama").value = user.name || "";
     document.getElementById("inputEmail").value = user.email || "";
     document.getElementById("inputBio").value = user.bio || "";
+    const avatarInput = document.getElementById("inputAvatarUrl");
+    if (avatarInput) avatarInput.value = user.avatar_url || "";
+
+    if (user.avatar_url) {
+      document.getElementById("profileAvatar").textContent = "";
+      document.getElementById("profileAvatar").style.backgroundImage = `url("${user.avatar_url.replace(/"/g, "%22")}")`;
+      document.getElementById("profileAvatar").style.backgroundSize = "cover";
+      document.getElementById("profileAvatar").style.backgroundPosition = "center";
+    }
 
     if (user.created_at) {
       const joinDate = new Date(user.created_at).toLocaleDateString("id-ID", {
@@ -120,6 +124,7 @@ function setupProfileForm() {
 
     const name = document.getElementById("inputNama").value.trim();
     const bio = document.getElementById("inputBio").value.trim();
+    const avatarUrl = document.getElementById("inputAvatarUrl")?.value.trim() || null;
 
     if (!name) {
       showToast("Nama tidak boleh kosong.", "warning", "VALIDASI GAGAL");
@@ -143,7 +148,7 @@ function setupProfileForm() {
         method: "POST",
         credentials: "include",
         headers: authHeaders,
-        body: JSON.stringify({ name, bio }),
+        body: JSON.stringify({ name, bio, avatar_url: avatarUrl }),
       });
 
       const result = await response.json();
@@ -153,16 +158,17 @@ function setupProfileForm() {
       }
 
       document.getElementById("profileName").textContent = name;
+      if (result.user?.avatar_url) {
+        document.getElementById("profileAvatar").textContent = "";
+        document.getElementById("profileAvatar").style.backgroundImage = `url("${result.user.avatar_url.replace(/"/g, "%22")}")`;
+        document.getElementById("profileAvatar").style.backgroundSize = "cover";
+        document.getElementById("profileAvatar").style.backgroundPosition = "center";
+      }
       sessionStorage.setItem("userName", name);
       showToast("Perubahan profil berhasil disimpan.", "success", "TERSIMPAN");
     } catch (error) {
       console.error("Update profile error:", error);
-      showToast(
-        "Endpoint update_profile.php belum tersedia di backend, atau terjadi error: " +
-          error.message,
-        "error",
-        "GAGAL MENYIMPAN",
-      );
+      showToast(`Gagal menyimpan profil: ${error.message}`, "error", "GAGAL MENYIMPAN");
     } finally {
       submitBtn.disabled = false;
       submitBtn.innerHTML = originalText;

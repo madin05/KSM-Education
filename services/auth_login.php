@@ -15,7 +15,7 @@ try {
     $email = trim($data['email']);
     $password = $data['password'];
 
-    $stmt = $pdo->prepare("SELECT id, password_hash, name, role, email FROM users WHERE email = ? LIMIT 1");
+    $stmt = $pdo->prepare("SELECT id, password_hash, name, role, email FROM users WHERE email = ? AND (account_status = 'active' OR account_status IS NULL) LIMIT 1");
     $stmt->execute([$email]);
     $user = $stmt->fetch();
     

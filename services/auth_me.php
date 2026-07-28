@@ -9,26 +9,19 @@
 header('Content-Type: application/json');
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/jwt_middleware.php';
+require_once __DIR__ . '/phase3_helpers.php';
 
-// $auth_user is already set by jwt_middleware.php (auto-authenticates on include)
-
-if (!$auth_user) {
-    echo json_encode(['ok'=>false,'message'=>'not authenticated']);
-    exit;
-}
+$auth_user = require_auth();
 
 // Fetch fresh user data from DB
-$stmt = $pdo->prepare("SELECT id, email, name, role FROM users WHERE id = ? LIMIT 1");
-$stmt->execute([$auth_user['id']]);
-$user = $stmt->fetch();
+$user = phase3_active_user($pdo, (int)$auth_user['id']);
 
 if (!$user) {
-    echo json_encode(['ok'=>false,'message'=>'User not found']);
-    exit;
+    phase3_respond(['ok'=>false,'message'=>'User not found or account is not active.'], 401);
 }
 
-echo json_encode([
+phase3_respond([
     'ok'=>true,
-    'user'=>$user,
+    'user'=>phase3_public_user($user),
     'auth_method' => $auth_user['auth_method']
 ]);

@@ -77,7 +77,7 @@ try {
 
     // Fetch the latest user data from database
     $userId = (int) $payload['sub'];
-    $stmt = $pdo->prepare("SELECT id, email, name, role FROM users WHERE id = ? LIMIT 1");
+    $stmt = $pdo->prepare("SELECT id, email, name, role FROM users WHERE id = ? AND (account_status = 'active' OR account_status IS NULL) LIMIT 1");
     $stmt->execute([$userId]);
     $user = $stmt->fetch();
 

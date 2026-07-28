@@ -58,6 +58,12 @@ include 'components/navbar.php';
               <textarea id="inputBio" name="bio" rows="4" placeholder="Ceritakan sedikit tentang diri Anda..."></textarea>
             </div>
 
+            <div class="form-group">
+              <label for="inputAvatarUrl">URL Avatar</label>
+              <input type="url" id="inputAvatarUrl" name="avatar_url" maxlength="1024" placeholder="https://contoh.com/avatar.jpg" />
+              <small class="form-hint">Gunakan URL gambar HTTPS/HTTP. Kosongkan untuk memakai inisial nama.</small>
+            </div>
+
             <div class="form-actions">
               <button type="submit" class="btn-save-profile">
                 <i data-feather="save"></i>

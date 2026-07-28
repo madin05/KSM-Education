@@ -441,10 +441,7 @@ window.editUserArticle = function (id, type) {
 };
 
 // ===== AKTIVITAS TERBARU =====
-// CATATAN JUJUR: ini menggabungkan dua sumber yang sudah ada di sisi
-// client: (1) riwayat penambahan token dari localStorage
-// ("ksm_token_history", kalau ada), dan (2) artikel yang baru
-// dipublikasikan (dari data yang sama dipakai renderArticles()).
+// Riwayat token berasal dari backend melalui KsmTokenWallet.
 // Ini simulasi, bukan activity_log sungguhan dari backend. Kalau nanti
 // backend punya tabel log aktivitas, ganti kedua fungsi getter di
 // bawah ini dengan satu fetch ke endpoint log tersebut.
@@ -464,21 +461,12 @@ function timeAgo(dateStr) {
 }
 
 function getTokenHistoryEntries() {
-  try {
-    const raw = localStorage.getItem("ksm_token_history");
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.map((entry) => ({
-      icon: "plus-circle",
-      colorClass: "activity-icon--purple",
-      text: `Token bertambah +${entry.amount || entry.jumlah || 0}`,
-      time: entry.date || entry.tanggal || new Date().toISOString(),
-    }));
-  } catch (e) {
-    console.warn("Gagal membaca ksm_token_history:", e);
-    return [];
-  }
+  return (window.KsmTokenWallet?.getHistory() || []).map((entry) => ({
+    icon: "plus-circle",
+    colorClass: "activity-icon--purple",
+    text: `Token bertambah +${entry.amount || entry.jumlah || 0}`,
+    time: entry.createdAt || entry.date || entry.tanggal || new Date().toISOString(),
+  }));
 }
 
 function getArticlePublishEntries() {

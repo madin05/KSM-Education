@@ -106,12 +106,12 @@ async function loadProfileStats(userName) {
     console.warn("Gagal memuat statistik profil:", error);
   }
 
-  // Token — ambil dari localStorage (simulasi frontend, sama seperti dashboard)
-  try {
-    const balance = localStorage.getItem("ksm_token_balance");
-    document.getElementById("profileTokenCount").textContent = balance || "0";
-  } catch (e) {
-    document.getElementById("profileTokenCount").textContent = "0";
+  const tokenEl = document.getElementById("profileTokenCount");
+  if (tokenEl && window.KsmTokenWallet) {
+    tokenEl.textContent = window.KsmTokenWallet.getBalance();
+    window.addEventListener("ksm-token-wallet:updated", () => {
+      tokenEl.textContent = window.KsmTokenWallet.getBalance();
+    });
   }
 }
 

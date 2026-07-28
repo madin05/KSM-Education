@@ -108,27 +108,8 @@ class OpinionsPageManager {
     } catch (error) {
       console.error(" Error loading opinions from database:", error);
 
-      //  FEATURE: Fallback to localStorage if database fails
-      console.warn("Falling back to localStorage...");
-      const stored = localStorage.getItem("opinions");
-      if (stored) {
-        try {
-          const data = JSON.parse(stored);
-          this.opinions = data;
-          this.filteredOpinions = [...this.opinions];
-          console.log(
-            `Loaded ${this.opinions.length} opinions from localStorage (fallback)`,
-          );
-        } catch (e) {
-          console.error("Error parsing opinions:", e);
-          this.opinions = [];
-          this.filteredOpinions = [];
-        }
-      } else {
-        console.log("No opinions found in localStorage");
-        this.opinions = [];
-        this.filteredOpinions = [];
-      }
+      this.opinions = [];
+      this.filteredOpinions = [];
     }
   }
 

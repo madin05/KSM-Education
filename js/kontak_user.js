@@ -1,8 +1,4 @@
 // ===== FORM KONTAK =====
-// TODO backend: endpoint send_contact.php belum tentu ada. Kalau
-// fetch ke endpoint itu gagal (404/network error), form otomatis
-// fallback ke mailto: supaya pesan pengguna tidak hilang begitu saja.
-
 function setupContactForm() {
   const form = document.getElementById("contactForm");
   if (!form) return;
@@ -14,6 +10,7 @@ function setupContactForm() {
     const email = document.getElementById("contactEmail").value.trim();
     const subject = document.getElementById("contactSubjek").value.trim();
     const message = document.getElementById("contactPesan").value.trim();
+    const website = form.querySelector('[name="website"]')?.value || "";
 
     if (!name || !email || !subject || !message) {
       showToast("Semua field wajib diisi.", "warning", "VALIDASI GAGAL");
@@ -30,28 +27,16 @@ function setupContactForm() {
       const response = await fetch(`${window.APP_CONFIG.apiBase}/send_contact.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, subject, message }),
+        body: JSON.stringify({ name, email, subject, message, website }),
       });
 
-      if (!response.ok) throw new Error("Endpoint tidak tersedia");
-
-      const result = await response.json();
-      if (!result.ok) throw new Error(result.message || "Gagal mengirim pesan.");
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !result.ok) throw new Error(result.message || "Gagal mengirim pesan.");
 
       showToast("Pesan Anda berhasil terkirim. Kami akan segera membalas.", "success", "TERKIRIM");
       form.reset();
     } catch (error) {
-      console.warn("send_contact.php belum tersedia, fallback ke mailto:", error);
-
-      const mailtoBody = `Nama: ${name}%0AEmail: ${email}%0A%0A${encodeURIComponent(message)}`;
-      const mailtoUrl = `mailto:admin@ksmeducation.id?subject=${encodeURIComponent(subject)}&body=${mailtoBody}`;
-
-      showToast(
-        "Server pesan belum aktif — membuka aplikasi email Anda sebagai alternatif.",
-        "info",
-        "Info",
-      );
-      window.location.href = mailtoUrl;
+      showToast(error.message || "Pesan belum dapat dikirim. Coba lagi nanti.", "error", "GAGAL");
     } finally {
       submitBtn.disabled = false;
       submitBtn.innerHTML = originalText;

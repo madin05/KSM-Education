@@ -95,6 +95,16 @@ The authenticated Phase 3 endpoints are `auth_me.php`, `update_profile.php`,
 Account deletion is a soft delete: published content and its ownership records
 are not removed.
 
+Phase 4 supporting features (contact inbox and password reset) are applied last:
+
+```powershell
+cmd /c "C:\xampp\mysql\bin\mysql.exe -u root journal_system2 < database\migrations\004_phase4_supporting_features.sql"
+```
+
+The required order is therefore `001_phase1_foundation.sql` →
+`002_phase2_submissions.sql` → `003_phase3_account_preferences.sql` →
+`004_phase4_supporting_features.sql`.
+
 The migration was verified against both a clean schema and a legacy schema
 containing the former runtime-created comments/JWT tables, including a second
 run to validate idempotency. After deployment, confirm the main objects with:

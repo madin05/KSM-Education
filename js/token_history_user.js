@@ -1,48 +1,11 @@
 // =========================================================
 // RIWAYAT TOKEN — render riwayat permintaan beli token
 //
-// Data disimpan di localStorage key "ksm_token_history" (lihat
-// js/token_wallet.js -> KsmTokenWallet.addRequest). Di-seed dengan
-// data dummy kalau kosong supaya halaman ini enak dilihat saat demo.
-//
-// // TODO backend:
-// // 1. Ganti dengan fetch API (mis. GET /api/token_requests.php)
-// //    yang mengembalikan riwayat permintaan milik user yang login.
-// // 2. Status "approved"/"rejected" diisi otomatis begitu admin
-// //    memproses permintaan dari sisi admin panel.
+// Data berasal dari services/token_wallet.php untuk user terautentikasi.
 // =========================================================
 
 (function () {
   let currentFilter = "all";
-
-  function seedDummyIfEmpty() {
-    const existing =
-      typeof KsmTokenWallet !== "undefined" ? KsmTokenWallet.getHistory() : [];
-    if (existing.length > 0) return;
-
-    const dummy = [
-      {
-        id: "TRXDUMMY1",
-        amount: 10,
-        status: "approved",
-        createdAt: new Date(Date.now() - 86400000 * 15).toISOString(),
-      },
-      {
-        id: "TRXDUMMY2",
-        amount: 5,
-        status: "pending",
-        createdAt: new Date(Date.now() - 86400000 * 1).toISOString(),
-      },
-      {
-        id: "TRXDUMMY3",
-        amount: 20,
-        status: "rejected",
-        createdAt: new Date(Date.now() - 86400000 * 25).toISOString(),
-      },
-    ];
-
-    KsmTokenWallet.saveHistory(dummy);
-  }
 
   function statusBadge(status) {
     const map = {
@@ -138,8 +101,8 @@
   }
 
   document.addEventListener("DOMContentLoaded", () => {
-    seedDummyIfEmpty();
     initFilters();
     render();
+    window.addEventListener("ksm-token-wallet:updated", render);
   });
 })();

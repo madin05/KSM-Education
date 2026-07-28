@@ -105,16 +105,6 @@ if (loginForm) {
     });
 }
 
-// ===== SOCIAL LOGIN HANDLERS =====
-const setupSocial = (id) => {
-    const btn = document.getElementById(id);
-    if (btn) {
-        btn.addEventListener('click', () => showAlert('Fitur login ini sedang dikembangkan.', 'info'));
-    }
-};
-setupSocial('googleLogin');
-setupSocial('facebookLogin');
-
 // ===== AUTOFILL ON LOAD =====
 window.addEventListener('load', async () => {
     // If session storage says logged in, we check if PHP session is actually alive

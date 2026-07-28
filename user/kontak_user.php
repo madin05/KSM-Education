@@ -64,6 +64,10 @@ include 'components/navbar.php';
           <div class="profile-card">
             <h3 class="profile-form-title">Kirim Pesan</h3>
             <form id="contactForm" class="profile-form">
+              <div aria-hidden="true" class="contact-honeypot">
+                <label for="contactWebsite">Website</label>
+                <input id="contactWebsite" name="website" type="text" tabindex="-1" autocomplete="off" />
+              </div>
               <div class="form-group">
                 <label for="contactNama">Nama</label>
                 <input type="text" id="contactNama" name="name" placeholder="Nama lengkap" required />

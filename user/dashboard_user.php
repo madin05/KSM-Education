@@ -47,17 +47,6 @@ include 'components/navbar.php';
         </div>
       </section>
 
-      <!--
-        Tombol testing di bawah ini murni bantu development —
-        menambah token secara instan tanpa lewat WhatsApp admin.
-        Hapus baris ini setelah endpoint saldo token asli
-        tersambung ke backend.
-      -->
-      <div style="text-align:right; margin: -30px 0 30px;">
-        <button type="button" onclick="addTestToken(50)" style="font-size:11px; padding:6px 12px; border-radius:6px; border:1px dashed #cbd2d9; background:transparent; color:#8a8f98; cursor:pointer;">+50 Token (Testing)</button>
-        <button type="button" onclick="addTestToken(100)" style="font-size:11px; padding:6px 12px; border-radius:6px; border:1px dashed #cbd2d9; background:transparent; color:#8a8f98; cursor:pointer;">+100 Token (Testing)</button>
-      </div>
-
       <!-- ===== ARTIKEL SAYA + AKTIVITAS TERBARU (two-column) ===== -->
       <section class="dashboard-two-col">
 

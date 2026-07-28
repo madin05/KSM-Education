@@ -455,7 +455,7 @@ async function performSearch(query) {
     const journalsData = await journalsResp.json();
 
     const opinionsResp = await fetch(
-      `${window.APP_CONFIG.apiBase}/list_opinion.php?limit=50&offset=0`
+      `${window.APP_CONFIG.apiBase}/list_opinions.php?limit=50&offset=0`
     );
     const opinionsData = await opinionsResp.json();
 

@@ -18,16 +18,38 @@ try {
     $id = $data['id'] ?? null;
     $type = $data['type'] ?? 'journal';
 
-    if (!$id) {
-        throw new Exception('ID required');
+    if (filter_var($id, FILTER_VALIDATE_INT) === false || (int) $id < 1) {
+        http_response_code(400);
+        echo json_encode(['ok' => false, 'message' => 'A valid article ID is required']);
+        exit;
     }
 
-    $table = $type === 'journal' ? 'journals' : 'opinions';
+    $tableByType = [
+        'journal' => 'journals',
+        'opinion' => 'opinions',
+    ];
 
-    $stmt = $pdo->prepare("UPDATE $table SET views = views + 1 WHERE id = ?");
-    $stmt->execute([$id]);
+    if (!isset($tableByType[$type])) {
+        http_response_code(400);
+        echo json_encode(['ok' => false, 'message' => 'Invalid article type']);
+        exit;
+    }
 
-    echo json_encode(['ok' => true, 'message' => 'Views updated']);
+    $table = $tableByType[$type];
+
+    $stmt = $pdo->prepare("UPDATE $table SET views = views + 1 WHERE id = ? AND status = 'published'");
+    $stmt->execute([(int) $id]);
+
+    if ($stmt->rowCount() === 0) {
+        http_response_code(404);
+        echo json_encode(['ok' => false, 'message' => 'Published article not found']);
+        exit;
+    }
+
+    echo json_encode([
+        'ok' => true,
+        'message' => 'Views updated'
+    ]);
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['ok' => false, 'message' => $e->getMessage()]);

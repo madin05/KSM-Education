@@ -21,19 +21,19 @@ try {
     }
 
     // Get total journals
-    $stmtJournals = $pdo->query("SELECT COUNT(*) as total FROM journals");
+    $stmtJournals = $pdo->query("SELECT COUNT(*) as total FROM journals WHERE status = 'published'");
     $totalJournals = $stmtJournals->fetch(PDO::FETCH_ASSOC)['total'];
 
     // Get total opinions
-    $stmtOpinions = $pdo->query("SELECT COUNT(*) as total FROM opinions");
+    $stmtOpinions = $pdo->query("SELECT COUNT(*) as total FROM opinions WHERE status = 'published'");
     $totalOpinions = $stmtOpinions->fetch(PDO::FETCH_ASSOC)['total'];
 
     // Get total views from journals
-    $stmtViewsJ = $pdo->query("SELECT COALESCE(SUM(views), 0) as total FROM journals");
+    $stmtViewsJ = $pdo->query("SELECT COALESCE(SUM(views), 0) as total FROM journals WHERE status = 'published'");
     $viewsJournals = $stmtViewsJ->fetch(PDO::FETCH_ASSOC)['total'];
 
     // Get total views from opinions
-    $stmtViewsO = $pdo->query("SELECT COALESCE(SUM(views), 0) as total FROM opinions");
+    $stmtViewsO = $pdo->query("SELECT COALESCE(SUM(views), 0) as total FROM opinions WHERE status = 'published'");
     $viewsOpinions = $stmtViewsO->fetch(PDO::FETCH_ASSOC)['total'];
 
     $totalViews = $viewsJournals + $viewsOpinions;

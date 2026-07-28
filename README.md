@@ -45,3 +45,21 @@ Web-based application for managing academic journals and opinion articles for ed
 - MySQL
 - Apache web server
 - PDO MySQL extension
+
+## Database setup and migrations
+
+1. Import `database/journal_system2.sql` for a new installation.
+2. Apply migrations in filename order. Phase 1 starts with:
+
+   ```powershell
+   Get-Content -Raw database/migrations/001_phase1_foundation.sql | C:\xampp\mysql\bin\mysql.exe -u root journal_system
+   ```
+
+Migration `001_phase1_foundation.sql` is idempotent and may be rerun safely. It
+adds article ownership/review workflow, token wallets and immutable ledger,
+purchase requests, comments, and the JWT blacklist. Existing articles are
+backfilled as `published` to preserve current public content.
+
+Before using authentication endpoints, copy `.env.example` to `.env`, set the
+database credentials, and replace `JWT_SECRET` with a random value of at least
+32 characters.

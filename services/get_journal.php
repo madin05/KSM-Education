@@ -18,13 +18,26 @@ try {
     //  JOIN dengan uploads table untuk get URL terbaru!
     $stmt = $pdo->prepare("
         SELECT 
-            j.*,
+            j.id,
+            j.title,
+            j.abstract,
+            j.authors,
+            j.tags,
+            j.pengurus,
+            j.email,
+            j.contact,
+            j.volume,
+            j.views,
+            j.client_temp_id,
+            j.client_updated_at,
+            j.created_at,
+            j.updated_at,
             f.url as file_url,
             c.url as cover_url
         FROM journals j
         LEFT JOIN uploads f ON j.file_upload_id = f.id
         LEFT JOIN uploads c ON j.cover_upload_id = c.id
-        WHERE j.id = ?
+        WHERE j.id = ? AND j.status = 'published'
     ");
 
     $stmt->execute([$id]);
@@ -36,7 +49,7 @@ try {
     }
 
     //  Increment views
-    $updateViews = $pdo->prepare("UPDATE journals SET views = views + 1 WHERE id = ?");
+    $updateViews = $pdo->prepare("UPDATE journals SET views = views + 1 WHERE id = ? AND status = 'published'");
     $updateViews->execute([$id]);
 
     //  Return with UPDATED file URLs

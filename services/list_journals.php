@@ -22,6 +22,7 @@ try {
             id, title, abstract, authors, email, contact, pengurus, volume, tags, views, created_at,
             file_upload_id, cover_upload_id
         FROM journals
+        WHERE status = 'published'
         ORDER BY created_at DESC
         LIMIT ? OFFSET ?
     ");

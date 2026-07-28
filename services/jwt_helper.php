@@ -12,9 +12,13 @@ require_once __DIR__ . '/env_loader.php';
 
 // ===== JWT CONFIGURATION =====
 $jwt_secret_val = get_env_var('JWT_SECRET', '');
-if (empty($jwt_secret_val) || strpos($jwt_secret_val, 'change_this') !== false || strpos($jwt_secret_val, 'ch4ng3_th1s') !== false) {
+$jwt_secret_is_placeholder = preg_match('/change[_-]?this|ch4ng3[_-]?th1s|replace[_-]?with|your[_-]?secret/i', $jwt_secret_val) === 1;
+if (strlen($jwt_secret_val) < 32 || $jwt_secret_is_placeholder) {
     error_log('CRITICAL: JWT_SECRET is not configured properly in .env file!');
     if (php_sapi_name() !== 'cli') {
+        if (!headers_sent()) {
+            header('Content-Type: application/json');
+        }
         http_response_code(500);
         echo json_encode(['ok' => false, 'message' => 'JWT configuration error.']);
         exit;
@@ -280,16 +284,6 @@ function blacklist_token(string $jti, int $expiresAt): bool {
     try {
         global $pdo;
         if (!$pdo) return false;
-
-        // Auto-create table if it doesn't exist
-        $pdo->exec("CREATE TABLE IF NOT EXISTS jwt_blacklist (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            token_jti VARCHAR(64) NOT NULL,
-            expires_at DATETIME NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE KEY idx_jti (token_jti),
-            INDEX idx_expires (expires_at)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
         // Insert into blacklist
         $stmt = $pdo->prepare("INSERT IGNORE INTO jwt_blacklist (token_jti, expires_at) VALUES (?, ?)");

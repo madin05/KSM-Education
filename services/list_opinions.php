@@ -28,7 +28,21 @@ try {
 
     $sql = "
         SELECT 
-            o.*,
+            o.id,
+            o.title,
+            o.description,
+            o.category,
+            o.author_name,
+            o.file_upload_id,
+            o.cover_upload_id,
+            o.authors,
+            o.tags,
+            o.email,
+            o.contact,
+            o.client_temp_id,
+            o.created_at,
+            o.updated_at,
+            o.views,
             uf.url AS file_url,
             uc.url AS cover_url
         FROM opinions o
@@ -37,12 +51,14 @@ try {
     ";
 
     $params = [];
+    $conditions = ["o.status = 'published'"];
 
     if ($category && $category !== 'all') {
-        $sql .= " WHERE o.category = ?";
+        $conditions[] = 'o.category = ?';
         $params[] = $category;
     }
 
+    $sql .= ' WHERE ' . implode(' AND ', $conditions);
     $sql .= " ORDER BY o.created_at DESC LIMIT $limit OFFSET $offset";
 
     $stmt = $pdo->prepare($sql);
@@ -53,9 +69,9 @@ try {
     error_log("Found " . count($opinions) . " opinions");
 
     // Get total count
-    $countSql = "SELECT COUNT(*) as total FROM opinions";
+    $countSql = "SELECT COUNT(*) as total FROM opinions WHERE status = 'published'";
     if ($category && $category !== 'all') {
-        $countSql .= " WHERE category = ?";
+        $countSql .= " AND category = ?";
         $countStmt = $pdo->prepare($countSql);
         $countStmt->execute([$category]);
     } else {

@@ -15,7 +15,7 @@ foreach ($data['changes'] as $chg) {
     if ($chg['type'] === 'journal' && $chg['action'] === 'create') {
         $p = $chg['payload'];
         // reuse create_journal logic (minimal)
-        $stmt = $pdo->prepare("INSERT INTO journals (title, abstract, file_upload_id, cover_upload_id, authors, tags, client_temp_id, client_updated_at) VALUES (?,?,?,?,?,?,?,?)");
+        $stmt = $pdo->prepare("INSERT INTO journals (title, abstract, file_upload_id, cover_upload_id, authors, tags, client_temp_id, client_updated_at, status) VALUES (?,?,?,?,?,?,?,?, 'published')");
         $file_upload_id = null; $cover_upload_id = null;
         if (!empty($p['fileUrl'])) {
             $s = $pdo->prepare("SELECT id FROM uploads WHERE url = ? LIMIT 1"); $s->execute([$p['fileUrl']]); $r=$s->fetch(); if ($r) $file_upload_id=$r['id'];

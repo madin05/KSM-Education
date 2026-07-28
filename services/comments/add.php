@@ -34,26 +34,6 @@ $auth_user = require_auth();
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../env_loader.php';
 
-// ===== AUTO-REPAIR DATABASE (Table Creation) =====
-// Create table if not exists - ensures production database is always ready
-try {
-    $pdo->exec("CREATE TABLE IF NOT EXISTS comments (
-      id            INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-      article_id    INT UNSIGNED     NOT NULL,
-      article_type  ENUM('jurnal', 'opini') NOT NULL,
-      parent_id     INT UNSIGNED     DEFAULT NULL,
-      user_id       INT UNSIGNED     NOT NULL,
-      user_name     VARCHAR(255)     NOT NULL,
-      content       TEXT             NOT NULL,
-      created_at    TIMESTAMP        DEFAULT CURRENT_TIMESTAMP,
-      INDEX idx_article (article_id, article_type),
-      INDEX idx_user    (user_id),
-      INDEX idx_parent  (parent_id)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
-} catch (Exception $e) {
-    // Silently continue if possible, or report if it's a critical block
-}
-
 $user_id = (int) $auth_user['id'];
 
 // ===== FETCH USER INFO =====

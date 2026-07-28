@@ -160,8 +160,8 @@ try {
 
     $stmt = $pdo->prepare("
         INSERT INTO opinions 
-        (title, description, category, author_name, email, contact, tags, file_upload_id, cover_upload_id, views, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, NOW())
+        (title, description, category, author_name, email, contact, tags, file_upload_id, cover_upload_id, views, created_at, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, NOW(), 'published')
     ");
 
     $stmt->execute([

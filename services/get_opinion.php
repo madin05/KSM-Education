@@ -13,13 +13,27 @@ try {
 
     $stmt = $pdo->prepare("
         SELECT 
-            o.*,
+            o.id,
+            o.title,
+            o.description,
+            o.category,
+            o.author_name,
+            o.file_upload_id,
+            o.cover_upload_id,
+            o.authors,
+            o.tags,
+            o.email,
+            o.contact,
+            o.client_temp_id,
+            o.created_at,
+            o.updated_at,
+            o.views,
             uf.url AS file_url,
             uc.url AS cover_url
         FROM opinions o
         LEFT JOIN uploads uf ON o.file_upload_id = uf.id
         LEFT JOIN uploads uc ON o.cover_upload_id = uc.id
-        WHERE o.id = ?
+        WHERE o.id = ? AND o.status = 'published'
     ");
 
     $stmt->execute([$id]);
@@ -30,7 +44,7 @@ try {
     }
 
     // Increment views
-    $updateViews = $pdo->prepare("UPDATE opinions SET views = views + 1 WHERE id = ?");
+    $updateViews = $pdo->prepare("UPDATE opinions SET views = views + 1 WHERE id = ? AND status = 'published'");
     $updateViews->execute([$id]);
 
     echo json_encode([

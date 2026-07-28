@@ -41,6 +41,8 @@ try {
         exit;
     }
 
+    $pdo->beginTransaction();
+
     // Hash password
     $hash = password_hash($password, PASSWORD_DEFAULT);
 
@@ -49,6 +51,13 @@ try {
     $stmt->execute([$name, $email, $hash]);
 
     $userId = $pdo->lastInsertId();
+
+    // Create the wallet in the same transaction as the account. The token
+    // service also keeps this operation idempotent for legacy accounts.
+    $walletStmt = $pdo->prepare("INSERT INTO user_token_wallets (user_id, balance) VALUES (?, 0)");
+    $walletStmt->execute([(int)$userId]);
+
+    $pdo->commit();
 
     // Set PHP Session (backward compatibility)
     $_SESSION['user_id'] = $userId;
@@ -81,6 +90,9 @@ try {
     ]);
 
 } catch (Exception $e) {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
     error_log("Registration error: " . $e->getMessage());
     echo json_encode(['ok' => false, 'message' => 'Terjadi kesalahan sistem. Coba lagi nanti.']);
 }

@@ -106,8 +106,9 @@ try {
             email, 
             contact, 
             client_temp_id, 
-            client_updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            client_updated_at,
+            status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'published')
     ");
 
     // Execute insert

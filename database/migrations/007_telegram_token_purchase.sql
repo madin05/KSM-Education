@@ -46,6 +46,69 @@ CREATE TABLE IF NOT EXISTS telegram_webhook_updates (
   PRIMARY KEY (update_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- Telegram approval writes an auditable ledger entry. Legacy databases may
+-- have the token tables but not these newer transaction metadata columns.
+SET @sql := IF(
+  (SELECT COUNT(*) FROM information_schema.COLUMNS
+   WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'token_transactions' AND COLUMN_NAME = 'description') = 0,
+  'ALTER TABLE token_transactions ADD COLUMN description VARCHAR(500) NULL AFTER status', 'SELECT 1');
+PREPARE migration_stmt FROM @sql; EXECUTE migration_stmt; DEALLOCATE PREPARE migration_stmt;
+
+SET @sql := IF(
+  (SELECT COUNT(*) FROM information_schema.COLUMNS
+   WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'token_transactions' AND COLUMN_NAME = 'processed_by_telegram_id') = 0,
+  'ALTER TABLE token_transactions ADD COLUMN processed_by_telegram_id BIGINT NULL AFTER processed_by', 'SELECT 1');
+PREPARE migration_stmt FROM @sql; EXECUTE migration_stmt; DEALLOCATE PREPARE migration_stmt;
+
+-- Legacy snapshots used a smaller status enum and omitted lifecycle columns.
+-- Convert through VARCHAR first so invalid legacy enum values (stored as '')
+-- can be repaired before the canonical enum is applied.
+SET @sql := IF(
+  (SELECT COUNT(*) FROM information_schema.COLUMNS
+   WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'token_purchase_requests'
+     AND COLUMN_NAME = 'status'
+     AND COLUMN_TYPE = 'enum(''awaiting_proof'',''pending'',''approved'',''rejected'',''cancelled'')') = 0,
+  'ALTER TABLE token_purchase_requests MODIFY COLUMN status VARCHAR(32) NOT NULL DEFAULT ''awaiting_proof''',
+  'SELECT 1');
+PREPARE migration_stmt FROM @sql; EXECUTE migration_stmt; DEALLOCATE PREPARE migration_stmt;
+
+UPDATE token_purchase_requests
+SET status = 'awaiting_proof'
+WHERE status = '' OR status IS NULL;
+
+SET @sql := IF(
+  (SELECT COUNT(*) FROM information_schema.COLUMNS
+   WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'token_purchase_requests'
+     AND COLUMN_NAME = 'status'
+     AND COLUMN_TYPE = 'enum(''awaiting_proof'',''pending'',''approved'',''rejected'',''cancelled'')') = 0,
+  'ALTER TABLE token_purchase_requests MODIFY COLUMN status ENUM(''awaiting_proof'',''pending'',''approved'',''rejected'',''cancelled'') NOT NULL DEFAULT ''awaiting_proof''',
+  'SELECT 1');
+PREPARE migration_stmt FROM @sql; EXECUTE migration_stmt; DEALLOCATE PREPARE migration_stmt;
+
+SET @sql := IF(
+  (SELECT COUNT(*) FROM information_schema.COLUMNS
+   WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'token_purchase_requests' AND COLUMN_NAME = 'submitted_at') = 0,
+  'ALTER TABLE token_purchase_requests ADD COLUMN submitted_at DATETIME NULL AFTER created_at', 'SELECT 1');
+PREPARE migration_stmt FROM @sql; EXECUTE migration_stmt; DEALLOCATE PREPARE migration_stmt;
+
+SET @sql := IF(
+  (SELECT COUNT(*) FROM information_schema.COLUMNS
+   WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'token_purchase_requests' AND COLUMN_NAME = 'approved_at') = 0,
+  'ALTER TABLE token_purchase_requests ADD COLUMN approved_at DATETIME NULL AFTER submitted_at', 'SELECT 1');
+PREPARE migration_stmt FROM @sql; EXECUTE migration_stmt; DEALLOCATE PREPARE migration_stmt;
+
+SET @sql := IF(
+  (SELECT COUNT(*) FROM information_schema.COLUMNS
+   WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'token_purchase_requests' AND COLUMN_NAME = 'rejected_at') = 0,
+  'ALTER TABLE token_purchase_requests ADD COLUMN rejected_at DATETIME NULL AFTER approved_at', 'SELECT 1');
+PREPARE migration_stmt FROM @sql; EXECUTE migration_stmt; DEALLOCATE PREPARE migration_stmt;
+
+SET @sql := IF(
+  (SELECT COUNT(*) FROM information_schema.COLUMNS
+   WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'token_purchase_requests' AND COLUMN_NAME = 'processed_by_telegram_id') = 0,
+  'ALTER TABLE token_purchase_requests ADD COLUMN processed_by_telegram_id BIGINT NULL AFTER rejection_reason', 'SELECT 1');
+PREPARE migration_stmt FROM @sql; EXECUTE migration_stmt; DEALLOCATE PREPARE migration_stmt;
+
 SET @sql := IF(
   (SELECT COUNT(*) FROM information_schema.COLUMNS
    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'token_purchase_requests' AND COLUMN_NAME = 'price_rupiah') = 0,

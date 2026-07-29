@@ -45,12 +45,19 @@ try {
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     ]);
 } catch (Exception $e) {
+    // CLI utilities (migrations/diagnostics) need the original exception so
+    // they can report a useful failure instead of attempting an HTTP redirect.
+    if (PHP_SAPI === 'cli') {
+        throw $e;
+    }
+
     // Penanganan Error Koneksi
     http_response_code(500);
 
     // Cek apakah request berasal dari browser (bukan AJAX/Fetch)
     $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
-    $isApiCall = strpos($_SERVER['REQUEST_URI'], '/api/') !== false || strpos($_SERVER['REQUEST_URI'], '/services/') !== false;
+    $requestUri = (string)($_SERVER['REQUEST_URI'] ?? '');
+    $isApiCall = strpos($requestUri, '/api/') !== false || strpos($requestUri, '/services/') !== false;
 
     if (!$isAjax && !$isApiCall) {
         // Jika diakses langsung via browser, redirect ke halaman error premium

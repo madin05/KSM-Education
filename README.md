@@ -162,6 +162,62 @@ The webhook must use a public HTTPS URL. Register it after deployment:
 curl.exe -X POST "https://api.telegram.org/bot<BOT_TOKEN>/setWebhook" -H "Content-Type: application/json" -d "{\"url\":\"https://your-domain.example/services/telegram_webhook.php\",\"secret_token\":\"<TELEGRAM_WEBHOOK_SECRET>\",\"allowed_updates\":[\"message\",\"callback_query\"]}"
 ```
 
+Check the bot, migration, and current webhook without printing any secrets:
+
+```powershell
+C:\xampp\php\php.exe tools\telegram_bot.php check
+C:\xampp\php\php.exe tools\telegram_bot.php smoke-local
+C:\xampp\php\php.exe tools\telegram_bot.php smoke-webhook
+```
+
+### Simulating Telegram against localhost
+
+Telegram cannot send a webhook directly to `localhost`. Expose XAMPP through an
+HTTPS tunnel such as Cloudflare Tunnel or ngrok. For example, with
+`cloudflared` installed locally:
+
+```powershell
+cloudflared tunnel --url http://localhost:80
+C:\xampp\php\php.exe tools\telegram_bot.php set-webhook https://RANDOM.trycloudflare.com/ksmedu
+```
+
+If Telegram's DNS cannot resolve a newly-created Quick Tunnel, an SSH tunnel is
+an alternative available on Windows without installing another package:
+
+```powershell
+ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=30 -R 80:localhost:80 nokey@localhost.run
+C:\xampp\php\php.exe tools\telegram_bot.php set-webhook https://RANDOM.lhr.life/ksmedu
+C:\xampp\php\php.exe tools\telegram_bot.php smoke-webhook
+```
+
+Use the `*.lhr.life` URL printed after `tunneled with tls termination`; do not
+use the `admin.localhost.run` dashboard URL shown in the welcome message.
+
+Keep the tunnel process running during the test. Then perform the complete flow:
+
+1. Log in to the local website and click **Beli Token**.
+2. Open the generated Telegram link and press **Start**.
+3. Select a package and send a test payment image or PDF.
+4. In the admin group, approve or reject the request.
+5. Confirm the wallet and token history on the local website.
+
+Anonymous `localhost.run` tunnels can reconnect under a new `*.lhr.life`
+hostname while the SSH process remains alive. If `check` reports pending updates
+or `503 Service Unavailable`, read the newest `tunneled with tls termination`
+URL from the tunnel output, register that URL again, and rerun the smoke test:
+
+```powershell
+C:\xampp\php\php.exe tools\telegram_bot.php set-webhook https://NEWEST.lhr.life/ksmedu
+C:\xampp\php\php.exe tools\telegram_bot.php smoke-webhook
+```
+
+The public base URL passed to `set-webhook` must map to the same application
+path as `APP_URL`. Remove the temporary webhook when testing is finished:
+
+```powershell
+C:\xampp\php\php.exe tools\telegram_bot.php delete-webhook
+```
+
 Flow: the authenticated website generates a one-time `/start` link, the bot
 links that Telegram account, the user selects a package and uploads a transfer
 photo or PDF, and the bot posts it to the admin group. Approval credits the wallet in

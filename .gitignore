@@ -40,6 +40,9 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Local development binaries and tunnel logs
+.tools/
+
 # Google verification files (hacker artifacts)
 google*.html
 

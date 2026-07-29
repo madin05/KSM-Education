@@ -17,13 +17,6 @@ try {
     $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
     $pageUrl = $_POST['page_url'] ?? $_SERVER['REQUEST_URI'] ?? '/';
 
-    // Check if table exists
-    $checkTable = $pdo->query("SHOW TABLES LIKE 'visitors'");
-    if ($checkTable->rowCount() == 0) {
-        echo json_encode(['ok' => false, 'message' => 'Table visitors not found']);
-        exit;
-    }
-
     // Check if visitor already visited TODAY (unique per day)
     $today = date('Y-m-d');
     $stmt = $pdo->prepare("SELECT id FROM visitors 

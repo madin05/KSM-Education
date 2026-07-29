@@ -326,7 +326,7 @@
   font-size: 16px;
 }
 
-.ksm-btn-whatsapp {
+.ksm-btn-telegram {
   width: 100%;
   display: inline-flex;
   align-items: center;
@@ -335,7 +335,7 @@
   padding: 14px 20px;
   border-radius: 8px;
   border: none;
-  background: #25d366;
+  background: #229ed9;
   color: #fff;
   font-family: "Montserrat", sans-serif;
   font-size: 14px;
@@ -346,13 +346,13 @@
   transition: all 0.25s ease;
 }
 
-.ksm-btn-whatsapp:hover {
-  background: #1ebe5a;
+.ksm-btn-telegram:hover {
+  background: #168ac1;
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(37, 211, 102, 0.35);
+  box-shadow: 0 6px 18px rgba(34, 158, 217, 0.35);
 }
 
-.ksm-btn-whatsapp svg {
+.ksm-btn-telegram svg {
   width: 20px;
   height: 20px;
 }

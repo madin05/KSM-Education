@@ -57,9 +57,17 @@ Use the value configured in `DB_NAME` if your installation uses another name.
    cmd /c "C:\xampp\mysql\bin\mysqldump.exe -u root journal_system2 > database\backup_before_phase1.sql"
    ```
 
-2. For a new installation, create `journal_system2` and import
-   `database/journal_system2.sql`. Skip this step for an existing installation.
-3. Apply migrations in filename order. Phase 1 starts with:
+2. Migrations are the schema source of truth. For a new installation, create an
+   empty `journal_system2` database and apply every file under
+   `database/migrations` in filename order, starting with the baseline:
+
+   ```powershell
+   cmd /c "C:\xampp\mysql\bin\mysql.exe -u root journal_system2 < database\migrations\000_legacy_schema_baseline.sql"
+   ```
+
+   `database/journal_system2.sql` is a schema-only snapshot of the final
+   migration state for convenience; do not apply both setup methods.
+3. Phase 1 follows the baseline:
 
    ```powershell
    cmd /c "C:\xampp\mysql\bin\mysql.exe -u root journal_system2 < database\migrations\001_phase1_foundation.sql"
@@ -95,15 +103,31 @@ The authenticated Phase 3 endpoints are `auth_me.php`, `update_profile.php`,
 Account deletion is a soft delete: published content and its ownership records
 are not removed.
 
-Phase 4 supporting features (contact inbox and password reset) are applied last:
+Phase 4 supporting features (contact inbox and password reset) follow Phase 3:
 
 ```powershell
 cmd /c "C:\xampp\mysql\bin\mysql.exe -u root journal_system2 < database\migrations\004_phase4_supporting_features.sql"
 ```
 
-The required order is therefore `001_phase1_foundation.sql` →
+Phase 5 declares the visitor analytics table used by `track_visitor.php` and
+`get_stats.php`:
+
+```powershell
+cmd /c "C:\xampp\mysql\bin\mysql.exe -u root journal_system2 < database\migrations\005_phase5_visitor_analytics.sql"
+```
+
+Apply the regression schema synchronization after Phase 5:
+
+```powershell
+cmd /c "C:\xampp\mysql\bin\mysql.exe -u root journal_system2 < database\migrations\006_regression_schema_sync.sql"
+```
+
+The required order is therefore `000_legacy_schema_baseline.sql` →
+`001_phase1_foundation.sql` →
 `002_phase2_submissions.sql` → `003_phase3_account_preferences.sql` →
-`004_phase4_supporting_features.sql`.
+`004_phase4_supporting_features.sql` →
+`005_phase5_visitor_analytics.sql` → `006_regression_schema_sync.sql` →
+`007_telegram_token_purchase.sql`.
 
 The migration was verified against both a clean schema and a legacy schema
 containing the former runtime-created comments/JWT tables, including a second
@@ -116,3 +140,30 @@ C:\xampp\mysql\bin\mysql.exe -u root -D journal_system2 -e "SHOW TABLES LIKE 'to
 Before using authentication endpoints, copy `.env.example` to `.env`, set the
 database credentials, and replace `JWT_SECRET` with a random value of at least
 32 characters.
+
+## Telegram token purchase bot
+
+Apply migration `007_telegram_token_purchase.sql` after migration 006:
+
+```powershell
+cmd /c "C:\xampp\mysql\bin\mysql.exe -u root journal_system2 < database\migrations\007_telegram_token_purchase.sql"
+```
+
+Configure all `TELEGRAM_*` values from `.env.example`. `TELEGRAM_ADMIN_CHAT_ID`
+must be the numeric ID of the KSMedu Admin group, not its `t.me/+...` invite
+URL. Add `@KSMedu_bot` to that group as an administrator. You can either set
+the numeric ID in `.env`, or leave it empty and have a group administrator send
+`/setup <TELEGRAM_ADMIN_SETUP_CODE>` once in the KSMedu Admin group. Remove the
+setup code from `.env` after the group is connected.
+
+The webhook must use a public HTTPS URL. Register it after deployment:
+
+```powershell
+curl.exe -X POST "https://api.telegram.org/bot<BOT_TOKEN>/setWebhook" -H "Content-Type: application/json" -d "{\"url\":\"https://your-domain.example/services/telegram_webhook.php\",\"secret_token\":\"<TELEGRAM_WEBHOOK_SECRET>\",\"allowed_updates\":[\"message\",\"callback_query\"]}"
+```
+
+Flow: the authenticated website generates a one-time `/start` link, the bot
+links that Telegram account, the user selects a package and uploads a transfer
+photo or PDF, and the bot posts it to the admin group. Approval credits the wallet in
+one database transaction and writes the immutable token ledger. Repeated
+callback updates cannot credit a purchase twice.

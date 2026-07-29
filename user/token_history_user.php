@@ -70,7 +70,8 @@ include 'components/navbar.php';
 $extra_scripts = <<<'EOT'
 <script src="../js/script.js?v=2025112910"></script>
     <script src="../js/custom_alerts.js"></script>
-    <script src="../js/token_wallet.js?v=20260715"></script>
+    <script src="../js/api.js?v=20260729"></script>
+    <script src="../js/token_wallet.js?v=20260729"></script>
     <script src="../js/token_history_user.js?v=20260715"></script>
     <script src="../js/mobile_menu.js?v=20251130"></script>
     <script>

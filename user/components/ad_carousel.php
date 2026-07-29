@@ -28,7 +28,7 @@ $ksm_ad_slides = [
   ],
   [
     'title'    => 'Beli Token, Upload Karyamu Sekarang!',
-    'desc'     => 'Jurnal & opini kamu bisa tayang di KSM Education hari ini juga. Token bisa dibeli langsung via WhatsApp admin.',
+    'desc'     => 'Jurnal & opini kamu bisa tayang di KSM Education hari ini juga. Token bisa dibeli lewat bot Telegram KSMedu.',
     'cta_text' => 'Beli Token',
     'cta_attr' => 'data-ksm-open-buy-token',
     'image'    => '../assets/image.png',

@@ -54,7 +54,7 @@ try {
          UNION ALL
          SELECT 1 FROM opinions WHERE file_upload_id = ? OR cover_upload_id = ?
          UNION ALL
-         SELECT 1 FROM token_purchase_requests WHERE proof_upload_id = ?
+         SELECT 1 FROM token_purchase_requests WHERE proof_file_id = ?
          LIMIT 1'
     );
     $referenceStmt->execute([$id, $id, $id, $id, $id]);

@@ -9,11 +9,7 @@
  *  - styles/token_wallet.css
  *  - js/token_wallet.js
  *
- * // TODO backend: nomor WA admin sebaiknya diambil dari 1 sumber
- * // konfigurasi (mis. config.php / API settings) bukan hardcode di
- * // beberapa file. Untuk sekarang disamakan dengan nomor di footer.
  */
-$admin_whatsapp_number = $admin_whatsapp_number ?? '6281234567890';
 ?>
 <!-- ===== MODAL: BELI TOKEN ===== -->
 <div class="ksm-modal-overlay" id="ksmBuyTokenModal">
@@ -24,49 +20,23 @@ $admin_whatsapp_number = $admin_whatsapp_number ?? '6281234567890';
 
     <h3 class="ksm-modal-title">Beli Token</h3>
     <p class="ksm-modal-subtitle">
-      Token digunakan untuk mengunggah 1 jurnal atau opini. Pilih paket di
-      bawah, lalu hubungi admin via WhatsApp untuk validasi &amp; pembayaran.
+      Token digunakan untuk mengunggah jurnal atau opini. Lanjutkan ke bot
+      Telegram KSM Education untuk memilih paket dan mengirim bukti transfer.
     </p>
 
-    <div class="ksm-token-packages" id="ksmTokenPackages">
-      <div class="ksm-token-package" data-amount="5">
-        <div class="qty">5</div>
-        <div class="unit">Token</div>
-      </div>
-      <div class="ksm-token-package active" data-amount="10">
-        <div class="qty">10</div>
-        <div class="unit">Token</div>
-      </div>
-      <div class="ksm-token-package" data-amount="20">
-        <div class="qty">20</div>
-        <div class="unit">Token</div>
-      </div>
-    </div>
-
-    <div class="ksm-token-custom">
-      <label for="ksmTokenCustomAmount">Atau masukkan jumlah custom</label>
-      <input
-        type="number"
-        id="ksmTokenCustomAmount"
-        min="1"
-        placeholder="Contoh: 15"
-      />
-    </div>
-
     <div class="ksm-token-summary">
-      <span>Jumlah token dipesan</span>
-      <strong id="ksmTokenSummaryAmount">10 Token</strong>
+      <span>Proses pembayaran</span>
+      <strong>Pilih paket → Transfer → Upload bukti → Verifikasi admin</strong>
     </div>
 
-    <button type="button" class="ksm-btn-whatsapp" id="ksmContactAdminBtn">
-      <i data-feather="message-circle"></i>
-      Hubungi Admin via WhatsApp
+    <button type="button" class="ksm-btn-telegram" id="ksmContactAdminBtn">
+      <i data-feather="send"></i>
+      Lanjutkan di Telegram
     </button>
 
     <p class="ksm-token-note">
-      Setelah pesan terkirim, admin akan memverifikasi pembayaran dan
-      menambahkan token ke akun Anda secara manual. Permintaan ini akan
-      tercatat sebagai <strong>Pending</strong> di halaman Riwayat Token.
+      Bot akan meminta foto bukti transfer. Setelah admin menyetujuinya,
+      token otomatis masuk ke akun Anda dan tercatat di Riwayat Token.
     </p>
   </div>
 </div>
@@ -89,7 +59,7 @@ $admin_whatsapp_number = $admin_whatsapp_number ?? '6281234567890';
       <strong id="ksmInsufficientCurrentBalance">0</strong>.
     </p>
 
-    <button type="button" class="ksm-btn-whatsapp" id="ksmGoBuyTokenBtn" style="background:#3b82f6;">
+    <button type="button" class="ksm-btn-telegram" id="ksmGoBuyTokenBtn" data-ksm-open-buy-token>
       <i data-feather="shopping-cart"></i>
       Beli Token Sekarang
     </button>

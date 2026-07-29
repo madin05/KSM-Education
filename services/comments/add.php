@@ -28,11 +28,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // ===== AUTH CHECK (JWT + Session Hybrid) =====
+require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../jwt_middleware.php';
 $auth_user = require_auth();
-
-require_once __DIR__ . '/../db.php';
-require_once __DIR__ . '/../env_loader.php';
 
 $user_id = (int) $auth_user['id'];
 
@@ -132,11 +130,11 @@ try {
             'created_at' => date('Y-m-d H:i:s'),
         ]
     ]);
-} catch (Exception $e) {
+} catch (Throwable $e) {
+    error_log('Comment insert failed: ' . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         'ok'      => false, 
-        'message' => 'Gagal menyimpan komentar: ' . $e->getMessage(),
-        'debug'   => $e->getTraceAsString()
+        'message' => 'Gagal menyimpan komentar.'
     ]);
 }

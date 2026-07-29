@@ -50,8 +50,49 @@
     };
   }
 
+  function initBuyTokenModal() {
+    const overlay = document.getElementById("ksmBuyTokenModal");
+    if (!overlay) return;
+    const closeBtn = document.getElementById("ksmBuyTokenClose");
+    const continueBtn = document.getElementById("ksmContactAdminBtn");
+    const close = () => overlay.classList.remove("active");
+    const open = () => overlay.classList.add("active");
+
+    document.querySelectorAll("[data-ksm-open-buy-token]").forEach((button) => {
+      button.addEventListener("click", open);
+    });
+    closeBtn?.addEventListener("click", close);
+    overlay.addEventListener("click", (event) => {
+      if (event.target === overlay) close();
+    });
+    continueBtn?.addEventListener("click", async () => {
+      const originalText = continueBtn.innerHTML;
+      continueBtn.disabled = true;
+      continueBtn.textContent = "Membuka Telegram...";
+      try {
+        const response = await authFetch(`${window.APP_CONFIG.apiBase}/token_purchase_link.php`, {
+          method: "POST",
+          body: JSON.stringify({}),
+        });
+        const data = await response.json();
+        if (!response.ok || !data.ok || !data.telegram_url) {
+          throw new Error(data.message || "Tautan Telegram tidak dapat dibuat.");
+        }
+        window.location.href = data.telegram_url;
+      } catch (error) {
+        console.error("Telegram purchase link error:", error);
+        alert(error.message || "Gagal membuka Telegram. Silakan coba lagi.");
+      } finally {
+        continueBtn.disabled = false;
+        continueBtn.innerHTML = originalText;
+        if (global.feather) global.feather.replace();
+      }
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     KsmTokenWallet.renderBalance();
+    initBuyTokenModal();
     initInsufficientModal();
     KsmTokenWallet.refresh().catch((error) => console.error("Token wallet error:", error));
   });

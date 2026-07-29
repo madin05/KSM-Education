@@ -39,12 +39,8 @@ try {
     $totalViews = $viewsJournals + $viewsOpinions;
 
     // Get total unique visitors
-    $totalVisitors = 0;
-    $checkTable = $pdo->query("SHOW TABLES LIKE 'visitors'");
-    if ($checkTable->rowCount() > 0) {
-        $stmtVisitors = $pdo->query("SELECT COUNT(DISTINCT ip_address) as total FROM visitors");
-        $totalVisitors = $stmtVisitors->fetch(PDO::FETCH_ASSOC)['total'];
-    }
+    $stmtVisitors = $pdo->query("SELECT COUNT(DISTINCT ip_address) as total FROM visitors");
+    $totalVisitors = $stmtVisitors->fetch(PDO::FETCH_ASSOC)['total'];
 
     echo json_encode([
         'ok' => true,

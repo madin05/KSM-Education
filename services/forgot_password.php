@@ -22,6 +22,47 @@ function reset_base_url(): string
     return $scheme . '://' . $host . APP_ROOT;
 }
 
+function reset_is_local_development(): bool
+{
+    $environment = strtolower(trim((string)get_env_var('APP_ENV', '')));
+    $host = strtolower((string)($_SERVER['HTTP_HOST'] ?? ''));
+    $host = preg_replace('/:\d+$/', '', $host);
+    $remoteAddress = (string)($_SERVER['REMOTE_ADDR'] ?? '');
+
+    return $environment === 'development'
+        && in_array($host, ['localhost', '127.0.0.1', '::1'], true)
+        && in_array($remoteAddress, ['127.0.0.1', '::1'], true);
+}
+
+function reset_write_local_mail(string $recipient, string $subject, string $body): bool
+{
+    $directory = trim((string)get_env_var('DEV_MAIL_DIR', sys_get_temp_dir() . '/ksmedu-dev-mail'));
+    $documentRoot = realpath((string)($_SERVER['DOCUMENT_ROOT'] ?? ''));
+    $parent = realpath(dirname($directory));
+    if ($documentRoot !== false && $parent !== false) {
+        $documentRoot = rtrim(str_replace('\\', '/', $documentRoot), '/') . '/';
+        $candidate = rtrim(str_replace('\\', '/', $parent), '/') . '/' . basename($directory) . '/';
+        if (stripos($candidate, $documentRoot) === 0) {
+            error_log('DEV_MAIL_DIR must be outside the web document root.');
+            return false;
+        }
+    }
+
+    if ($directory === '' || (!is_dir($directory) && !mkdir($directory, 0700, true))) {
+        return false;
+    }
+
+    $filename = sprintf('password-reset-%s-%s.eml', gmdate('Ymd-His'), bin2hex(random_bytes(8)));
+    $message = "To: {$recipient}\r\nSubject: {$subject}\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n{$body}";
+    $path = rtrim($directory, '/\\') . DIRECTORY_SEPARATOR . $filename;
+    if (file_put_contents($path, $message, LOCK_EX) === false) {
+        return false;
+    }
+
+    @chmod($path, 0600);
+    return true;
+}
+
 try {
     $data = json_decode((string)file_get_contents('php://input'), true);
     if (!is_array($data)) {
@@ -74,7 +115,11 @@ try {
         }
 
         if (!@mail($email, $subject, $body, $headers)) {
-            error_log('Password reset mail could not be sent for user id ' . $userId . '. Configure PHP mail transport.');
+            $storedLocally = reset_is_local_development()
+                && reset_write_local_mail($email, $subject, $body);
+            if (!$storedLocally) {
+                error_log('Password reset mail could not be sent for user id ' . $userId . '. Configure PHP mail transport.');
+            }
         }
     }
 

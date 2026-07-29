@@ -206,7 +206,7 @@ CREATE TABLE IF NOT EXISTS token_purchase_requests (
   user_id INT(11) NOT NULL,
   amount INT UNSIGNED NOT NULL,
   status ENUM('awaiting_proof','pending','approved','rejected','cancelled') NOT NULL DEFAULT 'awaiting_proof',
-  proof_upload_id INT(11) NULL,
+  proof_file_id INT(11) NULL,
   telegram_chat_id BIGINT NULL,
   processed_by INT(11) NULL,
   processed_by_telegram_id BIGINT NULL,
@@ -220,10 +220,10 @@ CREATE TABLE IF NOT EXISTS token_purchase_requests (
   KEY idx_token_purchase_user_created (user_id, created_at),
   KEY idx_token_purchase_status_created (status, created_at),
   KEY idx_token_purchase_processor (processed_by),
-  KEY idx_token_purchase_proof (proof_upload_id),
+  KEY idx_token_purchase_proof (proof_file_id),
   CONSTRAINT fk_token_purchase_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT fk_token_purchase_processor FOREIGN KEY (processed_by) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT fk_token_purchase_proof FOREIGN KEY (proof_upload_id) REFERENCES uploads(id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_token_purchase_proof FOREIGN KEY (proof_file_id) REFERENCES uploads(id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS token_transactions (

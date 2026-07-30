@@ -1,5 +1,5 @@
 <?php
-$page_title = 'Review Jurnal Masuk - KSM Admin';
+$page_title = 'Review Kiriman Masuk - KSM Admin';
 $extra_head = '
   <link rel="stylesheet" href="../styles/explore_admin.css" />
   <link rel="stylesheet" href="../styles/comments_admin.css?v=' . time() . '" />
@@ -14,9 +14,21 @@ include 'components/sidebar.php';
   <div class="page-header">
     <h1>
       <i data-feather="inbox"></i>
-      Review Jurnal Masuk
+      Review Kiriman Masuk
     </h1>
-    <p>Setujui atau tolak jurnal yang dikirim oleh pengguna sebelum tampil di publik.</p>
+    <p>Setujui atau tolak jurnal dan opini yang dikirim pengguna sebelum tampil di publik.</p>
+  </div>
+
+  <!-- Jenis Kiriman: jurnal & opini memakai alur review yang sama -->
+  <div class="review-type-tabs" role="tablist" aria-label="Jenis kiriman">
+    <button class="review-type-tab active" data-type="journal" role="tab" aria-selected="true" type="button">
+      <i data-feather="book-open"></i> Jurnal
+      <span class="tab-count" id="countTypeJournal">0</span>
+    </button>
+    <button class="review-type-tab" data-type="opinion" role="tab" aria-selected="false" type="button">
+      <i data-feather="message-square"></i> Opini
+      <span class="tab-count" id="countTypeOpinion">0</span>
+    </button>
   </div>
 
   <!-- Status Tabs -->
@@ -56,20 +68,6 @@ include 'components/sidebar.php';
     </div>
 
     <div class="filter-row-right">
-      <div class="filter-group">
-        <div class="search-box-wrapper">
-          <i data-feather="search"></i>
-          <label for="reviewSearchInput" class="sr-only">Cari jurnal</label>
-          <input
-            id="reviewSearchInput"
-            class="search-input"
-            type="search"
-            placeholder="Cari judul, penulis, atau pengirim..." />
-        </div>
-        <button type="button" id="btnReviewSearch" class="btn-search" aria-label="Cari">
-          <i data-feather="search"></i>
-        </button>
-      </div>
       <span id="totalCount"></span>
     </div>
   </div>

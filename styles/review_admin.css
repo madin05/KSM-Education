@@ -7,6 +7,69 @@
   padding: 24px 20px 60px;
 }
 
+/* ===== TAB JENIS KIRIMAN (jurnal / opini) ===== */
+.review-type-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.review-type-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #fff;
+  color: #475569;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.review-type-tab svg {
+  width: 16px;
+  height: 16px;
+}
+
+.review-type-tab:hover {
+  border-color: #93c5fd;
+  color: #1d4ed8;
+}
+
+.review-type-tab.active {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+  color: #fff;
+}
+
+.review-type-tab .tab-count {
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: #eef2f7;
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.review-type-tab.active .tab-count {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+}
+
+.review-type-tab .tab-count.has-items {
+  background: #ef4444;
+  color: #fff;
+}
+
 /* ===== PAGE HEADER ===== */
 .admin-review-page .page-header {
   margin-bottom: 20px;
@@ -558,9 +621,21 @@
   color: #94a3b8;
 }
 
-[data-theme="dark"] .review-tab {
+[data-theme="dark"] .review-tab,
+[data-theme="dark"] .review-type-tab {
   background: #1e293b;
   border-color: #334155;
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .review-type-tab.active {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+  color: #fff;
+}
+
+[data-theme="dark"] .review-type-tab .tab-count {
+  background: #334155;
   color: #cbd5e1;
 }
 

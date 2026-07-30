@@ -6,7 +6,6 @@ let currentType = "";
 async function loadAllComments(page = 1) {
   currentPage = page;
   const tbody = document.getElementById("commentsTableBody");
-  const search = document.getElementById("searchInput").value.trim();
 
   tbody.innerHTML = `
       <tr>
@@ -19,7 +18,6 @@ async function loadAllComments(page = 1) {
   let url = `${window.APP_CONFIG.apiBase}/comments/list_all.php?page=${page}&limit=${limit}`;
   if (currentType) url += `&type=${encodeURIComponent(currentType)}`;
   if (currentSort) url += `&sort=${encodeURIComponent(currentSort)}`;
-  if (search) url += `&search=${encodeURIComponent(search)}`;
 
   try {
     const res = await fetch(url, { credentials: "include" });
@@ -207,13 +205,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (this.loadingSpinner) {
         this.loadingSpinner.className = "loader";
     }
-    const searchInput = document.getElementById("searchInput");
-    if (searchInput) {
-        searchInput.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") loadAllComments();
-        });
-    }
-
     setupFilterDropdown();
     loadAllComments();
     if (typeof feather !== "undefined") feather.replace();

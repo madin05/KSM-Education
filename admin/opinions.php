@@ -9,7 +9,8 @@ include 'components/sidebar.php';
     <div class="container">
       <!-- Filter & Search Section -->
       <section class="filter-section">
-        <!-- Row 1: Icon Sort + Search Box -->
+        <!-- Row 1: Icon Sort -->
+
         <div class="filter-row-top">
           <!-- Icon Sort Dropdown -->
           <div class="sort-dropdown">
@@ -36,11 +37,6 @@ include 'components/sidebar.php';
             </div>
           </div>
 
-          <!-- Search Box -->
-          <div class="search-box">
-            <i data-feather="search"></i>
-            <input type="text" placeholder="Cari opini..." id="searchInput" />
-          </div>
         </div>
 
         <!-- Row 2: Total Counter -->

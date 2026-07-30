@@ -13,6 +13,7 @@
 
   const state = {
     status: "pending",
+    type: "journal", // journal | opinion — alur review identik
     sort: "oldest",
     search: "",
     page: 1,
@@ -64,6 +65,8 @@
 
   const $ = (id) => document.getElementById(id);
 
+  const typeLabel = () => (state.type === "opinion" ? "opini" : "jurnal");
+
   // ===== LOAD DATA =====
   async function loadQueue() {
     const tbody = $("reviewTableBody");
@@ -79,9 +82,9 @@
       </tr>`;
 
     try {
-      const url = `${window.APP_CONFIG.apiBase}/admin_review_queue.php?status=${encodeURIComponent(
-        state.status,
-      )}&limit=100&offset=0&t=${Date.now()}`;
+      const url = `${window.APP_CONFIG.apiBase}/admin_review_queue.php?type=${encodeURIComponent(
+        state.type,
+      )}&status=${encodeURIComponent(state.status)}&limit=100&offset=0&t=${Date.now()}`;
       const res = await apiFetch(url);
       const data = await res.json();
 
@@ -95,6 +98,7 @@
       // Badge jumlah pending selalu di-refresh saat tab pending dibuka
       if (state.status === "pending") setPendingCount(data.total ?? state.items.length);
       else refreshPendingCount();
+      refreshTypeCounts();
     } catch (err) {
       console.error("Review queue error:", err);
       state.items = [];
@@ -117,13 +121,39 @@
   // Ambil jumlah pending tanpa mengganggu tabel (dipakai saat tab lain aktif)
   async function refreshPendingCount() {
     try {
-      const url = `${window.APP_CONFIG.apiBase}/admin_review_queue.php?status=pending&limit=1&offset=0&t=${Date.now()}`;
+      const url = `${window.APP_CONFIG.apiBase}/admin_review_queue.php?type=${encodeURIComponent(
+        state.type,
+      )}&status=pending&limit=1&offset=0&t=${Date.now()}`;
       const res = await apiFetch(url);
       const data = await res.json();
       if (data.ok) setPendingCount(data.total ?? 0);
     } catch (e) {
       /* badge bukan fitur kritis — abaikan kegagalan */
     }
+  }
+
+  // Badge pending per jenis kiriman (jurnal & opini) pada tab atas
+  async function refreshTypeCounts() {
+    const targets = [
+      { type: "journal", el: "countTypeJournal" },
+      { type: "opinion", el: "countTypeOpinion" },
+    ];
+    await Promise.all(
+      targets.map(async ({ type, el }) => {
+        const badge = $(el);
+        if (!badge) return;
+        try {
+          const url = `${window.APP_CONFIG.apiBase}/admin_review_queue.php?type=${type}&status=pending&limit=1&offset=0&t=${Date.now()}`;
+          const res = await apiFetch(url);
+          const data = await res.json();
+          if (!data.ok) return;
+          badge.textContent = data.total ?? 0;
+          badge.classList.toggle("has-items", Number(data.total) > 0);
+        } catch (e) {
+          /* badge bukan fitur kritis */
+        }
+      }),
+    );
   }
 
   function setPendingCount(total) {
@@ -182,10 +212,9 @@
     updateTotal(state.filtered.length);
 
     if (state.filtered.length === 0) {
-      const emptyMsg = state.search
-        ? "Tidak ada jurnal yang cocok dengan pencarian."
-        : state.status === "pending"
-          ? "Tidak ada jurnal yang menunggu review."
+      const emptyMsg =
+        state.status === "pending"
+          ? `Tidak ada ${typeLabel()} yang menunggu review.`
           : "Belum ada data pada status ini.";
       tbody.innerHTML = `
         <tr>
@@ -266,7 +295,7 @@
 
   function updateTotal(count) {
     const el = $("totalCount");
-    if (el) el.textContent = `${count} jurnal`;
+    if (el) el.textContent = `${count} ${typeLabel()}`;
   }
 
   function renderPagination(totalPages) {
@@ -399,7 +428,11 @@
       const res = await apiFetch(`${window.APP_CONFIG.apiBase}/admin_review_journal.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(reason ? { id, action, reason } : { id, action }),
+        body: JSON.stringify(
+          reason
+            ? { id, action, reason, type: state.type }
+            : { id, action, type: state.type },
+        ),
       });
       const data = await res.json();
 
@@ -407,10 +440,11 @@
         throw new Error(data.message || "Gagal menyimpan hasil review.");
       }
 
+      const label = state.type === "opinion" ? "Opini" : "Jurnal";
       notify(
         action === "approve"
-          ? "Jurnal disetujui dan sekarang tampil di publik."
-          : "Jurnal ditolak. Alasan sudah tercatat untuk pengirim.",
+          ? `${label} disetujui dan sekarang tampil di publik.`
+          : `${label} ditolak. Alasan sudah tercatat untuk pengirim.`,
         "success",
         action === "approve" ? "APPROVE BERHASIL" : "REJECT BERHASIL",
       );
@@ -421,7 +455,9 @@
       // Refresh daftar review + daftar publik (journals.php ikut ter-update)
       await loadQueue();
       window.dispatchEvent(
-        new CustomEvent("journals:changed", { detail: { id, action } }),
+        new CustomEvent(state.type === "opinion" ? "opinions:changed" : "journals:changed", {
+          detail: { id, action, type: state.type },
+        }),
       );
     } catch (err) {
       console.error("Review action error:", err);
@@ -448,40 +484,20 @@
     });
   }
 
-  function setupSearch() {
-    const input = $("reviewSearchInput");
-    const btn = $("btnReviewSearch");
-    if (!input) return;
-
-    // Live search (debounce) — tombol & Enter hanya memaksa filter ulang,
-    // tidak lagi wajib diklik supaya pencarian jalan.
-    let timer = null;
-    input.addEventListener("input", () => {
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        state.search = input.value;
-        applyFilters();
-      }, 200);
-    });
-
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        clearTimeout(timer);
-        state.search = input.value;
-        applyFilters();
-      }
-      if (e.key === "Escape") {
-        input.value = "";
-        state.search = "";
-        applyFilters();
-      }
-    });
-
-    btn?.addEventListener("click", () => {
-      clearTimeout(timer);
-      state.search = input.value;
-      applyFilters();
+  function setupTypeTabs() {
+    document.querySelectorAll(".review-type-tab").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        if (state.loading) return;
+        document.querySelectorAll(".review-type-tab").forEach((t) => {
+          t.classList.remove("active");
+          t.setAttribute("aria-selected", "false");
+        });
+        tab.classList.add("active");
+        tab.setAttribute("aria-selected", "true");
+        state.type = tab.dataset.type === "opinion" ? "opinion" : "journal";
+        state.page = 1;
+        loadQueue();
+      });
     });
   }
 
@@ -530,10 +546,10 @@
         openDetail(id);
       } else if (action === "approve") {
         const item = state.items.find((x) => String(x.id) === String(id));
-        const title = item ? item.title : "jurnal ini";
+        const title = item ? item.title : `${typeLabel()} ini`;
         if (typeof showConfirm === "function") {
           showConfirm(
-            `Setujui "${title}"? Jurnal akan langsung tampil di halaman publik.`,
+            `Setujui "${title}"? Konten akan langsung tampil di halaman publik.`,
             () => submitReview(id, "approve"),
             "Konfirmasi Approve",
           );
@@ -579,7 +595,7 @@
   function init() {
     if (!$("reviewTableBody")) return;
     setupTabs();
-    setupSearch();
+    setupTypeTabs();
     setupSortDropdown();
     setupTableActions();
     setupModals();

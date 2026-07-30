@@ -14,18 +14,6 @@ include 'components/sidebar.php';
       <span id="breadcrumbTitle">Blog</span>
     </div>
 
-    <!-- Search Modal -->
-    <div id="searchModal" class="search-modal" style="display: none">
-      <div class="search-modal-content">
-        <div class="search-modal-header">
-          <h3>Hasil Pencarian</h3>
-          <button id="closeSearchModal" class="close-btn">
-            <i data-feather="x"></i>
-          </button>
-        </div>
-        <div id="searchResults" class="search-results"></div>
-      </div>
-    </div>
 
     <!-- Main Container -->
     <div class="container">

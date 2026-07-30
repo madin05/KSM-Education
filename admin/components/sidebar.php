@@ -41,37 +41,16 @@
             <div class="dropdown-menu">
               <a href="journals.php">Artikel Jurnal</a>
               <a href="opinions.php">Artikel Opini</a>
-              <a href="journals.php#search">Cari Artikel</a>
+              <a href="review_journals.php">Review Kiriman</a>
             </div>
           </div>
           <a href="dashboard_admin.php#upload">UPLOAD</a>
           <a href="review_journals.php">REVIEW</a>
           <a href="comments.php">KOMENTAR</a>
+          <a href="contact_messages.php">KONTAK</a>
+          <a href="token_requests.php">TOKEN</a>
+          <a href="visitor_analytics.php">ANALITIK</a>
         </nav>
-
-        <?php
-        $current_page = basename($_SERVER['PHP_SELF']);
-        if ($current_page === 'dashboard_admin.php'):
-        ?>
-        <!-- FIX: markup lama (.navbar-search-*) tidak punya CSS & tidak punya
-             handler JS sama sekali, jadi search bar tidak pernah terlihat/berfungsi.
-             Sekarang dipakai form nyata yang mengarah ke journals.php?search=...
-             (pagination_admin.js sudah membaca query param `search`). -->
-        <form class="admin-navbar-search" action="journals.php" method="get" role="search">
-          <label for="navbarSearchInput" class="sr-only">Cari artikel jurnal</label>
-          <i data-feather="search" aria-hidden="true"></i>
-          <input
-            type="search"
-            id="navbarSearchInput"
-            name="search"
-            class="admin-navbar-search-input"
-            placeholder="Cari artikel..."
-            autocomplete="off"
-          />
-          <button type="submit" class="admin-navbar-search-btn">Cari</button>
-        </form>
-        <?php endif; ?>
-
 
         <div class="auth-section">
           <button class="btn-register">LOGIN</button>

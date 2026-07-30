@@ -22,6 +22,57 @@ try {
         throw new InvalidArgumentException('Filter status review tidak valid.');
     }
 
+    // Opini memakai alur review yang sama dengan jurnal (pending -> published).
+    $type = strtolower(trim((string)($_GET['type'] ?? 'journal')));
+    if (!in_array($type, ['journal', 'opinion'], true)) {
+        throw new InvalidArgumentException('Parameter type harus journal atau opinion.');
+    }
+
+    if ($type === 'opinion') {
+        $countStmt = $pdo->prepare('SELECT COUNT(*) FROM opinions WHERE status = ?');
+        $countStmt->execute([$status]);
+        $total = (int)$countStmt->fetchColumn();
+
+        $stmt = $pdo->prepare(
+            "SELECT o.id, o.user_id, o.title, o.description AS abstract, o.category,
+                    o.author_name, o.tags, o.email, o.contact, o.status,
+                    o.rejection_reason, o.views, o.created_at, o.updated_at, o.reviewed_at,
+                    u.name AS owner_name, u.email AS owner_email,
+                    reviewer.name AS reviewer_name,
+                    fu.url AS file_url, cu.url AS cover_url
+             FROM opinions o
+             LEFT JOIN users u ON u.id = o.user_id
+             LEFT JOIN users reviewer ON reviewer.id = o.reviewed_by
+             LEFT JOIN uploads fu ON fu.id = o.file_upload_id
+             LEFT JOIN uploads cu ON cu.id = o.cover_upload_id
+             WHERE o.status = ?
+             ORDER BY o.created_at ASC, o.id ASC
+             LIMIT {$limit} OFFSET {$offset}"
+        );
+        $stmt->execute([$status]);
+        $results = array_map(static function (array $row): array {
+            // Decode dulu kolom JSON (tags), baru bentuk authors sebagai array
+            // supaya submission_decode_lists tidak menerima nilai array.
+            $row = submission_decode_lists($row);
+            $row['authors'] = $row['author_name'] !== null && $row['author_name'] !== ''
+                ? [$row['author_name']]
+                : [];
+            return $row;
+        }, $stmt->fetchAll());
+
+
+        echo json_encode([
+            'ok' => true,
+            'results' => $results,
+            'total' => $total,
+            'limit' => $limit,
+            'offset' => $offset,
+            'status' => $status,
+            'type' => $type,
+        ]);
+        exit;
+    }
+
     $countStmt = $pdo->prepare('SELECT COUNT(*) FROM journals WHERE status = ?');
     $countStmt->execute([$status]);
     $total = (int)$countStmt->fetchColumn();
@@ -52,6 +103,7 @@ try {
         'limit' => $limit,
         'offset' => $offset,
         'status' => $status,
+        'type' => $type,
     ]);
 } catch (Throwable $e) {
     submission_error($e);

@@ -49,19 +49,6 @@ include 'components/sidebar.php';
     </div>
 
     <div class="filter-row-right">
-      <div class="filter-group">
-        <div class="search-box-wrapper">
-          <i data-feather="search"></i>
-          <input
-            id="searchInput"
-            class="search-input"
-            type="text"
-            placeholder="Cari username atau isi komentar..." />
-        </div>
-        <button onclick="loadAllComments()" class="btn-search">
-          <i data-feather="search"></i>
-        </button>
-      </div>
       <span id="totalCount"></span>
     </div>
   </div>

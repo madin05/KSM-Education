@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="../styles/admin.css?v=20260323" />
     <link rel="stylesheet" href="../styles/skeleton.css" />
     <link rel="stylesheet" href="../styles/custom_alerts.css" />
-    <link rel="stylesheet" href="../styles/admin_navbar_search.css?v=20260731" />
+
 
     <link rel="shortcut icon" type="image/x-icon" href="../assets/favicon.ico" />
     <script src="../js/config.js"></script>

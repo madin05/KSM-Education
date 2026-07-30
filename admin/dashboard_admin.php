@@ -1,14 +1,92 @@
 <?php
 $page_title = 'KSM Education - Admin';
+// Ringkasan operasional memakai gaya kartu bersama (review/token/visitor).
+$extra_head = '
+  <link rel="stylesheet" href="../styles/review_admin.css?v=' . time() . '" />
+  <link rel="stylesheet" href="../styles/visitor_admin.css?v=' . time() . '" />
+  <link rel="stylesheet" href="../styles/admin_overview.css?v=' . time() . '" />';
 include 'components/header.php';
+
 include 'components/sidebar.php';
 ?>
 
 
     <div class="container">
+      <!-- Ringkasan Operasional (data langsung dari DB) -->
+      <section class="admin-overview">
+        <div class="admin-overview-head">
+          <h2>RINGKASAN OPERASIONAL</h2>
+          <button type="button" class="btn-refresh" id="adminOverviewRefresh" title="Muat ulang ringkasan">
+            <i data-feather="refresh-cw"></i>
+          </button>
+        </div>
+
+        <div id="adminOverviewError" class="review-error visitor-error" hidden></div>
+
+        <div class="admin-overview-grid is-loading" id="adminOverviewGrid">
+          <a class="overview-card" href="./review_journals.php">
+            <span class="overview-badge" id="badgeReview" hidden></span>
+            <div class="overview-icon"><i data-feather="inbox"></i></div>
+            <div class="overview-body">
+              <span class="overview-label">Menunggu Review</span>
+              <strong class="overview-value" id="ovReviewPending">-</strong>
+              <small class="overview-detail" id="ovReviewDetail">memuat...</small>
+            </div>
+          </a>
+
+          <a class="overview-card" href="./contact_messages.php">
+            <span class="overview-badge" id="badgeContact" hidden></span>
+            <div class="overview-icon"><i data-feather="mail"></i></div>
+            <div class="overview-body">
+              <span class="overview-label">Pesan Kontak Baru</span>
+              <strong class="overview-value" id="ovContactNew">-</strong>
+              <small class="overview-detail" id="ovContactDetail">memuat...</small>
+            </div>
+          </a>
+
+          <a class="overview-card" href="./token_requests.php">
+            <span class="overview-badge" id="badgeToken" hidden></span>
+            <div class="overview-icon"><i data-feather="credit-card"></i></div>
+            <div class="overview-body">
+              <span class="overview-label">Top-up Token Pending</span>
+              <strong class="overview-value" id="ovTokenPending">-</strong>
+              <small class="overview-detail" id="ovTokenDetail">memuat...</small>
+            </div>
+          </a>
+
+          <a class="overview-card" href="./visitor_analytics.php">
+            <div class="overview-icon"><i data-feather="bar-chart-2"></i></div>
+            <div class="overview-body">
+              <span class="overview-label">Pengunjung Hari Ini</span>
+              <strong class="overview-value" id="ovVisitorToday">-</strong>
+              <small class="overview-detail" id="ovVisitorDetail">memuat...</small>
+            </div>
+          </a>
+
+          <a class="overview-card" href="./journals.php">
+            <div class="overview-icon"><i data-feather="book-open"></i></div>
+            <div class="overview-body">
+              <span class="overview-label">Artikel Terbit</span>
+              <strong class="overview-value" id="ovPublished">-</strong>
+              <small class="overview-detail" id="ovPublishedDetail">memuat...</small>
+            </div>
+          </a>
+
+          <div class="overview-card overview-card-static">
+            <div class="overview-icon"><i data-feather="users"></i></div>
+            <div class="overview-body">
+              <span class="overview-label">Pengguna Terdaftar</span>
+              <strong class="overview-value" id="ovUsers">-</strong>
+              <small class="overview-detail" id="ovUsersDetail">memuat...</small>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Statistics Section -->
       <section class="statistics">
         <h2>STATISTIK</h2>
+
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-icon">
@@ -716,6 +794,8 @@ include 'components/sidebar.php';
 <?php
 $extra_scripts = <<<'EOT'
 <script src="../js/statistic.js"></script>
+    <script src="../js/dashboard_admin_overview.js?v=20260731"></script>
+
     <script src="../js/jurnal.js?v=20260321"></script>
     <script src="../js/opinions.js?v=20260321"></script>
     <script src="../js/tags_manager.js?v=20240316"></script>

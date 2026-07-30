@@ -1,0 +1,171 @@
+/* styles/admin_overview.css
+   Kartu ringkasan operasional pada admin/dashboard_admin.php.
+   Setiap kartu adalah tautan ke halaman detail (review, kontak, token, visitor). */
+
+.admin-overview {
+  margin: 24px 0 8px;
+}
+
+.admin-overview-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.admin-overview-head h2 {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: 0.5px;
+}
+
+.admin-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.overview-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 12px;
+  background: var(--card-bg, #fff);
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.overview-card:not(.overview-card-static):hover,
+.overview-card:not(.overview-card-static):focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.1);
+  border-color: #2563eb;
+  outline: none;
+}
+
+.overview-card-static {
+  cursor: default;
+}
+
+.overview-icon {
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: rgba(37, 99, 235, 0.1);
+  color: #2563eb;
+}
+
+.overview-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.overview-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.overview-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--text-muted, #6b7280);
+}
+
+.overview-value {
+  font-size: 26px;
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+.overview-detail {
+  font-size: 12px;
+  color: var(--text-muted, #6b7280);
+  white-space: normal;
+}
+
+/* Badge jumlah item yang butuh tindakan */
+.overview-badge {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  min-width: 22px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* Placeholder saat data belum tiba */
+.admin-overview-grid.is-loading .overview-value,
+.admin-overview-grid.is-loading .overview-detail {
+  color: transparent;
+  background: linear-gradient(90deg, #eceff3 25%, #f6f7f9 37%, #eceff3 63%);
+  background-size: 400% 100%;
+  border-radius: 6px;
+  animation: overviewShimmer 1.3s ease infinite;
+}
+
+@keyframes overviewShimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overview-card,
+  .admin-overview-grid.is-loading .overview-value,
+  .admin-overview-grid.is-loading .overview-detail {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* Dark mode */
+body.dark-mode .overview-card {
+  background: #1f2937;
+  border-color: #374151;
+}
+
+body.dark-mode .overview-icon {
+  background: rgba(96, 165, 250, 0.16);
+  color: #60a5fa;
+}
+
+body.dark-mode .overview-label,
+body.dark-mode .overview-detail {
+  color: #9ca3af;
+}
+
+body.dark-mode .admin-overview-grid.is-loading .overview-value,
+body.dark-mode .admin-overview-grid.is-loading .overview-detail {
+  background: linear-gradient(90deg, #273244 25%, #313e52 37%, #273244 63%);
+  background-size: 400% 100%;
+}
+
+@media (max-width: 480px) {
+  .admin-overview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .overview-value {
+    font-size: 22px;
+  }
+}

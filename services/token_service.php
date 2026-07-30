@@ -228,8 +228,149 @@ function token_approve_purchase(PDO $pdo, int $requestId, int $approvedByTelegra
     }
 }
 
+/**
+ * Approve a purchase request from the admin web panel.
+ *
+ * Mirrors token_approve_purchase() but records the acting admin as an internal
+ * user id (processed_by) instead of a Telegram id, so manual top-up
+ * verification done on admin/token_requests.php stays auditable.
+ */
+function token_admin_approve_purchase(PDO $pdo, int $requestId, int $adminUserId): array
+{
+    $pdo->beginTransaction();
+    try {
+        $stmt = $pdo->prepare(
+            'SELECT id, public_id, user_id, amount, status
+             FROM token_purchase_requests WHERE id = ? FOR UPDATE'
+        );
+        $stmt->execute([$requestId]);
+        $request = $stmt->fetch();
+
+        if (!$request) {
+            throw new RuntimeException('Permintaan token tidak ditemukan.');
+        }
+
+        if ($request['status'] === 'approved') {
+            $wallet = token_get_wallet($pdo, (int)$request['user_id']);
+            $pdo->commit();
+            return [
+                'ok' => true,
+                'already_processed' => true,
+                'public_id' => $request['public_id'],
+                'amount' => (int)$request['amount'],
+                'balance' => $wallet['balance'],
+            ];
+        }
+
+        if (!in_array($request['status'], ['pending', 'awaiting_proof'], true)) {
+            throw new RuntimeException('Hanya transaksi pending atau menunggu bukti yang dapat disetujui.');
+        }
+
+        $stmt = $pdo->prepare(
+            'INSERT INTO user_token_wallets (user_id, balance) VALUES (?, 0)
+             ON DUPLICATE KEY UPDATE user_id = VALUES(user_id)'
+        );
+        $stmt->execute([(int)$request['user_id']]);
+
+        $stmt = $pdo->prepare('SELECT balance FROM user_token_wallets WHERE user_id = ? FOR UPDATE');
+        $stmt->execute([(int)$request['user_id']]);
+        $newBalance = (int)$stmt->fetchColumn() + (int)$request['amount'];
+
+        $stmt = $pdo->prepare(
+            'UPDATE user_token_wallets
+             SET balance = ?, updated_at = CURRENT_TIMESTAMP
+             WHERE user_id = ?'
+        );
+        $stmt->execute([$newBalance, (int)$request['user_id']]);
+
+        $stmt = $pdo->prepare(
+            "INSERT INTO token_transactions
+               (user_id, type, amount, balance_after, reference_type, reference_id,
+                status, description, processed_by, processed_at)
+             VALUES (?, 'purchase', ?, ?, 'token_purchase_request', ?, 'completed',
+                     ?, ?, CURRENT_TIMESTAMP)"
+        );
+        $stmt->execute([
+            (int)$request['user_id'],
+            (int)$request['amount'],
+            $newBalance,
+            (int)$request['id'],
+            'Verifikasi manual admin ' . $request['public_id'],
+            $adminUserId,
+        ]);
+
+        $stmt = $pdo->prepare(
+            "UPDATE token_purchase_requests
+             SET status = 'approved', approved_at = CURRENT_TIMESTAMP, processed_by = ?
+             WHERE id = ?"
+        );
+        $stmt->execute([$adminUserId, $requestId]);
+        $pdo->commit();
+
+        return [
+            'ok' => true,
+            'already_processed' => false,
+            'public_id' => $request['public_id'],
+            'amount' => (int)$request['amount'],
+            'balance' => $newBalance,
+        ];
+    } catch (Throwable $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        throw $e;
+    }
+}
+
+/**
+ * Reject a purchase request from the admin web panel, optionally storing the
+ * reason shown to the user in their token history.
+ */
+function token_admin_reject_purchase(PDO $pdo, int $requestId, int $adminUserId, string $reason = ''): array
+{
+    $pdo->beginTransaction();
+    try {
+        $stmt = $pdo->prepare(
+            'SELECT id, public_id, user_id, amount, status, telegram_chat_id
+             FROM token_purchase_requests WHERE id = ? FOR UPDATE'
+        );
+        $stmt->execute([$requestId]);
+        $request = $stmt->fetch();
+
+        if (!$request) {
+            throw new RuntimeException('Permintaan token tidak ditemukan.');
+        }
+
+        if ($request['status'] === 'rejected') {
+            $pdo->commit();
+            return ['ok' => true, 'already_processed' => true] + $request;
+        }
+
+        if (!in_array($request['status'], ['pending', 'awaiting_proof'], true)) {
+            throw new RuntimeException('Hanya transaksi pending atau menunggu bukti yang dapat ditolak.');
+        }
+
+        $stmt = $pdo->prepare(
+            "UPDATE token_purchase_requests
+             SET status = 'rejected', rejected_at = CURRENT_TIMESTAMP,
+                 processed_by = ?, rejection_reason = ?
+             WHERE id = ?"
+        );
+        $stmt->execute([$adminUserId, ($reason === '' ? null : mb_substr($reason, 0, 500)), $requestId]);
+        $pdo->commit();
+
+        return ['ok' => true, 'already_processed' => false] + $request;
+    } catch (Throwable $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        throw $e;
+    }
+}
+
 function token_reject_purchase(PDO $pdo, int $requestId, int $rejectedByTelegramId): array
 {
+
     $pdo->beginTransaction();
     try {
         $stmt = $pdo->prepare(

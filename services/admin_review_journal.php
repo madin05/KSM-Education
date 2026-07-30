@@ -25,27 +25,41 @@ try {
         throw new InvalidArgumentException('Alasan penolakan wajib diisi.');
     }
 
+    // Opini direview dengan alur yang sama seperti jurnal, hanya berbeda tabel.
+    $type = strtolower(trim((string)($data['type'] ?? 'journal')));
+    if (!in_array($type, ['journal', 'opinion'], true)) {
+        throw new InvalidArgumentException('type harus journal atau opinion.');
+    }
+    $table = $type === 'opinion' ? 'opinions' : 'journals';
+    $label = $type === 'opinion' ? 'Opini' : 'Jurnal';
+
     $pdo->beginTransaction();
-    $stmt = $pdo->prepare('SELECT status FROM journals WHERE id = ? FOR UPDATE');
+    $stmt = $pdo->prepare("SELECT status FROM {$table} WHERE id = ? FOR UPDATE");
     $stmt->execute([$id]);
-    $journal = $stmt->fetch();
-    if (!$journal) throw new DomainException('Jurnal tidak ditemukan.');
-    if ($journal['status'] !== 'pending') {
-        throw new DomainException('Hanya jurnal pending yang dapat direview.');
+    $row = $stmt->fetch();
+    if (!$row) throw new DomainException("{$label} tidak ditemukan.");
+    if ($row['status'] !== 'pending') {
+        throw new DomainException("Hanya {$label} berstatus pending yang dapat direview.");
     }
 
     $status = $action === 'approve' ? 'published' : 'rejected';
     $stmt = $pdo->prepare(
-        'UPDATE journals
+        "UPDATE {$table}
          SET status = ?, rejection_reason = ?, reviewed_by = ?,
              reviewed_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
-         WHERE id = ? AND status = \'pending\''
+         WHERE id = ? AND status = 'pending'"
     );
     $stmt->execute([$status, $action === 'reject' ? $reason : null, (int)$auth_user['id'], $id]);
-    if ($stmt->rowCount() !== 1) throw new DomainException('Status jurnal telah berubah. Muat ulang data review.');
+    if ($stmt->rowCount() !== 1) throw new DomainException("Status {$label} telah berubah. Muat ulang data review.");
     $pdo->commit();
 
-    echo json_encode(['ok' => true, 'id' => $id, 'status' => $status, 'message' => 'Review jurnal berhasil disimpan.']);
+    echo json_encode([
+        'ok' => true,
+        'id' => $id,
+        'type' => $type,
+        'status' => $status,
+        'message' => "Review {$label} berhasil disimpan.",
+    ]);
 } catch (Throwable $e) {
     if ($pdo->inTransaction()) $pdo->rollBack();
     submission_error($e);

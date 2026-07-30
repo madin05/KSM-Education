@@ -57,29 +57,8 @@
   white-space: nowrap;
 }
 
-.btn-refresh {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  background: #fff;
-  color: #475569;
-  cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease;
-}
-
-.btn-refresh:hover {
-  background: #f1f5f9;
-  color: #2563eb;
-}
-
-.btn-refresh svg {
-  width: 16px;
-  height: 16px;
-}
+/* .btn-refresh (light + dark + animasi memuat) sekarang didefinisikan sekali
+   di styles/admin_nav.css agar semua halaman admin konsisten. */
 
 /* ===== TAB COUNT (varian kontak) ===== */
 .review-tab-count {
@@ -419,22 +398,13 @@
 }
 
 /* ===== DARK MODE ===== */
-[data-theme="dark"] .review-toolbar .search-box-wrapper,
-[data-theme="dark"] .btn-refresh {
+[data-theme="dark"] .review-toolbar .search-box-wrapper {
   background: #0f172a;
   border-color: #334155;
 }
 
 [data-theme="dark"] .review-toolbar .search-input {
   color: #e2e8f0;
-}
-
-[data-theme="dark"] .btn-refresh {
-  color: #cbd5e1;
-}
-
-[data-theme="dark"] .btn-refresh:hover {
-  background: #1e293b;
 }
 
 [data-theme="dark"] .review-table-wrapper {

@@ -13,6 +13,8 @@
     <!-- Montserrat: offline-first via fonts.css, CDN sebagai fallback -->
     <link rel="stylesheet" href="../styles/fonts.css" />
     <link rel="stylesheet" href="../styles/admin.css?v=20260323" />
+    <!-- Navbar admin + tombol muat ulang (berlaku di semua halaman admin) -->
+    <link rel="stylesheet" href="../styles/admin_nav.css?v=20260731" />
     <link rel="stylesheet" href="../styles/skeleton.css" />
     <link rel="stylesheet" href="../styles/custom_alerts.css" />
 

@@ -64,19 +64,19 @@ document.addEventListener("DOMContentLoaded", function () {
   // EXPOSE TO GLOBALS SO EXTERNAL SCRIPTS CAN CLOSE MENU (e.g. login.js)
   window.closeMobileMenu = closeMenu;
 
-   /**
-    * Close dropdown
-    */
-   function closeDropdown() {
-     const dropdown = document.querySelector(".nav-dropdown");
-     if (dropdown) {
-       dropdown.classList.remove("open");
-       const dropdownButton = dropdown.querySelector(".nav-link.has-caret");
-       if (dropdownButton) {
-         dropdownButton.setAttribute("aria-expanded", "false");
-       }
-     }
-   }
+  /**
+   * Close dropdown(s)
+   * Mendukung banyak dropdown dalam satu nav (dipakai navbar admin).
+   * @param {Element|null} except - dropdown yang tetap dibiarkan terbuka
+   */
+  function closeDropdown(except = null) {
+    document.querySelectorAll(".nav-dropdown").forEach(function (dropdown) {
+      if (except && dropdown === except) return;
+      dropdown.classList.remove("open");
+      const btn = dropdown.querySelector(".nav-link.has-caret");
+      if (btn) btn.setAttribute("aria-expanded", "false");
+    });
+  }
 
   /**
    * Toggle mobile menu
@@ -115,87 +115,58 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Handle dropdown toggle (WORKS FOR BOTH MOBILE & DESKTOP)
-  const dropdownButton = document.querySelector(".nav-link.has-caret");
-  const dropdown = document.querySelector(".nav-dropdown");
+  // Semua .nav-dropdown ditangani, sehingga navbar bisa punya beberapa grup menu.
+  const dropdowns = Array.from(document.querySelectorAll(".nav-dropdown"));
 
-  if (dropdownButton && dropdown) {
-    // Click event for dropdown button
-    dropdownButton.addEventListener("click", function (e) {
+  dropdowns.forEach(function (dropdown) {
+    const button = dropdown.querySelector(".nav-link.has-caret");
+    if (!button) return;
+
+    button.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
 
-      if (window.innerWidth <= 768) {
-        // MOBILE: Toggle open class
-        const isOpen = dropdown.classList.contains("open");
+      const isOpen = dropdown.classList.contains("open");
 
-        if (isOpen) {
-          dropdown.classList.remove("open");
-          this.setAttribute("aria-expanded", "false");
-        } else {
-          dropdown.classList.add("open");
-          this.setAttribute("aria-expanded", "true");
-        }
+      // Hanya satu dropdown terbuka pada satu waktu
+      closeDropdown(dropdown);
+
+      if (isOpen) {
+        dropdown.classList.remove("open");
+        button.setAttribute("aria-expanded", "false");
       } else {
-        // DESKTOP: Toggle open class
-        const isOpen = dropdown.classList.contains("open");
-
-        if (isOpen) {
-          dropdown.classList.remove("open");
-          this.setAttribute("aria-expanded", "false");
-        } else {
-          dropdown.classList.add("open");
-          this.setAttribute("aria-expanded", "true");
-        }
+        dropdown.classList.add("open");
+        button.setAttribute("aria-expanded", "true");
       }
     });
 
     // Close dropdown when clicking dropdown links
-    const dropdownLinks = dropdown.querySelectorAll(".dropdown-menu a");
-    dropdownLinks.forEach(function (link) {
+    dropdown.querySelectorAll(".dropdown-menu a").forEach(function (link) {
       link.addEventListener("click", function () {
         if (window.innerWidth <= 768) {
-          setTimeout(function () {
-            closeMenu();
-          }, 100);
+          setTimeout(closeMenu, 100);
         } else {
-          // Desktop: just close dropdown
           closeDropdown();
         }
       });
     });
-  }
+  });
 
   // Close dropdown when clicking outside (desktop & mobile)
   document.addEventListener("click", function (e) {
-    if (
-      dropdown &&
-      (dropdown.classList.contains("open"))
-    ) {
-      const isClickInsideDropdown = dropdown.contains(e.target);
-      const isClickOnButton = dropdownButton && dropdownButton.contains(e.target);
-
-      if (!isClickInsideDropdown && !isClickOnButton) {
-        closeDropdown();
-      }
-    }
+    const clickedInside = dropdowns.some(function (dropdown) {
+      return dropdown.contains(e.target);
+    });
+    if (!clickedInside) closeDropdown();
   });
 
-  // Close dropdown when clicking inside nav (but outside dropdown)
+  // Close dropdown when clicking inside nav (but outside dropdown) - drawer mobile
   nav.addEventListener("click", function (e) {
-    if (window.innerWidth <= 768) {
-      const dropdown = document.querySelector(".nav-dropdown");
-      const dropdownButton = document.querySelector(".nav-link.has-caret");
-      const dropdownMenu = document.querySelector(".dropdown-menu");
-
-      if (dropdown && dropdown.classList.contains("open")) {
-        const isClickOnButton = dropdownButton && dropdownButton.contains(e.target);
-        const isClickInDropdown = dropdownMenu && dropdownMenu.contains(e.target);
-
-        if (!isClickOnButton && !isClickInDropdown) {
-          closeDropdown();
-        }
-      }
-    }
+    if (window.innerWidth > 768) return;
+    const clickedInside = dropdowns.some(function (dropdown) {
+      return dropdown.contains(e.target);
+    });
+    if (!clickedInside) closeDropdown();
   });
 
   // Close menu when window is resized to desktop
@@ -211,21 +182,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Handle escape key to close menu and dropdown
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") {
-      if (window.innerWidth <= 768) {
-        const dropdown = document.querySelector(".nav-dropdown");
-        if (dropdown && dropdown.classList.contains("open")) {
-          closeDropdown();
-        } else if (nav.classList.contains("active")) {
-          closeMenu();
-        }
-      } else {
-        // Desktop: close dropdown
-        const dropdown = document.querySelector(".nav-dropdown");
-        if (dropdown && dropdown.classList.contains("open")) {
-          closeDropdown();
-        }
-      }
+    if (e.key !== "Escape") return;
+
+    const anyOpen = dropdowns.some(function (dropdown) {
+      return dropdown.classList.contains("open");
+    });
+
+    if (anyOpen) {
+      closeDropdown();
+    } else if (window.innerWidth <= 768 && nav.classList.contains("active")) {
+      closeMenu();
     }
   });
 

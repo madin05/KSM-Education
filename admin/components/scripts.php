@@ -8,6 +8,8 @@
 
 <!-- UI Components -->
 <script src="../js/mobile_menu.js"></script>
+<!-- Navbar admin: badge antrean + status tombol muat ulang -->
+<script src="../js/admin_nav.js?v=20260731"></script>
 <script src="../js/script.js"></script>
 
 <!-- Initialization -->

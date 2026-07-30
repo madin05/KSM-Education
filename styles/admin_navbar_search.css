@@ -1,0 +1,144 @@
+/* styles/admin_navbar_search.css
+   Search bar di navbar admin (admin/components/sidebar.php).
+
+   Sebelumnya markup search bar memakai class .navbar-search-* yang TIDAK punya
+   definisi CSS di project ini, sehingga elemennya tampil rusak/tak terlihat dan
+   tidak punya perilaku apa pun. Style di bawah dipakai oleh markup form yang
+   baru (.admin-navbar-search) dan mengikuti palet styles/admin.css. */
+
+.admin-navbar-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px 6px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #f8fafc;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-navbar-search:focus-within {
+  border-color: #3b82f6;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.admin-navbar-search svg {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  color: #94a3b8;
+}
+
+.admin-navbar-search-input {
+  width: 190px;
+  border: none;
+  background: transparent;
+  color: #1e293b;
+  font-family: inherit;
+  font-size: 0.875rem;
+}
+
+.admin-navbar-search-input::placeholder {
+  color: #94a3b8;
+}
+
+.admin-navbar-search-input:focus {
+  outline: none;
+}
+
+/* Hilangkan tombol clear bawaan browser agar tidak dobel dengan ikon */
+.admin-navbar-search-input::-webkit-search-cancel-button {
+  cursor: pointer;
+}
+
+.admin-navbar-search-btn {
+  padding: 7px 14px;
+  border: none;
+  border-radius: 999px;
+  background: #3b82f6;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.admin-navbar-search-btn:hover {
+  background: #2563eb;
+}
+
+/* Screen-reader-only label */
+.admin-navbar-search .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Badge jumlah pending pada link REVIEW di navbar */
+.nav-review-badge {
+  display: inline-block;
+  min-width: 18px;
+  margin-left: 5px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.5;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.nav-review-badge:empty,
+.nav-review-badge[hidden] {
+  display: none;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+  .admin-navbar-search-input {
+    width: 130px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-navbar-search {
+    width: 100%;
+    margin: 10px 0 0;
+    box-sizing: border-box;
+  }
+
+  .admin-navbar-search-input {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+  }
+}
+
+/* ===== DARK MODE ===== */
+[data-theme="dark"] .admin-navbar-search {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .admin-navbar-search:focus-within {
+  background: #0f172a;
+  border-color: #3b82f6;
+}
+
+[data-theme="dark"] .admin-navbar-search-input {
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .admin-navbar-search-input::placeholder {
+  color: #64748b;
+}

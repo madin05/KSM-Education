@@ -1,6 +1,7 @@
 <?php
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
@@ -10,6 +11,7 @@ require_once __DIR__ . '/db.php';
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if (!$id) {
+    http_response_code(400);
     echo json_encode(['ok' => false, 'message' => 'id required']);
     exit;
 }
@@ -44,20 +46,23 @@ try {
     $journal = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$journal) {
+        http_response_code(404);
         echo json_encode(['ok' => false, 'message' => 'Journal not found']);
         exit;
     }
 
-    //  Increment views
-    $updateViews = $pdo->prepare("UPDATE journals SET views = views + 1 WHERE id = ? AND status = 'published'");
-    $updateViews->execute([$id]);
+    // View counting is intentionally NOT done here. A GET endpoint should stay
+    // side-effect free, and the frontend already calls update_views.php as the
+    // single source of truth — incrementing in both places double counted every
+    // visit.
 
     //  Return with UPDATED file URLs
     echo json_encode([
         'ok' => true,
         'journal' => $journal
     ]);
-} catch (Exception $e) {
+} catch (Throwable $e) {
+    error_log('get_journal failed for id ' . $id . ': ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['ok' => false, 'message' => $e->getMessage()]);
+    echo json_encode(['ok' => false, 'message' => 'Gagal memuat jurnal.']);
 }

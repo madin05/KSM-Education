@@ -1,6 +1,8 @@
 <?php
-error_reporting(0);
+error_reporting(E_ALL);
 ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
@@ -13,7 +15,8 @@ try {
     }
 
     // Get visitor info
-    $ip = $_SERVER['REMOTE_ADDR'];
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+
     $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
     $pageUrl = $_POST['page_url'] ?? $_SERVER['REQUEST_URI'] ?? '/';
 
@@ -45,10 +48,13 @@ try {
             'ip' => $ip
         ]);
     }
-} catch (Exception $e) {
+} catch (Throwable $e) {
+    error_log('track_visitor failed: ' . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         'ok' => false,
-        'message' => $e->getMessage()
+        'message' => 'Gagal mencatat kunjungan.'
     ]);
 }
+
+

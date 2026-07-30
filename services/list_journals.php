@@ -13,17 +13,22 @@ ini_set('log_errors', 1);
 try {
     require_once __DIR__ . '/db.php';
 
-    $limit = isset($_GET['limit']) ? min(100, (int)$_GET['limit']) : 50;
-    $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
+    $limit = isset($_GET['limit']) ? min(100, max(1, (int)$_GET['limit'])) : 50;
+    $offset = isset($_GET['offset']) ? max(0, (int)$_GET['offset']) : 0;
 
-    // PASTIKAN volume ada di SELECT
+    // Single query with JOINs — resolving upload URLs per row previously issued
+    // two extra queries per journal (up to 101 queries for one page).
     $stmt = $pdo->prepare("
         SELECT 
-            id, title, abstract, authors, email, contact, pengurus, volume, tags, views, created_at,
-            file_upload_id, cover_upload_id
-        FROM journals
-        WHERE status = 'published'
-        ORDER BY created_at DESC
+            j.id, j.title, j.abstract, j.authors, j.email, j.contact,
+            j.pengurus, j.volume, j.tags, j.views, j.created_at,
+            COALESCE(f.url, '') AS file_url,
+            COALESCE(c.url, '') AS cover_url
+        FROM journals j
+        LEFT JOIN uploads f ON j.file_upload_id = f.id
+        LEFT JOIN uploads c ON j.cover_upload_id = c.id
+        WHERE j.status = 'published'
+        ORDER BY j.created_at DESC
         LIMIT ? OFFSET ?
     ");
 
@@ -32,40 +37,18 @@ try {
     $stmt->execute();
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Ambil file_url dan cover_url
     foreach ($rows as &$row) {
-        if (!empty($row['file_upload_id'])) {
-            $fileStmt = $pdo->prepare("SELECT url FROM uploads WHERE id = ?");
-            $fileStmt->execute([$row['file_upload_id']]);
-            $file = $fileStmt->fetch(PDO::FETCH_ASSOC);
-            $row['file_url'] = $file ? $file['url'] : '';
-        } else {
-            $row['file_url'] = '';
-        }
-
-        if (!empty($row['cover_upload_id'])) {
-            $coverStmt = $pdo->prepare("SELECT url FROM uploads WHERE id = ?");
-            $coverStmt->execute([$row['cover_upload_id']]);
-            $cover = $coverStmt->fetch(PDO::FETCH_ASSOC);
-            $row['cover_url'] = $cover ? $cover['url'] : '';
-        } else {
-            $row['cover_url'] = '';
-        }
-
         // Set default untuk pengurus jika NULL
         $row['pengurus'] = $row['pengurus'] ? json_decode($row['pengurus'], true) : [];
-
-        // Remove upload IDs
-        unset($row['file_upload_id']);
-        unset($row['cover_upload_id']);
     }
+    unset($row);
 
     echo json_encode(['ok' => true, 'results' => $rows]);
-} catch (Exception $e) {
+} catch (Throwable $e) {
+    error_log('list_journals failed: ' . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         'ok' => false,
-        'message' => $e->getMessage(),
-        'error' => 'Database error'
+        'message' => 'Gagal memuat daftar jurnal.'
     ]);
 }

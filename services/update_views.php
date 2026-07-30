@@ -1,6 +1,11 @@
 <?php
 // File: api/update_views.php
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
 header('Content-Type: application/json');
+
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
@@ -10,7 +15,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-require_once 'db.php';
+require_once __DIR__ . '/db.php';
+
 
 try {
     $data = json_decode(file_get_contents('php://input'), true);
@@ -50,7 +56,10 @@ try {
         'ok' => true,
         'message' => 'Views updated'
     ]);
-} catch (Exception $e) {
+} catch (Throwable $e) {
+    error_log('update_views failed: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['ok' => false, 'message' => $e->getMessage()]);
+    echo json_encode(['ok' => false, 'message' => 'Gagal memperbarui jumlah view.']);
 }
+
+

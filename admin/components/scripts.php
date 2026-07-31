@@ -3,8 +3,16 @@
 <script src="../js/storage.js"></script>
 <script src="../js/custom_alerts.js"></script>
 
-<!-- Login Manager (Handles Admin Login/Logout) -->
-<script src="../js/login.js"></script>
+<!-- Sesi admin: sudah divalidasi server-side oleh components/auth_guard.php.
+     js/login.js (modal login lama) tidak dipakai lagi di panel admin. -->
+<script>
+  window.ADMIN_SESSION = <?php echo json_encode(
+      $admin_session_user ?? ['role' => 'admin'],
+      JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+  ); ?>;
+</script>
+<script src="../js/admin_session.js?v=20260731"></script>
+
 
 <!-- UI Components -->
 <script src="../js/mobile_menu.js"></script>

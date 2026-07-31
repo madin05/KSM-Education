@@ -148,8 +148,27 @@ $group_is_active = static function (array $group) use ($current_page): bool {
         </nav>
 
         <div class="auth-section">
-          <button class="btn-register">LOGIN</button>
+          <?php
+          // Halaman admin hanya dapat dibuka setelah lolos auth_guard.php,
+          // jadi di sini selalu ada sesi admin yang aktif.
+          $admin_display_name = htmlspecialchars(
+              $admin_session_user['name'] ?? 'Admin',
+              ENT_QUOTES,
+              'UTF-8'
+          );
+          ?>
+          <span class="admin-identity" title="<?php echo htmlspecialchars($admin_session_user['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+            <i data-feather="user"></i>
+            <?php echo $admin_display_name; ?>
+          </span>
+          <a
+            class="btn-register"
+            href="../services/auth_logout.php?redirect=<?php echo urlencode('../admin/login_admin.php'); ?>"
+          >
+            LOGOUT
+          </a>
         </div>
       </div>
     </header>
-<?php include 'login_modal.php'; ?>
+
+

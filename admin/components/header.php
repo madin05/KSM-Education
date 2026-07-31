@@ -1,5 +1,7 @@
 <?php
 // admin/components/header.php
+// Semua halaman admin wajib melewati guard sesi admin sebelum render HTML.
+require_once __DIR__ . '/auth_guard.php';
 ?>
 <!doctype html>
 <html lang="id">

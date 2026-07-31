@@ -246,45 +246,45 @@ function telegram_review_text(array $purchase, string $statusLabel = '⏳ MENUNG
         . '<b>Status:</b> ' . $statusLabel;
 }
 
-function telegram_call_add_token_endpoint(int $requestId, int $adminTelegramId): array
+/**
+ * Log terstruktur untuk kegagalan alur Telegram.
+ *
+ * Menuliskan kelas exception, pesan, file:line, SQLSTATE/driver error (bila PDOException),
+ * konteks tambahan, dan stack trace ke error log PHP sehingga penyebab kegagalan approve
+ * dapat ditelusuri tanpa hanya bergantung pada pesan di Telegram.
+ */
+function telegram_log_exception(string $stage, Throwable $e, array $context = []): void
 {
-    $secret = telegram_env('TELEGRAM_INTERNAL_SECRET');
-    $appUrl = rtrim(telegram_env('APP_URL'), '/');
-    if ($secret === '' || strlen($secret) < 32 || $appUrl === '') {
-        throw new RuntimeException('APP_URL atau TELEGRAM_INTERNAL_SECRET belum dikonfigurasi dengan benar.');
+    $payload = [
+        'stage' => $stage,
+        'exception' => get_class($e),
+        'message' => $e->getMessage(),
+        'code' => (string)$e->getCode(),
+        'origin' => $e->getFile() . ':' . $e->getLine(),
+    ];
+
+    if ($e instanceof PDOException) {
+        $payload['sqlstate'] = (string)($e->errorInfo[0] ?? '');
+        $payload['driver_code'] = (string)($e->errorInfo[1] ?? '');
+        $payload['driver_message'] = (string)($e->errorInfo[2] ?? '');
     }
 
-    $body = json_encode([
-        'request_id' => $requestId,
-        'admin_telegram_id' => $adminTelegramId,
-    ], JSON_UNESCAPED_SLASHES);
-    $timestamp = (string)time();
-    $signature = hash_hmac('sha256', $timestamp . '.' . $body, $secret);
-    $ch = curl_init($appUrl . '/services/add_token.php');
-    if ($ch === false) {
-        throw new RuntimeException('Tidak dapat memulai endpoint penambahan token.');
+    foreach ($context as $key => $value) {
+        if (is_scalar($value) || $value === null) {
+            $payload['ctx_' . $key] = (string)$value;
+        } else {
+            $payload['ctx_' . $key] = json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        }
     }
-    curl_setopt_array($ch, [
-        CURLOPT_POST => true,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_HTTPHEADER => [
-            'Content-Type: application/json',
-            'X-KSM-Timestamp: ' . $timestamp,
-            'X-KSM-Signature: ' . $signature,
-        ],
-        CURLOPT_POSTFIELDS => $body,
-        CURLOPT_CONNECTTIMEOUT => 5,
-        CURLOPT_TIMEOUT => 20,
-    ]);
-    $responseBody = curl_exec($ch);
-    $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $error = curl_error($ch);
-    curl_close($ch);
 
-    $response = json_decode((string)$responseBody, true);
-    if ($error !== '' || $status < 200 || $status >= 300 || !is_array($response) || empty($response['ok'])) {
-        $message = is_array($response) ? (string)($response['message'] ?? 'Endpoint menolak permintaan.') : $error;
-        throw new RuntimeException('Penambahan token gagal: ' . $message);
+    $previous = $e->getPrevious();
+    if ($previous instanceof Throwable) {
+        $payload['previous'] = get_class($previous) . ': ' . $previous->getMessage()
+            . ' @ ' . $previous->getFile() . ':' . $previous->getLine();
     }
-    return $response;
+
+    error_log('[telegram] ' . json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+    error_log('[telegram] stage=' . $stage . ' trace: ' . $e->getTraceAsString());
 }
+
+

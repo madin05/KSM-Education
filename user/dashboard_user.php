@@ -174,7 +174,7 @@ $extra_scripts = <<<'EOT'
     <script src="../js/jurnal.js?v=20260321"></script>
     <script src="../js/opinions_manager.js"></script>
     <script src="../js/file_upload.js"></script>
-    <script src="../js/dashboard_user.js?v=20260718"></script>
+    <script src="../js/dashboard_user.js?v=20260731"></script>
     <script src="../js/token_wallet.js?v=20260729"></script>
     <script src="../js/upload_journal_modal.js?v=20260715"></script>
     <script src="../js/ad_carousel.js?v=20260717"></script>

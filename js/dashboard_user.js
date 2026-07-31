@@ -441,11 +441,11 @@ window.editUserArticle = function (id, type) {
 };
 
 // ===== AKTIVITAS TERBARU =====
-// Riwayat token berasal dari backend melalui KsmTokenWallet.
-// Ini simulasi, bukan activity_log sungguhan dari backend. Kalau nanti
-// backend punya tabel log aktivitas, ganti kedua fungsi getter di
-// bawah ini dengan satu fetch ke endpoint log tersebut.
+// Sumber data tunggal: services/user_activity.php (token_transactions,
+// token_purchase_requests, journals, opinions) sehingga local dan production
+// menampilkan feed yang sama.
 function timeAgo(dateStr) {
+
   const date = new Date(dateStr);
   if (isNaN(date.getTime())) return "";
   const diffMs = Date.now() - date.getTime();
@@ -460,44 +460,55 @@ function timeAgo(dateStr) {
   return `${diffMonth} bulan yang lalu`;
 }
 
-function getTokenHistoryEntries() {
-  return (window.KsmTokenWallet?.getHistory() || []).map((entry) => ({
-    icon: "plus-circle",
-    colorClass: "activity-icon--purple",
-    text: `Token bertambah +${entry.amount || entry.jumlah || 0}`,
-    time: entry.createdAt || entry.date || entry.tanggal || new Date().toISOString(),
-  }));
+// Activity feed is server-side truth: services/user_activity.php derives it from
+// token_transactions, token_purchase_requests, journals and opinions.
+async function fetchActivityEntries() {
+  if (!checkLoginStatus() || typeof authFetch !== "function") return [];
+
+  const response = await authFetch(
+    `${window.APP_CONFIG.apiBase}/user_activity.php?limit=6`,
+  );
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+  const data = await response.json();
+  if (!data.ok) throw new Error(data.message || "Activity feed unavailable");
+
+  return Array.isArray(data.activities) ? data.activities : [];
 }
 
-function getArticlePublishEntries() {
-  return (articles || []).slice(0, 5).map((a) => ({
-    icon: "check",
-    colorClass: "activity-icon--success",
-    text: `Artikel "${a.title || a.judul}" dipublikasikan`,
-    time: a.date || a.uploadDate || new Date().toISOString(),
-  }));
+function renderActivityMessage(list, icon, message) {
+  list.innerHTML = `
+    <div class="dtc-empty">
+      <i data-feather="${icon}"></i>
+      <p>${message}</p>
+    </div>
+  `;
+  feather.replace();
 }
 
-function renderActivityFeed() {
+async function renderActivityFeed() {
   const list = document.getElementById("activityList");
   if (!list) return;
 
-  const combined = [...getTokenHistoryEntries(), ...getArticlePublishEntries()]
-    .sort((a, b) => new Date(b.time) - new Date(a.time))
-    .slice(0, 6);
-
-  if (combined.length === 0) {
-    list.innerHTML = `
-      <div class="dtc-empty">
-        <i data-feather="activity"></i>
-        <p>Belum ada aktivitas terbaru.</p>
-      </div>
-    `;
-    feather.replace();
+  let entries = [];
+  try {
+    entries = await fetchActivityEntries();
+  } catch (error) {
+    console.error("Failed to load activity feed:", error);
+    renderActivityMessage(
+      list,
+      "alert-circle",
+      "Aktivitas gagal dimuat. Coba muat ulang halaman.",
+    );
     return;
   }
 
-  list.innerHTML = combined
+  if (entries.length === 0) {
+    renderActivityMessage(list, "activity", "Belum ada aktivitas terbaru.");
+    return;
+  }
+
+  list.innerHTML = entries
     .map(
       (entry) => `
         <div class="activity-item">

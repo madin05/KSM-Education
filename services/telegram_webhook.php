@@ -40,13 +40,14 @@ try {
         bot_message($pdo, $update['message']);
     }
 } catch (Throwable $e) {
-    error_log('Telegram webhook error: ' . $e->getMessage());
+    telegram_log_exception('webhook:update', $e, ['update_id' => (int)$update['update_id']]);
     try {
         $stmt = $pdo->prepare('DELETE FROM telegram_webhook_updates WHERE update_id = ?');
         $stmt->execute([(int)$update['update_id']]);
     } catch (Throwable $cleanupError) {
-        error_log('Telegram update cleanup error: ' . $cleanupError->getMessage());
+        telegram_log_exception('webhook:update_cleanup', $cleanupError, ['update_id' => (int)$update['update_id']]);
     }
+
     http_response_code(500);
     echo json_encode(['ok' => false]);
     exit;
@@ -227,13 +228,17 @@ function bot_callback(PDO $pdo, array $callback): void
             telegram_api('answerCallbackQuery', ['callback_query_id' => $callbackId, 'text' => 'Aksi tidak dikenali.']);
         }
     } catch (Throwable $e) {
-        error_log('Telegram callback error: ' . $e->getMessage());
+        telegram_log_exception('callback:' . ($data !== '' ? $data : 'unknown'), $e, [
+            'telegram_user_id' => (int)($callback['from']['id'] ?? 0),
+            'chat_id' => (int)($callback['message']['chat']['id'] ?? 0),
+        ]);
         telegram_api('answerCallbackQuery', [
             'callback_query_id' => $callbackId,
             'text' => substr($e->getMessage(), 0, 180),
             'show_alert' => true,
         ]);
     }
+
 }
 
 function bot_choose_package(PDO $pdo, array $callback, int $amount): void
@@ -301,9 +306,13 @@ function bot_review(PDO $pdo, array $callback, string $action, int $requestId): 
         throw new RuntimeException('Pesanan tidak ditemukan.');
     }
 
+    // Approve/reject dijalankan langsung terhadap database pada proses PHP yang sama.
+    // Tidak memakai HTTP loopback ke APP_URL agar tidak melewati Cloudflare/WAF
+    // (request internal sebelumnya bisa dijawab HTML challenge sehingga JSON gagal di-parse).
     $result = $action === 'approve'
-        ? telegram_call_add_token_endpoint($requestId, $adminId)
+        ? token_approve_purchase($pdo, $requestId, $adminId)
         : token_reject_purchase($pdo, $requestId, $adminId);
+
     $label = $action === 'approve' ? '✅ DISETUJUI' : '❌ DITOLAK';
     telegram_api('editMessageText', [
         'chat_id' => $chatId,

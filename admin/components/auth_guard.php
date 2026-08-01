@@ -13,9 +13,12 @@ if (defined('KSMEDU_ADMIN_GUARD')) {
 }
 define('KSMEDU_ADMIN_GUARD', true);
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+// Halaman admin WAJIB memakai session konteks admin (cookie KSMEDUADMSESS).
+// Dengan begitu sesi pengguna biasa tidak pernah lolos guard ini, dan
+// sebaliknya sesi admin tidak terlihat oleh halaman /user.
+require_once __DIR__ . '/../../services/auth_context.php';
+ksmedu_session_start(KSMEDU_CTX_ADMIN);
+
 
 $ksmedu_admin_login_url = 'login_admin.php';
 

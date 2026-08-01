@@ -9,6 +9,8 @@
  */
 
 require_once __DIR__ . '/env_loader.php';
+require_once __DIR__ . '/auth_context.php';
+
 
 // ===== JWT CONFIGURATION =====
 $jwt_secret_val = get_env_var('JWT_SECRET', '');
@@ -144,12 +146,15 @@ function generate_jti(): string {
 /**
  * Generate an Access Token (short-lived, 30 minutes default)
  * 
- * @param array $user User data ['id', 'name', 'role', 'email']
+ * @param array       $user    User data ['id', 'name', 'role', 'email']
+ * @param string|null $context Konteks penerbit token ('admin'|'user').
+ *                             Default: konteks request saat ini.
  * @return array ['token' => string, 'expires_in' => int, 'jti' => string]
  */
-function generate_access_token(array $user): array {
+function generate_access_token(array $user, ?string $context = null): array {
     $jti = generate_jti();
     $now = time();
+    $ctx = ksmedu_normalize_context($context) ?? ksmedu_request_context();
 
     $payload = [
         'iss' => JWT_ISSUER,
@@ -159,10 +164,12 @@ function generate_access_token(array $user): array {
         'nbf' => $now,
         'jti' => $jti,
         'type' => 'access',
+        'ctx' => $ctx,
         'name' => $user['name'] ?? '',
         'role' => $user['role'] ?? 'user',
         'email' => $user['email'] ?? ''
     ];
+
 
     return [
         'token' => jwt_encode($payload, JWT_SECRET),
@@ -174,12 +181,14 @@ function generate_access_token(array $user): array {
 /**
  * Generate a Refresh Token (long-lived, 7 days default)
  * 
- * @param array $user User data ['id', 'role']
+ * @param array       $user    User data ['id', 'role']
+ * @param string|null $context Konteks penerbit token ('admin'|'user').
  * @return array ['token' => string, 'expires_in' => int, 'jti' => string]
  */
-function generate_refresh_token(array $user): array {
+function generate_refresh_token(array $user, ?string $context = null): array {
     $jti = generate_jti();
     $now = time();
+    $ctx = ksmedu_normalize_context($context) ?? ksmedu_request_context();
 
     $payload = [
         'iss' => JWT_ISSUER,
@@ -189,8 +198,10 @@ function generate_refresh_token(array $user): array {
         'nbf' => $now,
         'jti' => $jti,
         'type' => 'refresh',
+        'ctx' => $ctx,
         'role' => $user['role'] ?? 'user'
     ];
+
 
     return [
         'token' => jwt_encode($payload, JWT_SECRET),

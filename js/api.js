@@ -1,10 +1,32 @@
 // js/api.js
 // API wrapper functions dengan JWT Authentication
+
+// ===== KONTEKS SESI (admin vs user) =====
+// Token panel admin dan token area pengguna disimpan pada key localStorage
+// yang BERBEDA. Sebelumnya keduanya berbagi satu key, sehingga login admin
+// menimpa token user (dan sebaliknya) — dashboard user pun ikut "login"
+// sebagai admin hanya karena token terakhir yang tersimpan milik admin.
+// Key area user dibiarkan tanpa sufiks agar sesi pengguna yang sudah
+// berjalan tidak terputus setelah update ini.
+const KSMEDU_AUTH_CONTEXT = (function () {
+  try {
+    return /(^|\/)admin\//.test(window.location.pathname) ? 'admin' : 'user';
+  } catch (err) {
+    return 'user';
+  }
+})();
+
+function ksmeduTokenKey(base) {
+  return KSMEDU_AUTH_CONTEXT === 'admin' ? base + '_admin' : base;
+}
+
 // ===== JWT TOKEN MANAGER =====
 const TokenManager = {
-  ACCESS_TOKEN_KEY: 'jwt_access_token',
-  REFRESH_TOKEN_KEY: 'jwt_refresh_token',
-  TOKEN_EXPIRY_KEY: 'jwt_token_expiry',
+  CONTEXT: KSMEDU_AUTH_CONTEXT,
+  ACCESS_TOKEN_KEY: ksmeduTokenKey('jwt_access_token'),
+  REFRESH_TOKEN_KEY: ksmeduTokenKey('jwt_refresh_token'),
+  TOKEN_EXPIRY_KEY: ksmeduTokenKey('jwt_token_expiry'),
+
 
   getAccessToken() {
     return localStorage.getItem(this.ACCESS_TOKEN_KEY);

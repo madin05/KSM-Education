@@ -14,11 +14,19 @@
  *   require_once __DIR__ . '/jwt_middleware.php';
  *   // $auth_user is now available: ['id', 'role', 'name', 'email', 'auth_method']
  *   // For admin-only endpoints, add: require_admin();
+ *
+ * ISOLASI KONTEKS (perbaikan bug "admin ikut login di dashboard user"):
+ * Session dan token dipisah per konteks ('admin' untuk /admin, 'user' untuk
+ * /user & publik). Token yang diterbitkan pada satu konteks TIDAK berlaku di
+ * konteks lain, dan session fallback hanya membaca cookie milik konteks
+ * request saat ini. Lihat services/auth_context.php.
  * 
  * @package KSM Education
  */
 
 require_once __DIR__ . '/jwt_helper.php';
+require_once __DIR__ . '/auth_context.php';
+
 
 /**
  * Authenticate the current request.
@@ -28,9 +36,21 @@ require_once __DIR__ . '/jwt_helper.php';
 function authenticate_request(): ?array {
     global $auth_user, $pdo;
 
+    $request_ctx = ksmedu_request_context();
+
     // === STRATEGY 1: JWT Token ===
     $jwt_payload = validate_jwt();
     if ($jwt_payload) {
+        // Token hanya sah pada konteks penerbitnya. Token admin (dibuat di
+        // /admin) tidak boleh dipakai untuk mengakses area user, dan
+        // sebaliknya. Token lama tanpa klaim 'ctx' dianggap konteks 'user'
+        // agar sesi pengguna yang sedang berjalan tidak langsung putus.
+        $token_ctx = ksmedu_normalize_context($jwt_payload['ctx'] ?? '') ?? KSMEDU_CTX_USER;
+        if ($token_ctx !== $request_ctx) {
+            $auth_user = null;
+            return null;
+        }
+
         // Account lifecycle is authoritative in the database.  This prevents
         // an access token issued before a disable/delete from using legacy
         // protected endpoints after the account has been closed.
@@ -60,11 +80,13 @@ function authenticate_request(): ?array {
     }
 
     // === STRATEGY 2: PHP Session (Fallback) ===
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
+    // Hanya membaca session milik konteks request ini (cookie terpisah antara
+    // panel admin dan area user), sehingga login di /admin tidak lagi membuat
+    // halaman /user ikut terautentikasi.
+    ksmedu_session_start($request_ctx);
 
-    if (!empty($_SESSION['user_id'])) {
+    if (!empty($_SESSION['user_id']) && ($_SESSION['ksm_ctx'] ?? $request_ctx) === $request_ctx) {
+
         if (isset($pdo) && $pdo instanceof PDO) {
             try {
                 $statusStmt = $pdo->prepare("SELECT account_status FROM users WHERE id = ? LIMIT 1");

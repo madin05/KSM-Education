@@ -7,10 +7,15 @@
  * 2. Destroying the PHP session
  */
 
-session_start();
+require_once __DIR__ . '/auth_context.php';
+
+// Logout hanya menghancurkan session pada konteks pemanggil (admin ATAU user),
+// sehingga logout dari panel admin tidak mematikan sesi pengguna di tab lain.
+$ksmedu_ctx = ksmedu_session_start();
 header('Content-Type: application/json');
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/jwt_helper.php';
+
 
 // === BLACKLIST JWT TOKEN (if provided) ===
 $token = get_bearer_token();
@@ -31,16 +36,9 @@ if ($data && !empty($data['refresh_token'])) {
     }
 }
 
-// === DESTROY PHP SESSION ===
-$_SESSION = array();
-if (ini_get("session.use_cookies")) {
-    $params = session_get_cookie_params();
-    setcookie(session_name(), '', time() - 42000,
-        $params["path"], $params["domain"],
-        $params["secure"], $params["httponly"]
-    );
-}
-session_destroy();
+// === DESTROY PHP SESSION (hanya konteks ini) ===
+ksmedu_session_destroy($ksmedu_ctx);
+
 
 if (isset($_GET['redirect'])) {
     $redirect = $_GET['redirect'];

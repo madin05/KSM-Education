@@ -12,7 +12,9 @@
 
 header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/auth_context.php';
 require_once __DIR__ . '/jwt_helper.php';
+
 
 // Only allow POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -56,7 +58,22 @@ try {
         exit;
     }
 
+    // Refresh token hanya berlaku pada konteks penerbitnya. Tanpa cek ini,
+    // refresh token admin bisa ditukar menjadi access token untuk area user
+    // (dan sebaliknya), sehingga isolasi konteks bocor lewat endpoint refresh.
+    $token_ctx = ksmedu_normalize_context($payload['ctx'] ?? '') ?? KSMEDU_CTX_USER;
+    if ($token_ctx !== ksmedu_request_context()) {
+        http_response_code(401);
+        echo json_encode([
+            'ok' => false,
+            'message' => 'Refresh token tidak berlaku pada konteks ini',
+            'code' => 'CONTEXT_MISMATCH'
+        ]);
+        exit;
+    }
+
     // Check if refresh token is blacklisted
+
     if (isset($payload['jti'])) {
         try {
             $stmt = $pdo->prepare("SELECT id FROM jwt_blacklist WHERE token_jti = ? LIMIT 1");

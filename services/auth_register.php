@@ -1,7 +1,11 @@
 <?php
 // api/auth_register.php
-session_start();
+// Registrasi selalu milik area pengguna: jangan pernah menyentuh sesi admin.
+define('KSMEDU_FORCE_CONTEXT', 'user');
+require_once __DIR__ . '/auth_context.php';
+ksmedu_session_start(KSMEDU_CTX_USER);
 require_once __DIR__ . '/db.php';
+
 require_once __DIR__ . '/jwt_helper.php';
 
 // Set header JSON

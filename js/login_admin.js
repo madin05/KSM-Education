@@ -1,15 +1,20 @@
 // js/login_admin.js
 // Handler form login administrator (admin/login_admin.php).
 // Halaman ini sengaja tidak memuat api.js, jadi penulisan token dilakukan
-// langsung dengan key yang sama seperti TokenManager di js/api.js.
+// langsung dengan key yang sama seperti TokenManager di js/api.js —
+// yaitu key KONTEKS ADMIN (bersufiks '_admin') supaya token admin tidak
+// pernah menimpa sesi pengguna biasa.
 (function () {
   'use strict';
 
+  // Fallback bila auth_storage.js/api.js gagal dimuat. Harus tetap memakai
+  // sufiks konteks admin.
   var TOKEN_KEYS = {
-    access: 'jwt_access_token',
-    refresh: 'jwt_refresh_token',
-    expiry: 'jwt_token_expiry',
+    access: 'jwt_access_token_admin',
+    refresh: 'jwt_refresh_token_admin',
+    expiry: 'jwt_token_expiry_admin',
   };
+
 
   var form = document.getElementById('adminLoginForm');
   var emailInput = document.getElementById('adminEmail');

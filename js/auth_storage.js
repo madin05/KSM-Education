@@ -2,35 +2,52 @@
 // Penyimpanan kredensial sisi klien yang dipakai bersama oleh halaman login /
 // register (user maupun admin).
 //
-// LATAR MASALAH:
+// LATAR MASALAH (bug "admin ikut login di dashboard user"):
 // Halaman login user & admin sengaja TIDAK memuat js/api.js (TokenManager),
-// sehingga penulisan token di sana sebelumnya dilewati begitu saja. Akibatnya
-// token JWT sesi sebelumnya (misalnya milik admin) tetap tersimpan di
-// localStorage dan ikut dikirim oleh halaman yang memuat api.js — dashboard
-// user pun menampilkan data admin.
+// sehingga penulisan token di sana sebelumnya dilewati begitu saja. Lebih
+// parah lagi, token admin dan token user memakai key localStorage yang SAMA,
+// jadi login di panel admin menimpa token area user — dashboard user pun
+// menampilkan identitas admin (dan sebaliknya).
 //
-// Modul ini memastikan setiap login/registrasi SELALU:
-//   1. menghapus seluruh artefak sesi lama (token, identitas, flag UI), lalu
-//   2. menulis kredensial milik akun yang baru saja masuk.
+// SOLUSI: token dipisah per KONTEKS.
+//   - konteks 'admin' -> key bersufiks '_admin' (halaman di /admin)
+//   - konteks 'user'  -> key tanpa sufiks (halaman /user & publik)
+// Pembersihan sesi (clearAll) hanya menyentuh konteks yang sedang aktif,
+// sehingga logout/login admin tidak lagi memutus sesi pengguna di tab lain.
 //
 // Sengaja tanpa dependensi supaya bisa dimuat di halaman auth yang minimal.
 (function (global) {
   'use strict';
 
+  var CTX_ADMIN = 'admin';
+  var CTX_USER = 'user';
+
+  function detectContext() {
+    try {
+      return /(^|\/)admin\//.test(global.location.pathname) ? CTX_ADMIN : CTX_USER;
+    } catch (err) {
+      return CTX_USER;
+    }
+  }
+
+  var CONTEXT = detectContext();
+
   // Key harus identik dengan TokenManager di js/api.js.
+  function tokenKey(base) {
+    return CONTEXT === CTX_ADMIN ? base + '_admin' : base;
+  }
+
   var TOKEN_KEYS = {
-    access: 'jwt_access_token',
-    refresh: 'jwt_refresh_token',
-    expiry: 'jwt_token_expiry',
+    access: tokenKey('jwt_access_token'),
+    refresh: tokenKey('jwt_refresh_token'),
+    expiry: tokenKey('jwt_token_expiry'),
   };
 
-  // Identitas / flag warisan yang pernah dipakai berbagai modul lama.
-  var LOCAL_IDENTITY_KEYS = [
-    'admin_user',
-    'currentUser',
-    'adminLoggedIn',
-    'adminLoginTime',
-  ];
+  // Identitas / flag warisan, dipetakan ke konteks pemiliknya supaya
+  // pembersihan tidak lintas area.
+  var LOCAL_IDENTITY_KEYS = CONTEXT === CTX_ADMIN
+    ? ['admin_user', 'adminLoggedIn', 'adminLoginTime']
+    : ['currentUser'];
 
   var SESSION_KEYS = [
     'userLoggedIn',
@@ -74,21 +91,24 @@
   }
 
   var AuthStorage = {
+    CONTEXT: CONTEXT,
     TOKEN_KEYS: TOKEN_KEYS,
 
     /**
-     * Hapus SEMUA jejak sesi sebelumnya (token JWT, identitas, flag UI).
-     * Wajib dipanggil sebelum menulis kredensial akun baru supaya sesi admin
-     * dan sesi user tidak pernah tercampur.
+     * Hapus jejak sesi sebelumnya PADA KONTEKS INI (token JWT, identitas,
+     * flag UI). Wajib dipanggil sebelum menulis kredensial akun baru supaya
+     * sisa kredensial akun lama di area yang sama tidak ikut terpakai.
      */
     clearAll: function () {
       removeLocal(TOKEN_KEYS.access);
       removeLocal(TOKEN_KEYS.refresh);
       removeLocal(TOKEN_KEYS.expiry);
       LOCAL_IDENTITY_KEYS.forEach(removeLocal);
+      // sessionStorage bersifat per-tab, jadi aman dibersihkan seluruhnya.
       SESSION_KEYS.forEach(removeSession);
 
-      // Bila api.js ikut dimuat, biarkan ia membersihkan state internalnya.
+      // Bila api.js ikut dimuat, biarkan ia membersihkan state internalnya
+      // (TokenManager memakai key konteks yang sama).
       if (global.TokenManager && typeof global.TokenManager.clearTokens === 'function') {
         try {
           global.TokenManager.clearTokens();

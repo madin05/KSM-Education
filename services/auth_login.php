@@ -1,8 +1,21 @@
 <?php
-session_start();
+/**
+ * POST /services/auth_login.php — login area pengguna.
+ *
+ * Endpoint ini SELALU bekerja pada konteks 'user' sehingga login di sini
+ * tidak pernah menyentuh session panel admin (cookie KSMEDUADMSESS) dan
+ * token yang diterbitkan hanya sah untuk area user.
+ */
+
+// Harus dideklarasikan sebelum auth_context.php dipakai untuk resolve konteks.
+define('KSMEDU_FORCE_CONTEXT', 'user');
+
+require_once __DIR__ . '/auth_context.php';
+ksmedu_session_start(KSMEDU_CTX_USER);
 header('Content-Type: application/json');
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/jwt_helper.php';
+
 
 try {
     $raw = file_get_contents('php://input');

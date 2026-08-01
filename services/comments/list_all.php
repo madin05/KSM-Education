@@ -12,9 +12,11 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
-ini_set('session.cookie_httponly', 1);
-ini_set('session.cookie_samesite', 'Lax');
-session_start();
+// Endpoint admin: pakai session konteks admin saja supaya sesi pengguna biasa
+// tidak pernah dianggap kredensial admin.
+require_once __DIR__ . '/../auth_context.php';
+ksmedu_session_start(KSMEDU_CTX_ADMIN);
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);

@@ -10,10 +10,17 @@
  * dapat dipakai tanpa perubahan.
  */
 
-session_start();
+// Endpoint ini selalu berjalan pada konteks 'admin': session yang dibuat
+// memakai cookie KSMEDUADMSESS dan token membawa klaim ctx=admin, sehingga
+// sesi area user di tab lain tidak ikut berubah.
+define('KSMEDU_FORCE_CONTEXT', 'admin');
+
+require_once __DIR__ . '/auth_context.php';
+ksmedu_session_start(KSMEDU_CTX_ADMIN);
 header('Content-Type: application/json');
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/jwt_helper.php';
+
 
 try {
     if (strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {

@@ -1,0 +1,525 @@
+/* =========================================================================
+   DARK MODE — PART 5 (halaman DETAIL jurnal / opini + komentar)
+   -------------------------------------------------------------------------
+   MASALAH YANG DIPERBAIKI
+   Saat user membuka salah satu jurnal (explore_jurnal_user.php /
+   explore_opini_user.php) dalam kondisi dark mode, sebagian besar area
+   masih tampil putih. Penyebabnya:
+
+     1. styles/explore_jurnal_user.css memakai warna putih HARDCODED pada
+        banyak komponen (.article-card, .article-detail, .abstract-box,
+        .author-card, .contact-item, .search-modal-content, .comment-card,
+        .comment-input-area, .pdf-viewer, dst) dan file tersebut TIDAK
+        pernah di-override oleh dark_mode.css / p2 / p3 / p4.
+     2. Komponen komentar (comments.js) dirender dinamis, sehingga
+        warnanya ikut CSS light di atas.
+     3. Beberapa elemen memakai INLINE style dari JavaScript (js/jurnal.js,
+        section #comments-section) — inline style tidak bisa ditimpa
+        selector CSS biasa, jadi ditangani dua cara:
+          a. nilai inline-nya diubah memakai var(--ksm-*) di file JS
+             (lihat js/jurnal.js) sehingga cukup override variabelnya
+             di sini;
+          b. sisanya diberi aturan !important pada blok "INLINE STYLE
+             SAFETY NET" di bawah.
+
+   File ini dimuat PALING AKHIR di <head> (setelah dark_mode_p4.css)
+   supaya selalu menang atas CSS halaman.
+   ========================================================================= */
+
+/* =========================================================================
+   0. TOKEN WARNA
+   Variabel --ksm-c-* dipakai juga oleh inline style di js/jurnal.js
+   dengan pola: style="color: var(--ksm-c-card-title, #2c3e50)".
+   Fallback (#2c3e50 dst) = tampilan light mode, jadi light tetap utuh
+   walau file ini tidak dimuat.
+   ========================================================================= */
+[data-theme="dark"] {
+  --ksm-dark-bg: #0f172a;
+  --ksm-dark-surface: #1e293b;
+  --ksm-dark-surface-2: #273449;
+  --ksm-dark-surface-3: #334155;
+  --ksm-dark-border: #334155;
+  --ksm-dark-border-soft: #475569;
+  --ksm-dark-text: #f1f5f9;
+  --ksm-dark-text-soft: #cbd5e1;
+  --ksm-dark-text-muted: #94a3b8;
+  --ksm-dark-text-dim: #64748b;
+  --ksm-dark-accent: #60a5fa;
+
+  /* dipakai oleh inline style hasil render JavaScript */
+  --ksm-c-card-bg: #1e293b;
+  --ksm-c-card-title: #f1f5f9;
+  --ksm-c-card-text: #cbd5e1;
+  --ksm-c-card-meta: #94a3b8;
+  --ksm-c-card-border: #334155;
+  --ksm-c-tag-bg: #273449;
+  --ksm-c-tag-text: #cbd5e1;
+  --ksm-c-tag-more-bg: #475569;
+  --ksm-c-tag-more-text: #f1f5f9;
+  --ksm-c-muted-text: #94a3b8;
+}
+
+/* =========================================================================
+   1. KERANGKA HALAMAN DETAIL
+   ========================================================================= */
+[data-theme="dark"] .container,
+[data-theme="dark"] .article-content,
+[data-theme="dark"] .article-header {
+  background: transparent;
+}
+
+[data-theme="dark"] .article-card,
+[data-theme="dark"] .article-detail {
+  background: var(--ksm-dark-surface);
+  border: 1px solid var(--ksm-dark-border);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="dark"] .article-card .article-header,
+[data-theme="dark"] .article-detail .article-header {
+  border-bottom-color: var(--ksm-dark-border);
+}
+
+[data-theme="dark"] .article-card .article-title,
+[data-theme="dark"] .article-detail .article-title,
+[data-theme="dark"] .article-title {
+  color: var(--ksm-dark-text);
+}
+
+[data-theme="dark"] .article-card .article-meta,
+[data-theme="dark"] .article-detail .article-meta,
+[data-theme="dark"] .article-meta {
+  color: var(--ksm-dark-text-muted);
+  border-top-color: var(--ksm-dark-border);
+}
+
+[data-theme="dark"] .meta-item,
+[data-theme="dark"] .meta-item span,
+[data-theme="dark"] .meta-item i,
+[data-theme="dark"] .meta-item svg {
+  color: var(--ksm-dark-text-muted);
+}
+
+[data-theme="dark"] .article-cover {
+  border-color: var(--ksm-dark-border);
+  background: var(--ksm-dark-surface-2);
+}
+
+/* =========================================================================
+   2. BADGE JENIS ARTIKEL (jurnal / opini)
+   Light: latar pastel + teks biru/oranye. Dark: latar transparan warna
+   aksen supaya kontras tapi tidak "menyala" putih.
+   ========================================================================= */
+[data-theme="dark"] .article-badge.badge-jurnal,
+[data-theme="dark"] .badge-jurnal {
+  background: rgba(96, 165, 250, 0.16);
+  color: #93c5fd;
+}
+
+[data-theme="dark"] .article-badge.badge-opini,
+[data-theme="dark"] .badge-opini {
+  background: rgba(251, 146, 60, 0.16);
+  color: #fdba74;
+}
+
+[data-theme="dark"] .result-type-jurnal {
+  background: rgba(96, 165, 250, 0.16);
+  color: #93c5fd;
+}
+
+[data-theme="dark"] .result-type-opini {
+  background: rgba(251, 146, 60, 0.16);
+  color: #fdba74;
+}
+
+/* =========================================================================
+   3. JUDUL SECTION, ABSTRAK, ISI ARTIKEL
+   ========================================================================= */
+[data-theme="dark"] .section-title,
+[data-theme="dark"] .content-section h2,
+[data-theme="dark"] .content-section h3,
+[data-theme="dark"] .content-section h4 {
+  color: var(--ksm-dark-text);
+}
+
+[data-theme="dark"] .section-title i,
+[data-theme="dark"] .section-title svg,
+[data-theme="dark"] .content-section h3 i,
+[data-theme="dark"] .content-section h3 svg {
+  color: var(--ksm-dark-accent);
+}
+
+[data-theme="dark"] .content-divider {
+  background: var(--ksm-dark-border);
+}
+
+[data-theme="dark"] .abstract-box {
+  background: var(--ksm-dark-surface-2);
+  border-left-color: var(--ksm-dark-accent);
+}
+
+[data-theme="dark"] .abstract-box p,
+[data-theme="dark"] #articleAbstract {
+  color: var(--ksm-dark-text-soft);
+}
+
+[data-theme="dark"] .article-body,
+[data-theme="dark"] .article-body p,
+[data-theme="dark"] .article-body li,
+[data-theme="dark"] .article-body span {
+  color: var(--ksm-dark-text-soft);
+}
+
+[data-theme="dark"] .article-body h4,
+[data-theme="dark"] .article-body strong,
+[data-theme="dark"] .article-body b {
+  color: var(--ksm-dark-text);
+}
+
+[data-theme="dark"] .article-body blockquote {
+  border-left-color: var(--ksm-dark-accent);
+  color: var(--ksm-dark-text-muted);
+  background: var(--ksm-dark-surface-2);
+}
+
+[data-theme="dark"] .article-body img {
+  border-color: var(--ksm-dark-border);
+}
+
+/* =========================================================================
+   4. TAG / KATA KUNCI
+   ========================================================================= */
+[data-theme="dark"] .tags-container .tag,
+[data-theme="dark"] .tag {
+  background: var(--ksm-dark-surface-2);
+  color: var(--ksm-dark-text-soft);
+  border: 1px solid var(--ksm-dark-border);
+}
+
+/* =========================================================================
+   5. KARTU PENULIS / PENGURUS + INFORMASI KONTAK
+   ========================================================================= */
+[data-theme="dark"] .author-card,
+[data-theme="dark"] .author-item,
+[data-theme="dark"] .contact-item {
+  background: var(--ksm-dark-surface-2);
+  border: 1px solid var(--ksm-dark-border);
+  color: var(--ksm-dark-text-soft);
+}
+
+[data-theme="dark"] .author-card span,
+[data-theme="dark"] .author-item span,
+[data-theme="dark"] .contact-item span {
+  color: var(--ksm-dark-text-soft);
+}
+
+[data-theme="dark"] .author-card i,
+[data-theme="dark"] .author-card svg,
+[data-theme="dark"] .author-item i,
+[data-theme="dark"] .author-item svg,
+[data-theme="dark"] .contact-item i,
+[data-theme="dark"] .contact-item svg {
+  color: var(--ksm-dark-accent);
+}
+
+[data-theme="dark"] .contact-item a {
+  color: var(--ksm-dark-accent);
+}
+
+/* =========================================================================
+   6. PDF VIEWER
+   iframe PDF-nya sendiri dirender oleh viewer bawaan browser sehingga
+   tidak bisa diwarnai dari sini — yang dibuat gelap adalah frame/wadahnya
+   supaya tidak ada bidang putih besar di sekelilingnya.
+   ========================================================================= */
+[data-theme="dark"] .pdf-section {
+  background: linear-gradient(135deg, #0b1220 0%, #1e293b 100%);
+  border: 1px solid var(--ksm-dark-border);
+}
+
+[data-theme="dark"] .pdf-viewer {
+  background: var(--ksm-dark-surface-2);
+  border: 1px solid var(--ksm-dark-border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .pdf-viewer iframe {
+  background: var(--ksm-dark-surface-2);
+  color-scheme: dark;
+}
+
+[data-theme="dark"] .btn-view {
+  background: var(--ksm-dark-surface-2);
+  color: var(--ksm-dark-text);
+  border-color: var(--ksm-dark-border-soft);
+}
+
+[data-theme="dark"] .btn-view:hover {
+  background: var(--ksm-dark-surface-3);
+  color: #93c5fd;
+}
+
+/* Fallback teks saat PDF gagal dimuat (js/script.js .preview-fallback) */
+[data-theme="dark"] .preview-fallback,
+[data-theme="dark"] .preview-fallback .hint {
+  color: var(--ksm-dark-text-muted);
+}
+
+[data-theme="dark"] .preview-container,
+[data-theme="dark"] .preview-body,
+[data-theme="dark"] .preview-body iframe {
+  background: var(--ksm-dark-surface);
+  color-scheme: dark;
+}
+
+[data-theme="dark"] .preview-header {
+  background: var(--ksm-dark-surface-2);
+  border-bottom: 1px solid var(--ksm-dark-border);
+}
+
+[data-theme="dark"] .preview-meta h3 {
+  color: var(--ksm-dark-text);
+}
+
+[data-theme="dark"] .preview-meta p {
+  color: var(--ksm-dark-text-muted);
+}
+
+/* =========================================================================
+   7. BREADCRUMB, LOADING, ERROR STATE
+   ========================================================================= */
+[data-theme="dark"] .breadcrumb,
+[data-theme="dark"] .breadcrumb a,
+[data-theme="dark"] .breadcrumb span {
+  color: var(--ksm-dark-text-muted);
+}
+
+[data-theme="dark"] .breadcrumb a:hover {
+  color: var(--ksm-dark-accent);
+}
+
+[data-theme="dark"] .loading,
+[data-theme="dark"] .loading p,
+[data-theme="dark"] .error-message,
+[data-theme="dark"] .error-message h3,
+[data-theme="dark"] .error-message p,
+[data-theme="dark"] .no-results,
+[data-theme="dark"] .no-results h3,
+[data-theme="dark"] .no-results p {
+  color: var(--ksm-dark-text-muted);
+}
+
+[data-theme="dark"] .error-message h3,
+[data-theme="dark"] .no-results h3 {
+  color: var(--ksm-dark-text);
+}
+
+/* =========================================================================
+   8. SEARCH MODAL (dipakai di halaman detail & explore)
+   ========================================================================= */
+[data-theme="dark"] .search-modal {
+  background: rgba(2, 6, 23, 0.7);
+}
+
+[data-theme="dark"] .search-modal-content {
+  background: var(--ksm-dark-surface);
+  border: 1px solid var(--ksm-dark-border);
+}
+
+[data-theme="dark"] .search-modal-header {
+  background: var(--ksm-dark-surface);
+  border-bottom-color: var(--ksm-dark-border);
+}
+
+[data-theme="dark"] .search-modal-header h3 {
+  color: var(--ksm-dark-text);
+}
+
+[data-theme="dark"] .close-btn {
+  color: var(--ksm-dark-text-muted);
+}
+
+[data-theme="dark"] .close-btn:hover {
+  background: var(--ksm-dark-surface-3);
+  color: var(--ksm-dark-text);
+}
+
+[data-theme="dark"] .search-result-item {
+  background: var(--ksm-dark-surface-2);
+  border-color: var(--ksm-dark-border);
+}
+
+[data-theme="dark"] .search-result-item:hover {
+  background: var(--ksm-dark-surface-3);
+  border-color: var(--ksm-dark-accent);
+}
+
+[data-theme="dark"] .search-result-title {
+  color: var(--ksm-dark-text);
+}
+
+[data-theme="dark"] .search-result-abstract {
+  color: var(--ksm-dark-text-soft);
+}
+
+[data-theme="dark"] .search-result-meta {
+  color: var(--ksm-dark-text-muted);
+}
+
+/* =========================================================================
+   9. SECTION KOMENTAR (comments.js — dirender dinamis)
+   ========================================================================= */
+[data-theme="dark"] #comments-section,
+[data-theme="dark"] .comments-section-inner {
+  background: transparent;
+}
+
+[data-theme="dark"] .comments-title {
+  color: var(--ksm-dark-text);
+}
+
+[data-theme="dark"] .comments-count-badge {
+  background: var(--ksm-dark-surface-3);
+  color: var(--ksm-dark-text-soft);
+}
+
+[data-theme="dark"] .comment-input-area {
+  background: var(--ksm-dark-surface);
+  border-color: var(--ksm-dark-border);
+}
+
+[data-theme="dark"] .comment-input-area:focus-within {
+  border-color: var(--ksm-dark-accent);
+}
+
+[data-theme="dark"] .comment-textarea {
+  background: transparent;
+  color: var(--ksm-dark-text);
+}
+
+[data-theme="dark"] .comment-textarea::placeholder {
+  color: var(--ksm-dark-text-dim);
+}
+
+[data-theme="dark"] .comment-form-footer {
+  background: var(--ksm-dark-surface-2);
+  border-top-color: var(--ksm-dark-border);
+}
+
+[data-theme="dark"] .comment-card {
+  background: var(--ksm-dark-surface);
+  border-color: var(--ksm-dark-border);
+}
+
+[data-theme="dark"] .comment-author {
+  color: var(--ksm-dark-text);
+}
+
+[data-theme="dark"] .comment-date {
+  color: var(--ksm-dark-text-dim);
+}
+
+[data-theme="dark"] .comment-content {
+  color: var(--ksm-dark-text-soft);
+}
+
+[data-theme="dark"] .comment-replies {
+  border-left-color: var(--ksm-dark-border);
+}
+
+[data-theme="dark"] .comment-node.is-reply .comment-card {
+  background: var(--ksm-dark-surface-2);
+}
+
+[data-theme="dark"] .admin-badge {
+  background: rgba(251, 191, 36, 0.18);
+  color: #fcd34d;
+}
+
+[data-theme="dark"] .btn-reply-toggle {
+  color: var(--ksm-dark-text-muted);
+}
+
+[data-theme="dark"] .btn-reply-toggle:hover {
+  color: var(--ksm-dark-accent);
+}
+
+[data-theme="dark"] .btn-cancel-reply {
+  background: var(--ksm-dark-surface-2);
+  color: var(--ksm-dark-text-soft);
+  border-color: var(--ksm-dark-border);
+}
+
+[data-theme="dark"] .btn-cancel-reply:hover {
+  background: var(--ksm-dark-surface-3);
+  color: var(--ksm-dark-text);
+}
+
+[data-theme="dark"] .btn-delete-comment {
+  color: #f87171;
+}
+
+/* =========================================================================
+   10. AUTH AREA DI NAVBAR HALAMAN DETAIL
+   explore_jurnal_user.css mendeklarasikan .btn-register dengan
+   !important, jadi override di sini juga wajib pakai !important.
+   ========================================================================= */
+[data-theme="dark"] .btn-register {
+  border-color: var(--ksm-dark-border-soft) !important;
+  color: var(--ksm-dark-text) !important;
+}
+
+[data-theme="dark"] .btn-user-login:hover,
+[data-theme="dark"] .btn-login:hover,
+[data-theme="dark"] .btn-register:hover {
+  color: var(--ksm-dark-text) !important;
+  background: var(--ksm-dark-surface-3) !important;
+}
+
+[data-theme="dark"] .user-profile {
+  background: var(--ksm-dark-surface-2);
+  border-color: var(--ksm-dark-border);
+  color: var(--ksm-dark-text);
+}
+
+[data-theme="dark"] .btn-logout {
+  color: var(--ksm-dark-text-muted);
+}
+
+/* =========================================================================
+   11. INLINE STYLE SAFETY NET
+   Elemen di bawah punya style="" langsung di HTML/JS. Inline style hanya
+   bisa ditimpa dengan !important, jadi khusus kelompok ini dipakai
+   !important. Hanya properti warna yang ditimpa — layout (padding,
+   display, dsb) dibiarkan apa adanya.
+   ========================================================================= */
+
+/* wadah komentar: style="max-width:900px;margin:0 auto;padding:0 24px;" */
+[data-theme="dark"] section#comments-section {
+  background: transparent !important;
+}
+
+/* kartu jurnal hasil render js/jurnal.js */
+[data-theme="dark"] .journal-card,
+[data-theme="dark"] .article-item {
+  background: var(--ksm-dark-surface) !important;
+  border-color: var(--ksm-dark-border) !important;
+}
+
+[data-theme="dark"] .journal-card h3,
+[data-theme="dark"] .article-item h3 {
+  color: var(--ksm-dark-text) !important;
+}
+
+[data-theme="dark"] .journal-card p,
+[data-theme="dark"] .article-item p {
+  color: var(--ksm-dark-text-soft) !important;
+}
+
+/* =========================================================================
+   12. SCROLLBAR & FORM CONTROL BAWAAN BROWSER
+   color-scheme membuat scrollbar, autofill, dan viewer PDF ikut gelap.
+   ========================================================================= */
+[data-theme="dark"] {
+  color-scheme: dark;
+}

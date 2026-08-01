@@ -894,7 +894,7 @@ class DynamicCategoriesManager {
 
     if (topCategories.length === 0) {
       grid.innerHTML =
-        '<div style="grid-column: 1/-1; text-align: center; color: #999; padding: 40px 0;">Belum ada kategori. Tambahkan tags saat upload artikel.</div>';
+        '<div style="grid-column: 1/-1; text-align: center; color: var(--ksm-c-muted-text, #999); padding: 40px 0;">Belum ada kategori. Tambahkan tags saat upload artikel.</div>';
       return;
     }
 
@@ -919,7 +919,7 @@ class DynamicCategoriesManager {
     if (!grid) return;
 
     grid.innerHTML = `
-      <div style="grid-column: 1/-1; text-align: center; color: #999; padding: 40px 0;">
+      <div style="grid-column: 1/-1; text-align: center; color: var(--ksm-c-muted-text, #999); padding: 40px 0;">
         <div style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></div>
         <p>Belum ada kategori.</p>
         <small style="opacity: 0.7;">Kategori akan muncul otomatis dari tags artikel.</small>

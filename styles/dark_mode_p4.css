@@ -1,0 +1,620 @@
+/* =========================================================================
+   DARK MODE — PART 4 (penambal komponen yang masih "putih")
+   -------------------------------------------------------------------------
+   File ini menutup sisa komponen yang belum tercakup dark_mode.css,
+   dark_mode_p2.css, dan dark_mode_p3.css, yaitu:
+
+     1. Custom alert modal (styles/custom_alerts.css)
+     2. Toast + confirm modal (styles/toast.css)
+     3. Halaman auth: login / register / lupa & reset password (login_user.css)
+     4. Modal upload jurnal-opini (upload_journal_modal.css)
+     5. Token wallet + modal beli token (token_wallet.css)
+     6. Halaman statis & profil (static_pages.css, profile_pages.css)
+     7. Kartu dashboard, komentar, carousel iklan, preview jurnal
+     8. Search modal, file drop, form input generik, footer
+
+   Dimuat PALING AKHIR di <head> supaya menang atas semua CSS halaman.
+   Beberapa aturan memakai !important HANYA untuk menimpa deklarasi
+   !important yang sudah ada di CSS light (mis. .ksm-token-card).
+   ========================================================================= */
+
+/* =========================================================================
+   0. TOKEN WARNA — dipakai ulang di semua blok bawah
+   ========================================================================= */
+[data-theme="dark"] {
+  --ksm-dark-bg: #0f172a;
+  --ksm-dark-surface: #1e293b;
+  --ksm-dark-surface-2: #273449;
+  --ksm-dark-border: #334155;
+  --ksm-dark-border-soft: #475569;
+  --ksm-dark-text: #f1f5f9;
+  --ksm-dark-text-soft: #cbd5e1;
+  --ksm-dark-text-muted: #94a3b8;
+  --ksm-dark-text-dim: #64748b;
+}
+
+/* =========================================================================
+   1. CUSTOM ALERT MODAL (custom_alerts.css)
+   custom_alerts.css memakai variabel --alert-bg, jadi cukup override
+   variabelnya + elemen yang warnanya hardcoded.
+   ========================================================================= */
+[data-theme="dark"] {
+  --alert-bg: 217 33% 17%;              /* ≈ #1e293b */
+  --alert-overlay: 222 47% 4% / 0.65;
+}
+
+[data-theme="dark"] .custom-alert-title {
+  color: var(--ksm-dark-text);
+}
+
+[data-theme="dark"] .custom-alert-message {
+  color: var(--ksm-dark-text-muted);
+}
+
+[data-theme="dark"] .custom-alert-btn.secondary {
+  background: #334155;
+  color: var(--ksm-dark-text-soft);
+}
+
+[data-theme="dark"] .custom-alert-btn.secondary:hover {
+  background: #3f4f68;
+}
+
+/* =========================================================================
+   2. TOAST + CONFIRM MODAL (toast.css)
+   ========================================================================= */
+[data-theme="dark"] .toast {
+  background: var(--ksm-dark-surface);
+  color: var(--ksm-dark-text);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .toast-success {
+  background: var(--ksm-dark-surface);
+}
+
+[data-theme="dark"] .toast-title {
+  color: var(--ksm-dark-text);
+}
+
+[data-theme="dark"] .toast-message,
+[data-theme="dark"] .toast-success .toast-message,
+[data-theme="dark"] .toast-success .toast-close {
+  color: var(--ksm-dark-text-muted);
+}
+
+[data-theme="dark"] .toast-close {
+  color: var(--ksm-dark-text-muted);
+}
+
+[data-theme="dark"] .toast-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .toast-progress {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Confirm modal (#confirm-modal) */
+[data-theme="dark"] .confirm-overlay {
+  background: rgba(2, 6, 23, 0.7);
+}
+
+[data-theme="dark"] .confirm-content {
+  background: var(--ksm-dark-surface);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+}
+
+[data-theme="dark"] .confirm-content h3 {
+  color: var(--ksm-dark-text);
+}
+
+[data-theme="dark"] .confirm-content p {
+  color: var(--ksm-dark-text-muted);
+}
+
+[data-theme="dark"] .confirm-icon {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+[data-theme="dark"] .btn-confirm-cancel {
+  background: #334155;
+  color: var(--ksm-dark-text-soft);
+}
+
+[data-theme="dark"] .btn-confirm-cancel:hover {
+  background: #3f4f68;
+}
+
+/* =========================================================================
+   3. HALAMAN AUTH — login / register / forgot / reset (login_user.css)
+   ========================================================================= */
+[data-theme="dark"] body {
+  background: var(--ksm-dark-bg);
+  color: var(--ksm-dark-text);
+}
+
+[data-theme="dark"] .login-wrapper {
+  background: var(--ksm-dark-surface);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .login-header h2 {
+  color: var(--ksm-dark-text);
+}
+
+[data-theme="dark"] .login-header p {
+  color: var(--ksm-dark-text-muted);
+}
+
+[data-theme="dark"] .user-badge {
+  background: rgba(59, 130, 246, 0.18);
+  color: #93c5fd;
+}
+
+[data-theme="dark"] .form-group input,
+[data-theme="dark"] .login-form input,
+[data-theme="dark"] .login-form textarea,
+[data-theme="dark"] .login-form select {
+  background: var(--ksm-dark-bg);
+  border-color: var(--ksm-dark-border);
+  color: var(--ksm-dark-text);
+}
+
+[data-theme="dark"] .form-group input::placeholder,
+[data-theme="dark"] .login-form input::placeholder {
+  color: var(--ksm-dark-text-dim);
+}
+
+[data-theme="dark"] .form-group input:focus,
+[data-theme="dark"] .login-form input:focus {
+  border-color: #60a5fa;
+  background: var(--ksm-dark-bg);
+}
+
+[data-theme="dark"] .toggle-password {
+  color: var(--ksm-dark-text-muted);
+}
+
+[data-theme="dark"] .toggle-password:hover {
+  color: #60a5fa;
+}
+
+[data-theme="dark"] .remember-me,
+[data-theme="dark"] .remember-me span {
+  color: var(--ksm-dark-text-soft);
+}
+
+[data-theme="dark"] .forgot-password,
+[data-theme="dark"] .signup-link a {
+  color: #60a5fa;
+}
+
+[data-theme="dark"] .signup-link {
+  color: var(--ksm-dark-text-muted);
+}
+
+[data-theme="dark"] .divider span {
+  color: var(--ksm-dark-text-dim);
+  background: transparent;
+}
+
+[data-theme="dark"] .divider::before,
+[data-theme="dark"] .divider::after {
+  background: var(--ksm-dark-border);
+  border-color: var(--ksm-dark-border);
+}
+
+[data-theme="dark"] .social-btn {
+  background: var(--ksm-dark-bg);
+  border-color: var(--ksm-dark-border);
+  color: var(--ksm-dark-text-soft);
+}
+
+[data-theme="dark"] .social-btn:hover {
+  background: var(--ksm-dark-surface-2);
+  border-color: #60a5fa;
+}
+
+[data-theme="dark"] .back-to-home a {
+  color: var(--ksm-dark-text-muted);
+}
+
+[data-theme="dark"] .back-to-home a:hover {
+  color: #60a5fa;
+}
+
+/* Alert box inline pada form auth */
+[data-theme="dark"] .alert-error {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+}
+
+[data-theme="dark"] .alert-success {
+  background: rgba(34, 197, 94, 0.15);
+  color: #86efac;
+}
+
+/* =========================================================================
+   4. MODAL UPLOAD JURNAL / OPINI (upload_journal_modal.css)
+   ========================================================================= */
+[data-theme="dark"] .ksm-upload-type-toggle {
+  background: var(--ksm-dark-bg);
+  border-color: var(--ksm-dark-border);
+}
+
+[data-theme="dark"] .ksm-upload-type-btn {
+  background: transparent;
+  color: var(--ksm-dark-text-muted);
+}
+
+[data-theme="dark"] .ksm-upload-type-btn.active[data-type="jurnal"] {
+  background: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+}
+
+[data-theme="dark"] .ksm-upload-type-btn.active[data-type="opini"] {
+  background: rgba(168, 85, 247, 0.2);
+  color: #d8b4fe;
+}
+
+[data-theme="dark"] .ksm-upload-form-group label {
+  color: var(--ksm-dark-text-soft);
+}
+
+[data-theme="dark"] .ksm-upload-form-group input[type="text"],
+[data-theme="dark"] .ksm-upload-form-group input[type="email"],
+[data-theme="dark"] .ksm-upload-form-group input[type="tel"],
+[data-theme="dark"] .ksm-upload-form-group input[type="number"],
+[data-theme="dark"] .ksm-upload-form-group select,
+[data-theme="dark"] .ksm-upload-form-group textarea,
+[data-theme="dark"] .ksm-upload-dynamic-row input {
+  background: var(--ksm-dark-bg);
+  border-color: var(--ksm-dark-border);
+  color: var(--ksm-dark-text);
+}
+
+[data-theme="dark"] .ksm-upload-form-group input::placeholder,
+[data-theme="dark"] .ksm-upload-form-group textarea::placeholder {
+  color: var(--ksm-dark-text-dim);
+}
+
+[data-theme="dark"] .ksm-upload-row-add {
+  background: rgba(59, 130, 246, 0.18);
+  color: #93c5fd;
+}
+
+[data-theme="dark"] .ksm-upload-row-add:hover {
+  background: rgba(59, 130, 246, 0.28);
+}
+
+[data-theme="dark"] .ksm-upload-row-remove {
+  background: rgba(231, 76, 60, 0.18);
+  color: #fca5a5;
+}
+
+[data-theme="dark"] .ksm-upload-row-remove:hover {
+  background: rgba(231, 76, 60, 0.3);
+}
+
+[data-theme="dark"] .ksm-upload-file-drop {
+  background: var(--ksm-dark-bg);
+  border-color: var(--ksm-dark-border-soft);
+  color: var(--ksm-dark-text-muted);
+}
+
+[data-theme="dark"] .ksm-upload-file-drop:hover,
+[data-theme="dark"] .ksm-upload-file-drop.drag-over {
+  border-color: #60a5fa;
+  background: var(--ksm-dark-surface-2);
+}
+
+[data-theme="dark"] .ksm-upload-file-drop .drop-label,
+[data-theme="dark"] .ksm-upload-file-drop .file-chosen {
+  color: var(--ksm-dark-text-muted);
+}
+
+[data-theme="dark"] .ksm-upload-token-note {
+  color: var(--ksm-dark-text-muted);
+}
+
+[data-theme="dark"] .ksm-upload-footer {
+  border-top-color: var(--ksm-dark-border);
+}
+
+[data-theme="dark"] .ksm-upload-submit-btn {
+  background: #2563eb;
+  color: #fff;
+}
+
+[data-theme="dark"] .ksm-upload-submit-btn:hover {
+  background: #1d4ed8;
+}
+
+/* =========================================================================
+   5. TOKEN WALLET & MODAL BELI TOKEN (token_wallet.css)
+   .ksm-token-card di light memakai !important, jadi wajib !important di sini.
+   ========================================================================= */
+[data-theme="dark"] .ksm-token-card {
+  background: var(--ksm-dark-surface) !important;
+  color: var(--ksm-dark-text) !important;
+  border: 1px solid var(--ksm-dark-border);
+}
+
+[data-theme="dark"] .ksm-modal-box {
+  background: var(--ksm-dark-surface);
+  color: var(--ksm-dark-text);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+}
+
+[data-theme="dark"] .ksm-modal-overlay {
+  background: rgba(2, 6, 23, 0.7);
+}
+
+[data-theme="dark"] .ksm-btn-solid-light {
+  background: var(--ksm-dark-surface-2);
+  color: var(--ksm-dark-text);
+}
+
+[data-theme="dark"] .ksm-token-option,
+[data-theme="dark"] .ksm-token-summary {
+  background: var(--ksm-dark-bg);
+  border-color: var(--ksm-dark-border);
+  color: var(--ksm-dark-text-soft);
+}
+
+[data-theme="dark"] .ksm-token-option:hover,
+[data-theme="dark"] .ksm-token-option.selected,
+[data-theme="dark"] .ksm-token-option.active {
+  border-color: #60a5fa;
+  background: rgba(59, 130, 246, 0.15);
+}
+
+/* =========================================================================
+   6. HALAMAN STATIS (tentang / kontak) & PROFIL / PENGATURAN
+   ========================================================================= */
+[data-theme="dark"] .vm-card,
+[data-theme="dark"] .stat-highlight-card,
+[data-theme="dark"] .feature-card,
+[data-theme="dark"] .contact-info-card,
+[data-theme="dark"] .profile-card,
+[data-theme="dark"] .settings-card,
+[data-theme="dark"] .static-card {
+  background: var(--ksm-dark-surface);
+  color: var(--ksm-dark-text);
+  border: 1px solid var(--ksm-dark-border);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .static-btn-primary {
+  background: var(--ksm-dark-surface-2);
+  color: var(--ksm-dark-text);
+}
+
+[data-theme="dark"] .static-btn-primary:hover {
+  background: #3f4f68;
+}
+
+[data-theme="dark"] .form-group input:disabled,
+[data-theme="dark"] .form-group textarea:disabled,
+[data-theme="dark"] .form-group select:disabled {
+  background: var(--ksm-dark-bg);
+  color: var(--ksm-dark-text-dim);
+  border-color: var(--ksm-dark-border);
+}
+
+/* Badge / chip kecil di kartu profil */
+[data-theme="dark"] .profile-role,
+[data-theme="dark"] .profile-chip {
+  background: var(--ksm-dark-surface-2);
+  color: var(--ksm-dark-text-soft);
+}
+
+/* Toggle switch (pengaturan) — knob tetap terang, track disesuaikan */
+[data-theme="dark"] .switch-track,
+[data-theme="dark"] .toggle-track {
+  background: var(--ksm-dark-border-soft);
+}
+
+/* =========================================================================
+   7. KARTU DASHBOARD, KOMENTAR, CAROUSEL IKLAN, PREVIEW JURNAL
+   ========================================================================= */
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .activity-card,
+[data-theme="dark"] .article-card,
+[data-theme="dark"] .category-card {
+  background: var(--ksm-dark-surface);
+  color: var(--ksm-dark-text);
+  border: 1px solid var(--ksm-dark-border);
+}
+
+[data-theme="dark"] .stat-card p,
+[data-theme="dark"] .activity-card p,
+[data-theme="dark"] .article-card p,
+[data-theme="dark"] .category-card p {
+  color: var(--ksm-dark-text-muted);
+}
+
+[data-theme="dark"] .btn-share.outline,
+[data-theme="dark"] .btn-share.white-style {
+  background: var(--ksm-dark-surface-2);
+  color: var(--ksm-dark-text);
+  border-color: var(--ksm-dark-border);
+}
+
+[data-theme="dark"] .btn-share.white-style:hover,
+[data-theme="dark"] .btn-share.outline:hover {
+  background: #3f4f68;
+}
+
+[data-theme="dark"] .dtc-see-all-dark:hover {
+  background: var(--ksm-dark-surface-2);
+}
+
+/* Komentar */
+[data-theme="dark"] .comment-card {
+  background: var(--ksm-dark-surface);
+  border-color: var(--ksm-dark-border);
+  color: var(--ksm-dark-text-soft);
+}
+
+[data-theme="dark"] .comment-form,
+[data-theme="dark"] .comment-reply-form,
+[data-theme="dark"] .comments-section {
+  background: transparent;
+  border-color: var(--ksm-dark-border);
+}
+
+[data-theme="dark"] .comment-form textarea,
+[data-theme="dark"] .comment-reply-form textarea {
+  background: var(--ksm-dark-bg);
+  border-color: var(--ksm-dark-border);
+  color: var(--ksm-dark-text);
+}
+
+[data-theme="dark"] .comment-meta,
+[data-theme="dark"] .comment-date {
+  color: var(--ksm-dark-text-dim);
+}
+
+[data-theme="dark"] .btn-reply-toggle:hover {
+  background: var(--ksm-dark-surface-2);
+  color: #93c5fd;
+}
+
+[data-theme="dark"] .btn-cancel-reply {
+  background: var(--ksm-dark-surface-2);
+  color: var(--ksm-dark-text-muted);
+  border-color: var(--ksm-dark-border);
+}
+
+[data-theme="dark"] .btn-cancel-reply:hover {
+  background: #3f4f68;
+  color: var(--ksm-dark-text);
+}
+
+/* Preview jurnal (viewer PDF) */
+[data-theme="dark"] .preview-modal,
+[data-theme="dark"] .preview-container,
+[data-theme="dark"] .preview-header,
+[data-theme="dark"] .preview-body {
+  background: var(--ksm-dark-surface);
+  color: var(--ksm-dark-text);
+  border-color: var(--ksm-dark-border);
+}
+
+/* =========================================================================
+   8. SEARCH MODAL, ABSTRACT BOX, DETAIL ARTIKEL, FOOTER
+   ========================================================================= */
+[data-theme="dark"] .search-modal,
+[data-theme="dark"] .search-modal-content,
+[data-theme="dark"] .search-modal-header {
+  background: var(--ksm-dark-surface);
+  color: var(--ksm-dark-text);
+  border-color: var(--ksm-dark-border);
+}
+
+[data-theme="dark"] .search-result-item {
+  background: var(--ksm-dark-bg);
+  border-color: transparent;
+  color: var(--ksm-dark-text-soft);
+}
+
+[data-theme="dark"] .search-result-item:hover {
+  background: var(--ksm-dark-surface-2);
+  border-color: #60a5fa;
+}
+
+[data-theme="dark"] .close-btn {
+  background: var(--ksm-dark-surface-2);
+  color: var(--ksm-dark-text-soft);
+}
+
+[data-theme="dark"] .close-btn:hover {
+  background: #3f4f68;
+}
+
+[data-theme="dark"] .article-detail {
+  background: var(--ksm-dark-surface);
+  color: var(--ksm-dark-text);
+}
+
+[data-theme="dark"] .abstract-box {
+  background: var(--ksm-dark-bg);
+  color: var(--ksm-dark-text-soft);
+  border-left-color: #60a5fa;
+}
+
+[data-theme="dark"] .btn-view {
+  background: var(--ksm-dark-surface-2);
+  color: var(--ksm-dark-text);
+  border-color: var(--ksm-dark-border);
+}
+
+[data-theme="dark"] .btn-view:hover {
+  background: #3f4f68;
+  color: #93c5fd;
+}
+
+/* Upload section & file drop generik (body.css) */
+[data-theme="dark"] .upload-section,
+[data-theme="dark"] .file-preview,
+[data-theme="dark"] .upload-area,
+[data-theme="dark"] .drop-zone {
+  background: var(--ksm-dark-surface);
+  border-color: var(--ksm-dark-border);
+  color: var(--ksm-dark-text-soft);
+}
+
+/* Tag generik */
+[data-theme="dark"] .tag,
+[data-theme="dark"] .tag-more {
+  background: var(--ksm-dark-surface-2);
+  color: var(--ksm-dark-text-soft);
+}
+
+/* =========================================================================
+   9. MOBILE — panel nav & dropdown yang di light dipaksa putih via !important
+   Aturan light memakai !important di dalam @media, jadi override di sini
+   juga harus !important dan berada di dalam media query yang sama.
+   ========================================================================= */
+@media (max-width: 768px) {
+  [data-theme="dark"] nav.mobile-open,
+  [data-theme="dark"] nav.active,
+  [data-theme="dark"] nav {
+    background: #111827 !important;
+  }
+
+  [data-theme="dark"] nav a:hover,
+  [data-theme="dark"] .nav-link.has-caret:hover {
+    background: var(--ksm-dark-surface-2) !important;
+    color: var(--ksm-dark-text) !important;
+  }
+
+  [data-theme="dark"] nav > a.active {
+    background: var(--ksm-dark-surface-2) !important;
+    color: var(--ksm-dark-text) !important;
+  }
+
+  [data-theme="dark"] .dropdown-menu,
+  [data-theme="dark"] .nav-dropdown .dropdown-menu {
+    background: var(--ksm-dark-bg) !important;
+  }
+
+  [data-theme="dark"] .dropdown-menu a {
+    background: var(--ksm-dark-bg) !important;
+    border-bottom-color: var(--ksm-dark-border) !important;
+    color: var(--ksm-dark-text-soft) !important;
+  }
+
+  [data-theme="dark"] .mobile-auth-header .guest-avatar,
+  [data-theme="dark"] .btn-logout-mobile:hover {
+    background: var(--ksm-dark-surface-2) !important;
+  }
+
+  [data-theme="dark"] .mobile-auth-panel,
+  [data-theme="dark"] .mobile-user-menu {
+    background: var(--ksm-dark-surface) !important;
+    color: var(--ksm-dark-text) !important;
+  }
+}

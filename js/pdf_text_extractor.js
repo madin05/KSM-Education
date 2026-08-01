@@ -62,7 +62,7 @@ class PDFTextExtractor {
   async renderPDFContent(pdfUrl, targetElement) {
     const showLoading = () => {
       targetElement.innerHTML = `
-        <div style="text-align: center; padding: 2rem; color: #666;">
+        <div style="text-align: center; padding: 2rem; color: var(--ksm-c-card-text, #666);">
           <div class="loading-spinner"></div>
           <p>Memuat konten PDF...</p>
         </div>

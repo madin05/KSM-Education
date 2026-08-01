@@ -39,16 +39,27 @@
     <link rel="stylesheet" href="../styles/journal.css?v=20260321" />
     <link rel="stylesheet" href="../styles/footer.css" />
     <link rel="stylesheet" href="../styles/skeleton.css" />
-    <link rel="stylesheet" href="../styles/dark_mode_p2.css?v=20260722" />
-    <link rel="stylesheet" href="../styles/dark_mode_p3.css?v=20260722" />
-    <link rel="stylesheet" href="../styles/dark_mode.css?v=20260722" />
-    <!--
-      dark_mode.css dimuat PALING TERAKHIR supaya override-nya menang
-      di atas semua CSS lain (dashboard_user.css, header.css, dst),
-      tanpa perlu !important di mana-mana.
-    -->
     <script src="../js/config.js"></script>
     <script src="https://unpkg.com/feather-icons"></script>
     <?= $extra_head ?? '' ?>
+    <!--
+      ===== DARK MODE — WAJIB PALING TERAKHIR =====
+      Sebelumnya blok dark_mode berada di ATAS $extra_head, sehingga CSS
+      halaman yang diinject via $extra_head (mis. my_journals_user.css,
+      token_wallet.css, upload_journal_modal.css) memenangkan cascade dan
+      sebagian komponen tetap tampil putih walau dark mode aktif.
+      Dipindah ke bawah $extra_head supaya override dark selalu menang.
+    -->
+    <link rel="stylesheet" href="../styles/dark_mode_p2.css?v=20260801" />
+    <link rel="stylesheet" href="../styles/dark_mode_p3.css?v=20260801" />
+    <link rel="stylesheet" href="../styles/dark_mode.css?v=20260801" />
+    <link rel="stylesheet" href="../styles/dark_mode_p4.css?v=20260801" />
+    <!--
+      PART 5: halaman DETAIL jurnal/opini (explore_*_user.php) + section
+      komentar. explore_jurnal_user.css penuh warna putih hardcoded dan
+      belum pernah tertutup p2/p3/p4, jadi ditambal di file terpisah ini.
+    -->
+    <link rel="stylesheet" href="../styles/dark_mode_p5.css?v=20260801" />
   </head>
+
   <body>

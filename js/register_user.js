@@ -51,10 +51,23 @@ registerForm.addEventListener('submit', async function(e) {
             showAlert('Registrasi berhasil! Mengalihkan...', 'success');
             
             // Sync sessionStorage
-            sessionStorage.setItem('userLoggedIn', 'true');
-            sessionStorage.setItem('userEmail', email);
-            sessionStorage.setItem('userName', name);
-            sessionStorage.setItem('userType', 'user');
+            // Registrasi = login baru. Buang jejak sesi sebelumnya (termasuk
+            // token JWT admin) sebelum menulis kredensial akun baru.
+            if (window.AuthStorage) {
+                window.AuthStorage.clearAll();
+                window.AuthStorage.setTokens(result);
+                window.AuthStorage.setSession({
+                    email: email,
+                    name: name,
+                    role: (result.user && result.user.role) || 'user'
+                });
+            } else {
+                if (window.TokenManager) window.TokenManager.clearTokens();
+                sessionStorage.setItem('userLoggedIn', 'true');
+                sessionStorage.setItem('userEmail', email);
+                sessionStorage.setItem('userName', name);
+                sessionStorage.setItem('userType', 'user');
+            }
 
             setTimeout(() => {
                 window.location.href = 'dashboard_user.php';

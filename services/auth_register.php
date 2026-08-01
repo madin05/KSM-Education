@@ -60,6 +60,10 @@ try {
     $pdo->commit();
 
     // Set PHP Session (backward compatibility)
+    // Reset session lama (mis. sisa sesi admin) sebelum memasang akun baru.
+    $_SESSION = [];
+    session_regenerate_id(true);
+
     $_SESSION['user_id'] = $userId;
     $_SESSION['role'] = 'user';
     $_SESSION['name'] = $name;

@@ -133,7 +133,8 @@ if ($next === '' || $next === 'login_admin.php' || !preg_match('/^[a-z0-9_\-]+\.
     <script>
       window.ADMIN_LOGIN_NEXT = <?php echo json_encode($next, JSON_UNESCAPED_SLASHES); ?>;
     </script>
-    <script src="../js/login_admin.js?v=20260731"></script>
+    <script src="../js/auth_storage.js?v=20260801"></script>
+    <script src="../js/login_admin.js?v=20260801"></script>
     <script>
       if (window.feather) window.feather.replace();
     </script>

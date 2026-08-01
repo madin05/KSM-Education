@@ -30,6 +30,12 @@ try {
     }
 
     // Set PHP Session (backward compatibility)
+    // Reset total isi session lama sebelum memasang identitas baru.
+    // Tanpa ini, sisa data sesi admin (mis. role=admin) bisa bertahan dan
+    // membuat halaman user memakai identitas admin.
+    $_SESSION = [];
+    session_regenerate_id(true);
+
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['role'] = $user['role'];
     $_SESSION['name'] = $user['name'];

@@ -9,10 +9,31 @@ $page_title = 'User Login - KSM Education';
     <title>User Login - KSM Education</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!--
+      ===== DARK MODE — INIT AWAL (anti-flash) =====
+      Halaman auth tidak memakai user/components/header.php, jadi init
+      tema harus ditulis ulang di sini. Tanpa ini, user yang sudah memilih
+      dark mode akan melihat halaman login tetap putih.
+    -->
+    <script>
+      (function () {
+        try {
+          if (localStorage.getItem('ksm_theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+          }
+        } catch (e) {
+          /* localStorage tidak tersedia — abaikan, default light */
+        }
+      })();
+    </script>
     <link rel="stylesheet" href="../styles/fonts.css" />
+
     <link rel="shortcut icon" type="image/x-icon" href="../assets/favicon.ico" />
     <link rel="stylesheet" href="../styles/login_user.css" />
+    <!-- dark_mode_p4.css dimuat setelah login_user.css supaya override menang -->
+    <link rel="stylesheet" href="../styles/dark_mode_p4.css?v=20260801" />
     <script src="../js/config.js?v=20260325"></script>
+
     <script src="https://unpkg.com/feather-icons"></script>
   </head>
 
@@ -82,7 +103,8 @@ $page_title = 'User Login - KSM Education';
       </div>
     </div>
 
-    <script src="../js/login_user.js?v=20260325"></script>
+    <script src="../js/auth_storage.js?v=20260801"></script>
+    <script src="../js/login_user.js?v=20260801"></script>
     <script>
       feather.replace();
     </script>

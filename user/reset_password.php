@@ -5,9 +5,28 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><?= htmlspecialchars($page_title, ENT_QUOTES, 'UTF-8') ?></title>
+  <!--
+    ===== DARK MODE — INIT AWAL (anti-flash) =====
+    Halaman auth tidak memakai user/components/header.php, jadi init
+    tema harus ditulis ulang di sini.
+  -->
+  <script>
+    (function () {
+      try {
+        if (localStorage.getItem('ksm_theme') === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      } catch (e) {
+        /* localStorage tidak tersedia — abaikan, default light */
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="../styles/fonts.css" />
   <link rel="stylesheet" href="../styles/login_user.css" />
+  <!-- dark_mode_p4.css dimuat setelah login_user.css supaya override menang -->
+  <link rel="stylesheet" href="../styles/dark_mode_p4.css?v=20260801" />
   <script src="../js/config.js"></script>
+
 </head>
 <body>
   <main class="login-wrapper">

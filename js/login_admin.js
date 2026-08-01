@@ -43,23 +43,40 @@
 
   function storeTokens(data) {
     try {
-      if (window.TokenManager && typeof window.TokenManager.setTokens === 'function') {
+      // Buang sisa sesi sebelumnya (mis. akun user biasa) supaya token dua
+      // peran tidak pernah bercampur di localStorage.
+      if (window.AuthStorage) {
+        window.AuthStorage.clearAll();
+        window.AuthStorage.setTokens(data);
+      } else if (window.TokenManager && typeof window.TokenManager.setTokens === 'function') {
+        window.TokenManager.clearTokens();
         window.TokenManager.setTokens(data.access_token, data.refresh_token, data.expires_in);
       } else {
         localStorage.setItem(TOKEN_KEYS.access, data.access_token);
         if (data.refresh_token) {
           localStorage.setItem(TOKEN_KEYS.refresh, data.refresh_token);
+        } else {
+          localStorage.removeItem(TOKEN_KEYS.refresh);
         }
         if (data.expires_in) {
           localStorage.setItem(
             TOKEN_KEYS.expiry,
             String(Date.now() + Number(data.expires_in) * 1000)
           );
+        } else {
+          localStorage.removeItem(TOKEN_KEYS.expiry);
         }
       }
       if (data.user) {
         localStorage.setItem('admin_user', JSON.stringify(data.user));
         localStorage.setItem('currentUser', JSON.stringify(data.user));
+        if (window.AuthStorage) {
+          window.AuthStorage.setSession({
+            email: data.user.email,
+            name: data.user.name,
+            role: data.user.role || 'admin',
+          });
+        }
       }
     } catch (err) {
       // localStorage bisa diblokir (mode privat). Session PHP tetap valid,

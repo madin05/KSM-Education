@@ -61,6 +61,9 @@ try {
     }
 
     // Session PHP (dipakai guard halaman admin & endpoint legacy)
+    // Buang sisa sesi sebelumnya (mis. sesi user biasa) supaya tidak ada
+    // data identitas campuran di dalam satu session.
+    $_SESSION = [];
     session_regenerate_id(true);
     $_SESSION['user_id'] = (int)$user['id'];
     $_SESSION['role']    = $user['role'];

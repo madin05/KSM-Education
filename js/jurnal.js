@@ -290,7 +290,9 @@
       card.style.cssText = `
         display: flex; 
         flex-direction: column; 
-        background: white; 
+        /* var(--ksm-c-card-bg) di-set oleh styles/dark_mode_p5.css saat
+           data-theme="dark"; fallback "white" menjaga tampilan light mode. */
+        background: var(--ksm-c-card-bg, white);
         border-radius: 10px; 
         overflow: visible; 
         box-shadow: 0 2px 15px rgba(0,0,0,0.08); 
@@ -348,17 +350,17 @@
         </div>
         
         <div style="padding: 20px; display: flex; flex-direction: column; flex: 1;">
-          <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: #2c3e50; line-height: 1.4;">${truncateText(
+          <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--ksm-c-card-title, #2c3e50); line-height: 1.4;">${truncateText(
             journal.title,
             60,
           )}</h3>
           
-          <p style="font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 16px;">${truncateText(
+          <p style="font-size: 14px; color: var(--ksm-c-card-text, #666); line-height: 1.6; margin-bottom: 16px;">${truncateText(
             journal.abstract || "No abstract available",
             150,
           )}</p>
           
-          <div style="display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: #888; margin-top: auto; padding-top: 12px; border-top: 1px solid #f0f0f0;">
+          <div style="display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--ksm-c-card-meta, #888); margin-top: auto; padding-top: 12px; border-top: 1px solid var(--ksm-c-card-border, #f0f0f0);">
             <span style="display: flex; align-items: center; gap: 4px;">
               <i data-feather="user" style="width: 14px; height: 14px;"></i> ${getFirstAuthor(
                 journal.authors,
@@ -379,12 +381,12 @@
                 .slice(0, 3)
                 .map(
                   (tag) =>
-                    `<span style="background: #f0f0f0; color: #666; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 500;">${tag}</span>`,
+                    `<span style="background: var(--ksm-c-tag-bg, #f0f0f0); color: var(--ksm-c-tag-text, #666); padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 500;">${tag}</span>`,
                 )
                 .join("")}
               ${
                 journal.tags.length > 3
-                  ? `<span style="background: #2c3e50; color: white; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;">+${
+                  ? `<span style="background: var(--ksm-c-tag-more-bg, #2c3e50); color: var(--ksm-c-tag-more-text, white); padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;">+${
                       journal.tags.length - 3
                     }</span>`
                   : ""

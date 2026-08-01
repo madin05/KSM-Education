@@ -62,14 +62,25 @@ if (loginForm) {
             if (result.ok && result.user) {
                 showAlert('Login berhasil! Mengalihkan...', 'success');
 
+                // ===== BUANG SESI SEBELUMNYA =====
+                // Wajib: tanpa ini, token JWT sesi lama (mis. akun admin) tetap
+                // tersimpan di localStorage dan dipakai kembali oleh dashboard
+                // user, sehingga dashboard menampilkan akun yang salah.
+                if (window.AuthStorage) {
+                    window.AuthStorage.clearAll();
+                } else if (window.TokenManager) {
+                    window.TokenManager.clearTokens();
+                }
+
                 // ===== STORE JWT TOKENS =====
-                if (result.access_token && window.TokenManager) {
+                if (window.AuthStorage) {
+                    window.AuthStorage.setTokens(result);
+                } else if (result.access_token && window.TokenManager) {
                     window.TokenManager.setTokens(
                         result.access_token,
                         result.refresh_token,
                         result.expires_in
                     );
-                    console.log('\ud83d\udd10 JWT tokens stored for user');
                 }
 
                 // Keep local data
@@ -82,10 +93,18 @@ if (loginForm) {
                 }
 
                 // Sync session storage
-                sessionStorage.setItem('userLoggedIn', 'true');
-                sessionStorage.setItem('userEmail', email);
-                sessionStorage.setItem('userName', result.user.name);
-                sessionStorage.setItem('userType', result.user.role || 'user');
+                if (window.AuthStorage) {
+                    window.AuthStorage.setSession({
+                        email: email,
+                        name: result.user.name,
+                        role: result.user.role || 'user'
+                    });
+                } else {
+                    sessionStorage.setItem('userLoggedIn', 'true');
+                    sessionStorage.setItem('userEmail', email);
+                    sessionStorage.setItem('userName', result.user.name);
+                    sessionStorage.setItem('userType', result.user.role || 'user');
+                }
 
                 // Redirect
                 setTimeout(() => {

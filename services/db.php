@@ -29,6 +29,18 @@ define('UPLOAD_DIR_ABS', $_SERVER['DOCUMENT_ROOT'] . APP_ROOT . '/uploads/');
 // Load environment variables
 require_once __DIR__ . '/env_loader.php';
 
+// ===== TIMEZONE KONSISTEN (PHP <-> MySQL) =====
+// Seluruh aplikasi membandingkan waktu hasil date()/time() PHP dengan NOW()
+// MySQL (blacklist JWT, expiry token reset, expiry permintaan token, analitik
+// harian). Bila kedua zona berbeda, perbandingan tersebut salah. Karena itu
+// zona ditetapkan satu kali di sini dan diterapkan ke kedua sisi.
+define('APP_TIMEZONE', get_env_var('APP_TIMEZONE', 'Asia/Jakarta'));
+date_default_timezone_set(APP_TIMEZONE);
+
+// Offset numerik dipakai untuk MySQL karena tabel zona bernama (mysql.time_zone)
+// belum tentu terisi pada instalasi XAMPP/VPS standar.
+$tz_offset = (new DateTime('now', new DateTimeZone(APP_TIMEZONE)))->format('P');
+
 // Definisi konstanta dan variabel untuk koneksi database
 $DB_HOST = get_env_var('DB_HOST', 'localhost');
 $DB_NAME = get_env_var('DB_NAME', 'journal_system2');
@@ -44,6 +56,9 @@ try {
         // Mode fetch default: kembalikan hasil query sebagai array asosiatif
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     ]);
+
+    // Samakan zona waktu sesi MySQL dengan zona waktu PHP.
+    $pdo->exec("SET time_zone = '" . $tz_offset . "'");
 } catch (Exception $e) {
     // CLI utilities (migrations/diagnostics) need the original exception so
     // they can report a useful failure instead of attempting an HTTP redirect.

@@ -296,12 +296,19 @@ function blacklist_token(string $jti, int $expiresAt): bool {
         global $pdo;
         if (!$pdo) return false;
 
-        // Insert into blacklist
-        $stmt = $pdo->prepare("INSERT IGNORE INTO jwt_blacklist (token_jti, expires_at) VALUES (?, ?)");
-        $stmt->execute([$jti, date('Y-m-d H:i:s', $expiresAt)]);
+        // Insert into blacklist.
+        // expires_at dihitung oleh MySQL (FROM_UNIXTIME) supaya nilainya selalu
+        // sebanding dengan NOW() saat housekeeping/pembacaan, terlepas dari
+        // perbedaan date.timezone PHP dan time_zone MySQL.
+        $stmt = $pdo->prepare("INSERT IGNORE INTO jwt_blacklist (token_jti, expires_at) VALUES (?, FROM_UNIXTIME(?))");
+        $stmt->execute([$jti, $expiresAt]);
 
-        // Cleanup expired entries (housekeeping)
-        $pdo->exec("DELETE FROM jwt_blacklist WHERE expires_at < NOW()");
+        // Housekeeping dipisahkan dari jalur insert: dijalankan probabilistik
+        // (±2% request) agar baris yang baru masuk tidak pernah ikut terhapus
+        // pada transaksi yang sama, dan agar logout tetap cepat.
+        if (random_int(1, 50) === 1) {
+            $pdo->exec("DELETE FROM jwt_blacklist WHERE expires_at < NOW()");
+        }
 
         return true;
     } catch (Exception $e) {

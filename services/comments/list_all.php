@@ -12,11 +12,10 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
-// Endpoint admin: pakai session konteks admin saja supaya sesi pengguna biasa
+// Endpoint admin: konteks dipaksa 'admin' supaya sesi/token pengguna biasa
 // tidak pernah dianggap kredensial admin.
+define('KSMEDU_FORCE_CONTEXT', 'admin');
 require_once __DIR__ . '/../auth_context.php';
-ksmedu_session_start(KSMEDU_CTX_ADMIN);
-
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -29,24 +28,15 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
-// ===== ADMIN AUTH CHECK =====
-if (empty($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['ok' => false, 'message' => 'Login required']);
-    exit;
-}
-
 require_once __DIR__ . '/../db.php';
 
-$adminStmt = $pdo->prepare("SELECT role FROM users WHERE id = ? LIMIT 1");
-$adminStmt->execute([(int) $_SESSION['user_id']]);
-$adminUser = $adminStmt->fetch();
+// ===== ADMIN AUTH CHECK =====
+// Memakai middleware hybrid (JWT Bearer ATAU session admin). Sebelumnya
+// endpoint ini HANYA menerima session, sehingga panel admin yang memakai
+// Authorization: Bearer selalu mendapat 401 walau sudah login.
+require_once __DIR__ . '/../jwt_middleware.php';
+require_admin();
 
-if (!$adminUser || $adminUser['role'] !== 'admin') {
-    http_response_code(403);
-    echo json_encode(['ok' => false, 'message' => 'Admin access required']);
-    exit;
-}
 
 // ===== QUERY PARAMS =====
 $page   = max(1, (int) ($_GET['page']   ?? 1));

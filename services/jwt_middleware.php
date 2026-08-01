@@ -56,10 +56,23 @@ function authenticate_request(): ?array {
         // protected endpoints after the account has been closed.
         if (isset($pdo) && $pdo instanceof PDO) {
             try {
-                $statusStmt = $pdo->prepare("SELECT account_status FROM users WHERE id = ? LIMIT 1");
+                $statusStmt = $pdo->prepare(
+                    "SELECT account_status, UNIX_TIMESTAMP(password_changed_at) AS pwd_changed
+                     FROM users WHERE id = ? LIMIT 1"
+                );
                 $statusStmt->execute([(int)$jwt_payload['sub']]);
-                $accountStatus = $statusStmt->fetchColumn();
-                if ($accountStatus !== 'active') {
+                $accountRow = $statusStmt->fetch(PDO::FETCH_ASSOC);
+                if (!$accountRow || $accountRow['account_status'] !== 'active') {
+                    $auth_user = null;
+                    return null;
+                }
+
+                // Password rotation invalidates every token issued before it.
+                // Tanpa ini, access token lama (maks. 30 menit) masih bisa
+                // dipakai setelah ganti/reset password — celah pembajakan sesi.
+                $pwdChanged = $accountRow['pwd_changed'] !== null ? (int)$accountRow['pwd_changed'] : 0;
+                $issuedAt   = isset($jwt_payload['iat']) ? (int)$jwt_payload['iat'] : 0;
+                if ($pwdChanged > 0 && $issuedAt > 0 && $issuedAt < $pwdChanged) {
                     $auth_user = null;
                     return null;
                 }
@@ -68,6 +81,7 @@ function authenticate_request(): ?array {
                 // installations that have not applied the Phase 3 migration.
             }
         }
+
         $auth_user = [
             'id'          => (int) $jwt_payload['sub'],
             'name'        => $jwt_payload['name'] ?? '',

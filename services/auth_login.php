@@ -17,13 +17,23 @@ require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/jwt_helper.php';
 
 
+// Status code harus konsisten dengan hasil (422/401/405/500), bukan selalu 200.
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+    http_response_code(405);
+    header('Allow: POST');
+    echo json_encode(['ok'=>false,'message'=>'Metode tidak diizinkan.']);
+    exit;
+}
+
 try {
     $raw = file_get_contents('php://input');
     $data = json_decode($raw,true);
     if (!$data || empty($data['email']) || empty($data['password'])) { 
+        http_response_code(422);
         echo json_encode(['ok'=>false,'message'=>'Data input tidak valid!']); 
         exit; 
     }
+
 
     $email = trim($data['email']);
     $password = $data['password'];
@@ -33,14 +43,17 @@ try {
     $user = $stmt->fetch();
     
     if (!$user) { 
+        http_response_code(401);
         echo json_encode(['ok'=>false,'message'=>'Email tidak terdaftar!']); 
         exit; 
     }
 
     if (!password_verify($data['password'], $user['password_hash'])) {
+        http_response_code(401);
         echo json_encode(['ok'=>false,'message'=>'Password salah!']); 
         exit;
     }
+
 
     // Set PHP Session (backward compatibility)
     // Reset total isi session lama sebelum memasang identitas baru.
@@ -70,8 +83,13 @@ try {
         'expires_in' => $accessToken['expires_in']
     ]);
 } catch (Exception $e) {
+    // Jangan bocorkan detail exception (nama tabel, query, path) ke klien.
+    error_log('Login error: ' . $e->getMessage());
+    http_response_code(500);
     echo json_encode([
         'ok'=>false, 
-        'message'=>'Server Error: ' . $e->getMessage()
+        'message'=>'Terjadi kesalahan sistem. Coba lagi nanti.'
     ]);
 }
+
+

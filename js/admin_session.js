@@ -47,12 +47,67 @@
     },
     closeLoginModal: function () {},
     syncLoginStatus: function () {},
+    // Logout harus MENCABUT token, bukan cuma menghapus session PHP.
+    // Sebelumnya fungsi ini langsung redirect (GET) tanpa mengirim
+    // Authorization/refresh_token, sehingga JWT admin di localStorage tetap
+    // sah sampai kedaluwarsa dan masih bisa dipakai memanggil endpoint
+    // services/admin/*. Sekarang token di-blacklist lebih dulu.
     logout: function () {
-      window.location.href =
-        '../services/auth_logout.php?redirect=' +
-        encodeURIComponent('../admin/login_admin.php');
+      var redirect = '../admin/login_admin.php';
+      var apiBase =
+        (window.APP_CONFIG && window.APP_CONFIG.apiBase) || '../services';
+      var headers = { 'Content-Type': 'application/json' };
+      var body = {};
+
+      try {
+        var store = window.AuthStorage || null;
+        var access = store && store.getAccessToken ? store.getAccessToken() : null;
+        var refresh = store && store.getRefreshToken ? store.getRefreshToken() : null;
+        if (!access) access = localStorage.getItem('jwt_access_token_admin');
+        if (!refresh) refresh = localStorage.getItem('jwt_refresh_token_admin');
+        if (access) headers['Authorization'] = 'Bearer ' + access;
+        if (refresh) body.refresh_token = refresh;
+      } catch (err) {
+        /* storage diblokir: lanjut dengan logout berbasis session saja */
+      }
+
+      function finish() {
+        try {
+          if (window.AuthStorage && window.AuthStorage.clearAll) {
+            window.AuthStorage.clearAll();
+          }
+          localStorage.removeItem('jwt_access_token_admin');
+          localStorage.removeItem('jwt_refresh_token_admin');
+          localStorage.removeItem('jwt_token_expiry_admin');
+          localStorage.removeItem('admin_user');
+          localStorage.removeItem('currentUser');
+          sessionStorage.removeItem('userLoggedIn');
+          sessionStorage.removeItem('userType');
+          sessionStorage.removeItem('userEmail');
+        } catch (err) {
+          /* diabaikan */
+        }
+        window.location.replace(redirect);
+      }
+
+      fetch(apiBase + '/auth_logout.php', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: headers,
+        body: JSON.stringify(body),
+      })
+        .then(finish)
+        .catch(function (err) {
+          console.error('Admin logout error:', err);
+          // Fallback: biarkan PHP menghancurkan session lalu redirect.
+          window.location.href =
+            apiBase +
+            '/auth_logout.php?redirect=' +
+            encodeURIComponent(redirect);
+        });
     },
   };
+
 
   window.dispatchEvent(
     new CustomEvent('adminLoginStatusChanged', { detail: { isLoggedIn: true } })

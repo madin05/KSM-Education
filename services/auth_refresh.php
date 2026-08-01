@@ -94,7 +94,10 @@ try {
 
     // Fetch the latest user data from database
     $userId = (int) $payload['sub'];
-    $stmt = $pdo->prepare("SELECT id, email, name, role FROM users WHERE id = ? AND (account_status = 'active' OR account_status IS NULL) LIMIT 1");
+    $stmt = $pdo->prepare(
+        "SELECT id, email, name, role, UNIX_TIMESTAMP(password_changed_at) AS pwd_changed
+         FROM users WHERE id = ? AND (account_status = 'active' OR account_status IS NULL) LIMIT 1"
+    );
     $stmt->execute([$userId]);
     $user = $stmt->fetch();
 
@@ -107,6 +110,22 @@ try {
         ]);
         exit;
     }
+
+    // Refresh token yang diterbitkan sebelum password terakhir diubah harus
+    // ditolak. Tanpa cek ini, sesi lama tetap bisa memperpanjang diri sendiri
+    // walaupun user sudah ganti password / melakukan reset password.
+    $pwdChanged = isset($user['pwd_changed']) ? (int) $user['pwd_changed'] : 0;
+    $issuedAt = isset($payload['iat']) ? (int) $payload['iat'] : 0;
+    if ($pwdChanged > 0 && $issuedAt > 0 && $issuedAt < $pwdChanged) {
+        http_response_code(401);
+        echo json_encode([
+            'ok' => false,
+            'message' => 'Password telah diubah. Silakan login kembali.',
+            'code' => 'PASSWORD_CHANGED'
+        ]);
+        exit;
+    }
+
 
     // Generate a new access token with fresh user data
     $accessToken = generate_access_token($user);

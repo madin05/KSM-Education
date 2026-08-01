@@ -15,10 +15,23 @@ header('Content-Type: application/json; charset=utf-8');
 $raw = file_get_contents('php://input');
 $data = json_decode($raw, true);
 
+// Status code harus mencerminkan hasil: klien (fetch/axios) dan reverse proxy
+// memakai res.ok / res.status. Sebelumnya semua kegagalan validasi dibalas
+// HTTP 200 sehingga error tidak terdeteksi oleh pemanggil yang hanya
+// memeriksa status code.
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+    http_response_code(405);
+    header('Allow: POST');
+    echo json_encode(['ok' => false, 'message' => 'Metode tidak diizinkan.']);
+    exit;
+}
+
 if (!$data || empty($data['name']) || empty($data['email']) || empty($data['password'])) {
+    http_response_code(422);
     echo json_encode(['ok' => false, 'message' => 'Semua field wajib diisi!']);
     exit;
 }
+
 
 $name = trim($data['name']);
 $email = trim($data['email']);
@@ -26,24 +39,29 @@ $password = $data['password'];
 
 // Validate email
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    http_response_code(422);
     echo json_encode(['ok' => false, 'message' => 'Format email tidak valid!']);
     exit;
 }
 
 // Check password length
 if (strlen($password) < 6) {
+    http_response_code(422);
     echo json_encode(['ok' => false, 'message' => 'Password minimal 6 karakter!']);
     exit;
 }
+
 
 try {
     // Check if email already exists
     $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ? LIMIT 1");
     $stmt->execute([$email]);
     if ($stmt->fetch()) {
+        http_response_code(409);
         echo json_encode(['ok' => false, 'message' => 'Email sudah terdaftar!']);
         exit;
     }
+
 
     $pdo->beginTransaction();
 
@@ -102,5 +120,7 @@ try {
         $pdo->rollBack();
     }
     error_log("Registration error: " . $e->getMessage());
+    http_response_code(500);
     echo json_encode(['ok' => false, 'message' => 'Terjadi kesalahan sistem. Coba lagi nanti.']);
+
 }

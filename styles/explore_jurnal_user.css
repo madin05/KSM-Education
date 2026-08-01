@@ -1281,15 +1281,17 @@ body.menu-open {
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
 }
 
-/* User Profile in Navbar */
+/* User Profile in Navbar
+   .user-profile kini hanya wrapper posisi (lihat header.css) — pill
+   (background/border/padding) dipegang .user-profile-trigger. Style pill
+   lama di sini menghasilkan kotak abu/putih di belakang avatar bulat,
+   jadi dinetralkan. */
 .user-profile {
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: #f8fafc;
-  padding: 6px 12px;
-  border-radius: 30px;
-  border: 1px solid #e2e8f0;
+  background: transparent;
+  padding: 0;
+  border: 0;
 }
 
 .btn-logout {

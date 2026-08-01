@@ -476,9 +476,13 @@
   background: var(--ksm-dark-surface-3) !important;
 }
 
+/* .user-profile hanya wrapper posisi (lihat header.css). Dulu di sini
+   diberi background surface-2 sehingga muncul kotak abu/putih di belakang
+   pill avatar yang bulat. Warna pill diurus .user-profile-trigger. */
 [data-theme="dark"] .user-profile {
-  background: var(--ksm-dark-surface-2);
-  border-color: var(--ksm-dark-border);
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
   color: var(--ksm-dark-text);
 }
 

@@ -1,6 +1,6 @@
 <?php
 $page_title = 'Detail Artikel - KSM Education';
-$base_css = '<link rel="stylesheet" href="../styles/explore_jurnal_user.css" />
+$base_css = '<link rel="stylesheet" href="../styles/explore_jurnal_user.css?v=20260802" />
 <link rel="stylesheet" href="../styles/skeleton.css" />';
 $extra_head = null;
 include 'components/header.php';

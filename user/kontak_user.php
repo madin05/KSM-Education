@@ -26,21 +26,21 @@ include 'components/navbar.php';
             <div class="contact-info-icon"><i data-feather="mail"></i></div>
             <div>
               <h4>Email</h4>
-              <p>admin@ksmeducation.id</p>
+              <p>lynenatasya2@gmail.com</p>
             </div>
           </div>
           <div class="contact-info-card">
             <div class="contact-info-icon"><i data-feather="phone"></i></div>
             <div>
               <h4>WhatsApp</h4>
-              <p>+62 812-3456-7890</p>
+              <p>+62 856-9586-3173</p>
             </div>
           </div>
           <div class="contact-info-card">
             <div class="contact-info-icon"><i data-feather="map-pin"></i></div>
             <div>
               <h4>Alamat</h4>
-              <p>Jl. Pendidikan No. 1, Jakarta, Indonesia</p>
+              <p>Jl. Raya Puspiptek No. 46, Buaran, Kec. Pamulang, Kota Tangerang Selatan, Banten 15310</p>
             </div>
           </div>
           <div class="contact-info-card">
@@ -64,7 +64,9 @@ include 'components/navbar.php';
           <div class="profile-card">
             <h3 class="profile-form-title">Kirim Pesan</h3>
             <form id="contactForm" class="profile-form">
-              <div aria-hidden="true" class="contact-honeypot">
+              <!-- Honeypot anti-spam: wajib tetap ada (dicek di services/send_contact.php),
+                   tapi harus benar-benar tidak terlihat oleh user. -->
+              <div aria-hidden="true" class="contact-honeypot" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">
                 <label for="contactWebsite">Website</label>
                 <input id="contactWebsite" name="website" type="text" tabindex="-1" autocomplete="off" />
               </div>

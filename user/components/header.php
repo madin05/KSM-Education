@@ -59,7 +59,7 @@
       komentar. explore_jurnal_user.css penuh warna putih hardcoded dan
       belum pernah tertutup p2/p3/p4, jadi ditambal di file terpisah ini.
     -->
-    <link rel="stylesheet" href="../styles/dark_mode_p5.css?v=20260801" />
+    <link rel="stylesheet" href="../styles/dark_mode_p5.css?v=20260802" />
   </head>
 
   <body>

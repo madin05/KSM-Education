@@ -202,8 +202,8 @@ class PaginationUser {
 
     const exploreUrl =
       this.dataType === "jurnal"
-        ? `explore_jurnal_user.php?id=${item.id}&type=jurnal`
-        : `explore_opini_user.php?id=${item.id}&type=opini`;
+        ? `explore_jurnal?id=${item.id}&type=jurnal`
+        : `explore_opini?id=${item.id}&type=opini`;
 
     const tags = Array.isArray(item.tags) ? item.tags : [];
     const dropdownId = `user-dropdown-${this.dataType}-${item.id}`;
@@ -695,7 +695,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("journalContainer");
   if (!container) return;
 
-  const path = window.location.pathname;
+  // ksmPagePath() resolves the clean URL (/user/opinions) back to the real
+  // script name (opinions_user.php) so the data type stays correct.
+  const path = ksmPagePath();
   const dataType = path.includes("opinions_user") ? "opini" : "jurnal";
 
   window.paginationUser = new PaginationUser({

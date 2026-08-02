@@ -54,7 +54,7 @@ include 'components/navbar.php';
         <div class="my-articles-card">
           <div class="dtc-card-header">
             <h3>Artikel Terbaru Saya</h3>
-            <a href="my_journals_user.php" class="dtc-see-all">
+            <a href="my_journals" class="dtc-see-all">
               Lihat Semua
               <i data-feather="arrow-right"></i>
             </a>
@@ -68,7 +68,7 @@ include 'components/navbar.php';
         <div class="activity-card">
           <div class="dtc-card-header">
             <h3>Aktivitas Terbaru</h3>
-            <a href="token_history_user.php" class="dtc-see-all dtc-see-all-dark">
+            <a href="token_history" class="dtc-see-all dtc-see-all-dark">
               Lihat Semua
               <i data-feather="arrow-right"></i>
             </a>

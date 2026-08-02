@@ -10,9 +10,9 @@ include 'components/navbar.php';
 
     <!-- Breadcrumb -->
     <div class="breadcrumb">
-      <a href="dashboard_user.php">Home</a>
+      <a href="dashboard">Home</a>
       <span>/</span>
-      <a href="journals_user.php" id="breadcrumbType">Jurnal</a>
+      <a href="journals" id="breadcrumbType">Jurnal</a>
       <span>/</span>
       <span id="breadcrumbTitle">Blog</span>
     </div>

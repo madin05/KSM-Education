@@ -7,9 +7,9 @@ include 'components/sidebar.php';
 
     <!-- Breadcrumb -->
     <div class="breadcrumb">
-      <a href="dashboard_admin.php">Home</a>
+      <a href="dashboard">Home</a>
       <span>/</span>
-      <a href="opinions.php" id="breadcrumbType">Opini</a>
+      <a href="opinions" id="breadcrumbType">Opini</a>
       <span>/</span>
       <span id="breadcrumbTitle">Blog</span>
     </div>

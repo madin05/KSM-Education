@@ -41,7 +41,7 @@
       <div class="form-group"><input type="password" id="confirmPassword" placeholder="Konfirmasi password baru" minlength="8" required /></div>
       <button type="submit" class="btn-login">Simpan Password</button>
     </form>
-    <div class="signup-link"><a href="login_user.php">Kembali ke login</a></div>
+    <div class="signup-link"><a href="login">Kembali ke login</a></div>
   </main>
   <script src="../js/password_reset.js"></script>
 </body>

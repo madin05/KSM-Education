@@ -159,8 +159,8 @@ function openArticleDetail(articleId, articleType) {
 
   const targetPage =
     articleType === "opini"
-      ? "explore_opini_user.php"
-      : "explore_jurnal_user.php";
+      ? "explore_opini"
+      : "explore_jurnal";
 
   window.location.href = `${targetPage}?id=${articleId}&type=${articleType}`;
 }
@@ -304,7 +304,7 @@ async function renderArticles() {
   if (navUser) {
     if (articles.length > 6) {
       navUser.innerHTML = `
-        <button class="btn-see-all" onclick="window.location.href='journals_user.php'">
+        <button class="btn-see-all" onclick="window.location.href='journals'">
           LIHAT SEMUA ARTIKEL
         </button>
       `;
@@ -436,7 +436,7 @@ function renderMyArticles() {
 // mode edit, atau halaman khusus edit_jurnal_user.php).
 window.editUserArticle = function (id, type) {
   const target =
-    type === "opini" ? "explore_opini_user.php" : "explore_jurnal_user.php";
+    type === "opini" ? "explore_opini" : "explore_jurnal";
   window.location.href = `${target}?id=${id}&type=${type}&edit=1`;
 };
 
@@ -539,7 +539,7 @@ function setupLogout() {
       if (confirmed) {
         sessionStorage.clear();
         localStorage.removeItem("userEmail");
-        window.location.href = "./login_user.php";
+        window.location.href = "./login";
       }
     });
   }
@@ -608,7 +608,7 @@ function setupGuestMode() {
     if (navbar && !document.getElementById("guestLoginBtn")) {
       const loginBtn = document.createElement("a");
       loginBtn.id = "guestLoginBtn";
-      loginBtn.href = "./login_user.php";
+      loginBtn.href = "./login";
       loginBtn.className = "btn-guest-login";
       loginBtn.innerHTML = `
         <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
@@ -649,7 +649,7 @@ function setupSearch() {
       if (e.key === "Enter") {
         const query = searchInput.value.trim();
         if (query) {
-          window.location.href = `journals_user.php?search=${encodeURIComponent(
+          window.location.href = `journals?search=${encodeURIComponent(
             query,
           )}`;
         }
@@ -732,8 +732,8 @@ class ShareManager {
 
     const targetPage =
       articleType === "opini"
-        ? "explore_opini_user.php"
-        : "explore_jurnal_user.php";
+        ? "explore_opini"
+        : "explore_jurnal";
 
     const shareUrl = `${baseUrl}${path}/${targetPage}?id=${articleId}&type=${articleType}`;
 
@@ -901,7 +901,7 @@ class DynamicCategoriesManager {
     grid.innerHTML = topCategories
       .map(
         ([category, count]) => `
-      <div class="category-card" onclick="window.location.href='journals_user.php?category=${encodeURIComponent(
+      <div class="category-card" onclick="window.location.href='journals?category=${encodeURIComponent(
         category,
       )}'" style="cursor: pointer;">
         <span class="category-name">${this.escapeHtml(category)}</span>
@@ -1027,8 +1027,8 @@ window.downloadDashboardArticle = async function (fileUrlOrId, itemTitle, dataTy
 window.openDashboardShareModal = function (itemId, itemTitle, dataType) {
   const pageUrl =
     dataType === "opini"
-      ? `explore_opini_user.php?id=${itemId}&type=opini`
-      : `explore_jurnal_user.php?id=${itemId}&type=jurnal`;
+      ? `explore_opini?id=${itemId}&type=opini`
+      : `explore_jurnal?id=${itemId}&type=jurnal`;
 
   const baseUrl = window.location.origin + window.APP_CONFIG.ROOT + "/";
   const fullShareUrl = baseUrl + pageUrl;

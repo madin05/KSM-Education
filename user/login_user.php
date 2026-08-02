@@ -78,7 +78,7 @@ $page_title = 'User Login - KSM Education';
             <input type="checkbox" id="rememberMe" />
             <span>Remember Me</span>
           </label>
-          <a href="forgot_password.php" class="forgot-password">Forgot Password?</a>
+          <a href="forgot_password" class="forgot-password">Forgot Password?</a>
         </div>
 
         <button type="submit" class="btn-login">
@@ -92,11 +92,11 @@ $page_title = 'User Login - KSM Education';
 
       <!-- Footer Links -->
       <div class="signup-link">
-        Belum punya akun? <a href="register_user.php">Daftar Sekarang</a>
+        Belum punya akun? <a href="register">Daftar Sekarang</a>
       </div>
 
       <div class="back-to-home">
-        <a href="../user/dashboard_user.php">
+        <a href="../user/dashboard">
           <i data-feather="arrow-left"></i>
           Kembali ke Beranda
         </a>

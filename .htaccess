@@ -15,6 +15,53 @@ SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
 # Prevent PHP execution in uploads directory
 RewriteRule ^uploads/.*\.ph(p[345s]?|tml|ar)$ - [F,L]
 
+# =====================================================================
+# CLEAN URLs (mirror of deploy/nginx/ksmedu.conf section 7)
+# ---------------------------------------------------------------------
+# Kept in sync with the Nginx config so the same URLs work on Apache
+# (XAMPP dev + current VPS). Nothing below rewrites /services/, static
+# assets or /uploads/ -- see the exclusion guards.
+# =====================================================================
+
+# 1. Never touch API endpoints, uploads or the asset folders.
+RewriteRule ^services/ - [L]
+RewriteRule ^uploads/  - [L]
+RewriteRule ^(assets|js|styles|css|images)/ - [L]
+
+# 2. Never touch anything that already exists on disk (files + dirs),
+#    which also stops the rules below from re-entering themselves.
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# 3. Explicit map for pages whose filename != public URL segment
+#    (legacy "_user" / "_admin" suffixes). QSA keeps the query string.
+RewriteRule ^user/dashboard$        user/dashboard_user.php        [L,QSA]
+RewriteRule ^user/journals$         user/journals_user.php         [L,QSA]
+RewriteRule ^user/opinions$         user/opinions_user.php         [L,QSA]
+RewriteRule ^user/explore_jurnal$   user/explore_jurnal_user.php   [L,QSA]
+RewriteRule ^user/explore_opini$    user/explore_opini_user.php    [L,QSA]
+RewriteRule ^user/tentang$          user/tentang_user.php          [L,QSA]
+RewriteRule ^user/kontak$           user/kontak_user.php           [L,QSA]
+RewriteRule ^user/login$            user/login_user.php            [L,QSA]
+RewriteRule ^user/register$         user/register_user.php         [L,QSA]
+RewriteRule ^user/profile$          user/profil_user.php           [L,QSA]
+RewriteRule ^user/profil$           user/profil_user.php           [L,QSA]
+RewriteRule ^user/my_journals$      user/my_journals_user.php      [L,QSA]
+RewriteRule ^user/token_history$    user/token_history_user.php    [L,QSA]
+RewriteRule ^user/pengaturan$       user/pengaturan_user.php       [L,QSA]
+RewriteRule ^admin/dashboard$       admin/dashboard_admin.php      [L,QSA]
+RewriteRule ^admin/login$           admin/login_admin.php          [L,QSA]
+RewriteRule ^admin/explore_jurnal$  admin/explore_jurnal_admin.php [L,QSA]
+RewriteRule ^admin/explore_opini$   admin/explore_opini_admin.php  [L,QSA]
+
+# 4. Same-name pages: /admin/journals -> admin/journals.php.
+#    One safe path segment only, restricted to the two page folders,
+#    and the target must exist -- otherwise fall through to a real 404.
+RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI}.php -f
+RewriteRule ^(user|admin)/([A-Za-z0-9_-]+)$ $1/$2.php [L,QSA]
+
+
 # Disable directory listing
 Options -Indexes
 

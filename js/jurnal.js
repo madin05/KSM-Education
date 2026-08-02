@@ -13,7 +13,9 @@
       
       // ===== 1) JANGAN JALAN DI HALAMAN USER DASHBOARD =====
       // Biarkan dashboard_user.js yang handle render untuk user
-      const path = window.location.pathname.toLowerCase();
+      // ksmPagePath() = pathname with the real script name, so this test works
+      // for the clean URL (/user/dashboard) and the legacy .php URL alike.
+      const path = ksmPagePath().toLowerCase();
       if (path.includes("dashboard_user.php")) {
         console.warn(
           "User dashboard page - JournalManager DISABLED (handled by dashboard_user.js)",
@@ -83,7 +85,7 @@
         }
 
         // Kalau di dashboard, ambil juga opinions
-        if (window.location.pathname.includes("dashboard_admin.php")) {
+        if (ksmPagePath().includes("dashboard_admin.php")) {
           const opiniRes = await fetch(
             `${window.APP_CONFIG.apiBase}/list_opinions.php?limit=100&offset=0&_=${timestamp}`,
             {
@@ -164,7 +166,7 @@
       this.journalContainer.innerHTML = "";
 
       // Check if we are on index or dashboard
-      const path = window.location.pathname.toLowerCase();
+      const path = ksmPagePath().toLowerCase();
       const isDashboard =
         path.includes("dashboard_admin.php") ||
         path.includes("dashboard_user.php") ||
@@ -253,7 +255,7 @@
         return;
       }
 
-      const isDashboard = window.location.pathname.includes(
+      const isDashboard = ksmPagePath().includes(
         "dashboard_admin.php",
       );
       const journalsToShow = isDashboard
@@ -279,8 +281,8 @@
       // Paksa true jika di halaman admin, biar tombol selalu muncul
       const isAdmin =
         sessionStorage.getItem("userType") === "admin" ||
-        window.location.pathname.includes("dashboard_admin.php") ||
-        window.location.pathname.includes("journals.php");
+        ksmPagePath().includes("dashboard_admin.php") ||
+        ksmPagePath().includes("journals.php");
 
       const card = document.createElement("div");
       card.className = isAdmin ? "journal-card" : "article-card";
@@ -431,8 +433,8 @@
         const exploreType = journal._type === "opini" ? "opini" : "jurnal";
         const explorePage =
           journal._type === "opini"
-            ? "explore_opini_admin.php"
-            : "explore_jurnal_admin.php";
+            ? "explore_opini"
+            : "explore_jurnal";
         coverDiv.addEventListener("click", (e) => {
           e.stopPropagation();
           window.location.href = `${explorePage}?id=${journal.id}&type=${exploreType}`;
@@ -445,7 +447,7 @@
     viewJournal(id) {
       console.log(" Viewing journal:", id);
       this.updateViews(id);
-      window.location.href = `explore_jurnal_admin.php?id=${id}&type=jurnal`;
+      window.location.href = `explore_jurnal?id=${id}&type=jurnal`;
     }
 
     async deleteJournal(id, title = "") {
@@ -608,7 +610,7 @@
     if (navUser) {
       if (journals.length > 6) {
         navUser.innerHTML = `
-          <button class="btn-see-all" onclick="window.location.href='journals_user.php'">
+          <button class="btn-see-all" onclick="window.location.href='journals'">
             Lihat semua artikel
           </button>
         `;
@@ -622,7 +624,7 @@
     if (navAdmin) {
       if (journals.length > 6) {
         navAdmin.innerHTML = `
-          <button class="btn-see-all" onclick="window.location.href='journals.php'">
+          <button class="btn-see-all" onclick="window.location.href='journals'">
             Lihat semua artikel
           </button>
         `;

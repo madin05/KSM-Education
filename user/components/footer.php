@@ -21,9 +21,10 @@
         <div class="footer-links">
           <h4>Quick Menu</h4>
           <ul>
-            <li><a href="dashboard_user.php">Home</a></li>
-            <li><a href="journals_user.php">Daftar Jurnal</a></li>
-            <li><a href="opinions_user.php">Opini & Berita</a></li>
+            <li><a href="dashboard">Home</a></li>
+            <li><a href="journals">Daftar Jurnal</a></li>
+            <li><a href="opinions">Opini & Berita</a></li>
+
           </ul>
         </div>
 

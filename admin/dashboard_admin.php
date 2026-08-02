@@ -24,7 +24,7 @@ include 'components/sidebar.php';
         <div id="adminOverviewError" class="review-error visitor-error" hidden></div>
 
         <div class="admin-overview-grid is-loading" id="adminOverviewGrid">
-          <a class="overview-card" href="./review_journals.php">
+          <a class="overview-card" href="./review_journals">
             <span class="overview-badge" id="badgeReview" hidden></span>
             <div class="overview-icon"><i data-feather="inbox"></i></div>
             <div class="overview-body">
@@ -34,7 +34,7 @@ include 'components/sidebar.php';
             </div>
           </a>
 
-          <a class="overview-card" href="./contact_messages.php">
+          <a class="overview-card" href="./contact_messages">
             <span class="overview-badge" id="badgeContact" hidden></span>
             <div class="overview-icon"><i data-feather="mail"></i></div>
             <div class="overview-body">
@@ -44,7 +44,7 @@ include 'components/sidebar.php';
             </div>
           </a>
 
-          <a class="overview-card" href="./token_requests.php">
+          <a class="overview-card" href="./token_requests">
             <span class="overview-badge" id="badgeToken" hidden></span>
             <div class="overview-icon"><i data-feather="credit-card"></i></div>
             <div class="overview-body">
@@ -54,7 +54,7 @@ include 'components/sidebar.php';
             </div>
           </a>
 
-          <a class="overview-card" href="./visitor_analytics.php">
+          <a class="overview-card" href="./visitor_analytics">
             <div class="overview-icon"><i data-feather="bar-chart-2"></i></div>
             <div class="overview-body">
               <span class="overview-label">Pengunjung Hari Ini</span>
@@ -63,7 +63,7 @@ include 'components/sidebar.php';
             </div>
           </a>
 
-          <a class="overview-card" href="./journals.php">
+          <a class="overview-card" href="./journals">
             <div class="overview-icon"><i data-feather="book-open"></i></div>
             <div class="overview-body">
               <span class="overview-label">Artikel Terbit</span>
@@ -117,7 +117,7 @@ include 'components/sidebar.php';
           class="view-all-container"
           style="display: none"
         >
-          <a href="./journals.php" class="btn-view-all">
+          <a href="./journals" class="btn-view-all">
             <i data-feather="arrow-right"></i>
             Lihat Semua Jurnal
           </a>

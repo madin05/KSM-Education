@@ -43,7 +43,7 @@
     },
     // Tidak ada lagi modal login di halaman admin: arahkan ke halaman login.
     openLoginModal: function () {
-      window.location.href = 'login_admin.php';
+      window.location.href = 'login';
     },
     closeLoginModal: function () {},
     syncLoginStatus: function () {},

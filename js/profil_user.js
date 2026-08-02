@@ -24,7 +24,7 @@ async function loadProfileData() {
     const result = await response.json();
 
     if (!result.ok || !result.user) {
-      window.location.href = "./login_user.php";
+      window.location.href = "./login";
       return;
     }
 

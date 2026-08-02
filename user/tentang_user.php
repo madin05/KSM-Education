@@ -99,7 +99,7 @@ include 'components/navbar.php';
             <i data-feather="upload"></i>
             Upload Jurnal Sekarang
           </button>
-          <a href="kontak_user.php" class="static-btn-outline">
+          <a href="kontak" class="static-btn-outline">
             <i data-feather="mail"></i>
             Hubungi Kami
           </a>

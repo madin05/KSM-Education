@@ -52,7 +52,7 @@
         });
         show(result.message, "success");
         resetForm.reset();
-        setTimeout(() => { window.location.href = "login_user.php"; }, 1500);
+        setTimeout(() => { window.location.href = "login"; }, 1500);
       } catch (error) {
         show(error.message, "error");
       }

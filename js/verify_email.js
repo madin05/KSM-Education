@@ -81,7 +81,7 @@ verifyForm.addEventListener('submit', async function (e) {
         if (result.ok && result.already_verified) {
             showAlert(result.message || 'Email sudah terverifikasi.', 'success');
             setTimeout(() => {
-                window.location.href = 'login_user.php';
+                window.location.href = 'login';
             }, 1500);
             return;
         }
@@ -108,7 +108,7 @@ verifyForm.addEventListener('submit', async function (e) {
             }
 
             setTimeout(() => {
-                window.location.href = 'dashboard_user.php';
+                window.location.href = 'dashboard';
             }, 1500);
             return;
         }

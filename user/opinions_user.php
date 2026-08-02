@@ -54,7 +54,7 @@ include 'components/navbar.php';
 
       <!-- Back Button -->
       <section class="back-section">
-        <a href="./dashboard_user.php" class="btn-back">
+        <a href="./dashboard" class="btn-back">
           <i data-feather="arrow-left"></i>
         </a>
       </section>

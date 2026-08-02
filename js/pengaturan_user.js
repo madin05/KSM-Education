@@ -168,7 +168,7 @@ function setupDeleteAccount() {
       if (window.TokenManager) window.TokenManager.clearTokens();
       showToast("Akun Anda telah dihapus.", "success", "SELESAI");
       setTimeout(() => {
-        window.location.href = "./login_user.php";
+        window.location.href = "./login";
       }, 1200);
     } catch (error) {
       console.error("Delete account error:", error);

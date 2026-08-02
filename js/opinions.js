@@ -16,7 +16,8 @@ class OpinionsPageManager {
   }
 
   async init() {
-    const path = window.location.pathname.toLowerCase();
+    // Real script name even on clean URLs (/admin/dashboard, /user/opinions ...)
+    const path = ksmPagePath().toLowerCase();
     if (path.includes("dashboard_admin.php")) {
       console.warn(
         "Dashboard admin page - OpinionsPageManager DISABLED (handled by JournalManager)",
@@ -243,7 +244,7 @@ class OpinionsPageManager {
     this.updateViews(id);
 
     //  FEATURE: Navigate to detail page
-    window.location.href = `explore_jurnal_user.php?id=${id}&type=opini`;
+    window.location.href = `explore_jurnal?id=${id}&type=opini`;
   }
 
   // ===== DELETE OPINION FROM DATABASE =====

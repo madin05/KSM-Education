@@ -10,32 +10,36 @@ $current_page = basename($_SERVER['PHP_SELF']);
  * Definisi menu: setiap grup punya label, ikon, dan daftar item.
  * key 'badge' = id elemen badge yang diisi js/admin_nav.js dari
  * services/admin/dashboard_stats.php.
+ *
+ * 'file' = nama skrip asli (dipakai untuk menandai halaman aktif, karena
+ *          rewrite clean URL bersifat internal sehingga PHP_SELF tetap *.php).
+ * 'url'  = clean URL yang dipakai pada atribut href.
  */
 $nav_groups = [
     [
         'label' => 'KONTEN',
         'icon'  => 'book-open',
         'items' => [
-            ['file' => 'journals.php',         'label' => 'Artikel Jurnal', 'desc' => 'Kelola & terbitkan jurnal',   'icon' => 'book'],
-            ['file' => 'opinions.php',         'label' => 'Artikel Opini',  'desc' => 'Kelola & terbitkan opini',    'icon' => 'edit-3'],
-            ['file' => 'dashboard_admin.php',  'hash' => '#upload', 'label' => 'Upload Artikel', 'desc' => 'Unggah konten baru', 'icon' => 'upload-cloud'],
+            ['file' => 'journals.php',         'url' => 'journals',   'label' => 'Artikel Jurnal', 'desc' => 'Kelola & terbitkan jurnal',   'icon' => 'book'],
+            ['file' => 'opinions.php',         'url' => 'opinions',   'label' => 'Artikel Opini',  'desc' => 'Kelola & terbitkan opini',    'icon' => 'edit-3'],
+            ['file' => 'dashboard_admin.php',  'url' => 'dashboard',  'hash' => '#upload', 'label' => 'Upload Artikel', 'desc' => 'Unggah konten baru', 'icon' => 'upload-cloud'],
         ],
     ],
     [
         'label' => 'MODERASI',
         'icon'  => 'shield',
         'items' => [
-            ['file' => 'review_journals.php',  'label' => 'Review Kiriman', 'desc' => 'Antrean jurnal & opini masuk', 'icon' => 'inbox',        'badge' => 'navBadgeReview'],
-            ['file' => 'comments.php',         'label' => 'Komentar',       'desc' => 'Moderasi komentar pembaca',    'icon' => 'message-square'],
-            ['file' => 'contact_messages.php', 'label' => 'Pesan Kontak',   'desc' => 'Kotak masuk & balasan',        'icon' => 'mail',         'badge' => 'navBadgeContact'],
+            ['file' => 'review_journals.php',  'url' => 'review_journals',  'label' => 'Review Kiriman', 'desc' => 'Antrean jurnal & opini masuk', 'icon' => 'inbox',        'badge' => 'navBadgeReview'],
+            ['file' => 'comments.php',         'url' => 'comments',         'label' => 'Komentar',       'desc' => 'Moderasi komentar pembaca',    'icon' => 'message-square'],
+            ['file' => 'contact_messages.php', 'url' => 'contact_messages', 'label' => 'Pesan Kontak',   'desc' => 'Kotak masuk & balasan',        'icon' => 'mail',         'badge' => 'navBadgeContact'],
         ],
     ],
     [
         'label' => 'OPERASIONAL',
         'icon'  => 'activity',
         'items' => [
-            ['file' => 'token_requests.php',    'label' => 'Verifikasi Token', 'desc' => 'Top-up manual & ledger',   'icon' => 'credit-card', 'badge' => 'navBadgeToken'],
-            ['file' => 'visitor_analytics.php', 'label' => 'Analitik',         'desc' => 'Statistik pengunjung',     'icon' => 'bar-chart-2'],
+            ['file' => 'token_requests.php',    'url' => 'token_requests',    'label' => 'Verifikasi Token', 'desc' => 'Top-up manual & ledger',   'icon' => 'credit-card', 'badge' => 'navBadgeToken'],
+            ['file' => 'visitor_analytics.php', 'url' => 'visitor_analytics', 'label' => 'Analitik',         'desc' => 'Statistik pengunjung',     'icon' => 'bar-chart-2'],
         ],
     ],
 ];
@@ -57,7 +61,7 @@ $group_is_active = static function (array $group) use ($current_page): bool {
     <header>
       <div class="header-container">
         <div class="logo">
-          <a href="dashboard_admin.php"><img src="../assets/main_logo.png" alt="Logo" /></a>
+          <a href="dashboard"><img src="../assets/main_logo.png" alt="Logo" /></a>
         </div>
 
         <div class="header-right">
@@ -76,7 +80,7 @@ $group_is_active = static function (array $group) use ($current_page): bool {
 
         <nav class="admin-nav" aria-label="Navigasi admin">
           <a
-            href="dashboard_admin.php"
+            href="dashboard"
             class="<?php echo $current_page === 'dashboard_admin.php' ? 'active' : ''; ?>"
             <?php echo $current_page === 'dashboard_admin.php' ? 'aria-current="page"' : ''; ?>
           >
@@ -119,7 +123,7 @@ $group_is_active = static function (array $group) use ($current_page): bool {
                 <span class="nav-menu-label"><?php echo $group['label']; ?></span>
                 <?php foreach ($group['items'] as $item): ?>
                   <?php
-                  $href      = $item['file'] . ($item['hash'] ?? '');
+                  $href      = ($item['url'] ?? $item['file']) . ($item['hash'] ?? '');
                   $is_active = !isset($item['hash']) && $item['file'] === $current_page;
                   ?>
                   <a
@@ -163,7 +167,7 @@ $group_is_active = static function (array $group) use ($current_page): bool {
           </span>
           <a
             class="btn-register"
-            href="../services/auth_logout.php?redirect=<?php echo urlencode('../admin/login_admin.php'); ?>"
+            href="../services/auth_logout.php?redirect=<?php echo urlencode('../admin/login'); ?>"
           >
             LOGOUT
           </a>

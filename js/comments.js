@@ -92,7 +92,7 @@
          </div>`
       : `<div class="comment-login-prompt">
            <i data-feather="lock"></i>
-           <p>Silakan <a href="${window.APP_CONFIG.ROOT}/user/login_user.php">login</a> untuk berkomentar.</p>
+           <p>Silakan <a href="${window.APP_CONFIG.ROOT}/user/login">login</a> untuk berkomentar.</p>
          </div>`;
 
     section.innerHTML = `

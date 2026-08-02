@@ -108,13 +108,13 @@ if (loginForm) {
 
                 // Redirect
                 setTimeout(() => {
-                    window.location.href = './dashboard_user.php';
+                    window.location.href = './dashboard';
                 }, 1000);
             } else if (result.needs_verification) {
                 // Email belum diverifikasi: arahkan ke halaman OTP.
                 showAlert(result.message || 'Silakan verifikasi email terlebih dahulu.', 'error');
                 setTimeout(() => {
-                    window.location.href = './verify_email.php?email=' + encodeURIComponent(email);
+                    window.location.href = './verify_email?email=' + encodeURIComponent(email);
                 }, 1500);
             } else {
                 showAlert(result.message || 'Email atau password salah!', 'error');
@@ -148,8 +148,8 @@ window.addEventListener('load', async () => {
         const data = await res.json();
         if (data.ok) {
             // Yes, actually logged in. If we are on login page, redirect to dashboard.
-            if (window.location.pathname.includes('login_user.php')) {
-                window.location.href = './dashboard_user.php';
+            if (ksmPagePath().includes('login_user.php')) {
+                window.location.href = './dashboard';
             }
             return;
         } else {

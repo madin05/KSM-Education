@@ -59,7 +59,7 @@ registerForm.addEventListener('submit', async function(e) {
             }
 
             setTimeout(() => {
-                window.location.href = 'verify_email.php?email=' + encodeURIComponent(email);
+                window.location.href = 'verify_email?email=' + encodeURIComponent(email);
             }, 1500);
         } else {
 

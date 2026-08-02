@@ -1066,8 +1066,8 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log(" UploadTabsManager initialized");
   }
 
-  // Page: journals.php
-  if (window.location.pathname.includes("journals.php")) {
+  // Page: journals.php  (also matched when served as the clean URL /admin/journals)
+  if (ksmPagePath().includes("journals.php")) {
     if (typeof EditJournalManager !== "undefined")
       window.editJournalManager = new EditJournalManager();
     if (typeof PaginationManager !== "undefined") {
@@ -1086,8 +1086,8 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // Page: opinions.php (ADMIN MODE)
-  if (window.location.pathname.includes("opinions.php")) {
+  // Page: opinions.php (ADMIN MODE) - clean URL /admin/opinions included
+  if (ksmPagePath().includes("opinions.php")) {
     if (typeof EditJournalManager !== "undefined") {
       window.editJournalManager = new EditJournalManager();
     }
@@ -1189,7 +1189,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Page: opinions_user.php (USER MODE)
   if (
-    window.location.pathname.includes("opinions_user.php") ||
+    ksmPagePath().includes("opinions_user.php") ||
     document.getElementById("opinionsContainer")
   ) {
     console.log("Opinions page (USER MODE) detected");
@@ -1361,7 +1361,7 @@ function ksmClearClientSession() {
  */
 async function performLogout(redirectUrl) {
     const target = redirectUrl
-        || (window.location.origin + window.APP_CONFIG.root + '/user/dashboard_user.php');
+        || (window.location.origin + window.APP_CONFIG.root + '/user/dashboard');
     const keys = ksmTokenKeys();
     const accessToken = ksmReadLocal(keys.access);
     const refreshToken = ksmReadLocal(keys.refresh);
@@ -1398,7 +1398,7 @@ async function performLogout(redirectUrl) {
 function buildNavbarProfileHTML(user) {
     const avatarChar = (user.name || 'U').charAt(0).toUpperCase();
     const avatarColor = getAvatarColor(user.name);
-    const logoutUrl = `${window.APP_CONFIG.apiBase}/auth_logout.php?redirect=${encodeURIComponent(window.location.origin + window.APP_CONFIG.root + '/user/dashboard_user.php')}`;
+    const logoutUrl = `${window.APP_CONFIG.apiBase}/auth_logout.php?redirect=${encodeURIComponent(window.location.origin + window.APP_CONFIG.root + '/user/dashboard')}`;
 
     // ===== PROFILE DROPDOWN (Profil Saya / Jurnal Saya / Riwayat Token / Pengaturan / Logout) =====
     // NOTE: trigger di navbar sekarang HANYA avatar + caret (tanpa
@@ -1425,16 +1425,16 @@ function buildNavbarProfileHTML(user) {
                     <strong>${user.name}</strong>
                     <span>${user.email}</span>
                 </div>
-                <a href="profil_user.php" class="user-profile-menu-item">
+                <a href="profile" class="user-profile-menu-item">
                     <i data-feather="user"></i> Profil Saya
                 </a>
-                <a href="my_journals_user.php" class="user-profile-menu-item">
+                <a href="my_journals" class="user-profile-menu-item">
                     <i data-feather="file-text"></i> Jurnal Saya
                 </a>
-                <a href="token_history_user.php" class="user-profile-menu-item">
+                <a href="token_history" class="user-profile-menu-item">
                     <i data-feather="zap"></i> Riwayat Token
                 </a>
-                <a href="pengaturan_user.php" class="user-profile-menu-item">
+                <a href="pengaturan" class="user-profile-menu-item">
                     <i data-feather="settings"></i> Pengaturan
                 </a>
                 <a href="${logoutUrl}" class="user-profile-menu-item user-profile-menu-item--danger" id="btnLogout">
@@ -1453,16 +1453,16 @@ function buildNavbarProfileHTML(user) {
                     <strong>${user.name}</strong>
                     <span>${user.email}</span>
                 </div>
-                <a href="profil_user.php" class="btn-logout-mobile">
+                <a href="profile" class="btn-logout-mobile">
                     <i data-feather="user"></i> Profil Saya
                 </a>
-                <a href="my_journals_user.php" class="btn-logout-mobile">
+                <a href="my_journals" class="btn-logout-mobile">
                     <i data-feather="file-text"></i> Jurnal Saya
                 </a>
-                <a href="token_history_user.php" class="btn-logout-mobile">
+                <a href="token_history" class="btn-logout-mobile">
                     <i data-feather="zap"></i> Riwayat Token
                 </a>
-                <a href="pengaturan_user.php" class="btn-logout-mobile">
+                <a href="pengaturan" class="btn-logout-mobile">
                     <i data-feather="settings"></i> Pengaturan
                 </a>
                 <a href="#" class="btn-logout-mobile" id="btnMobileLogout">
@@ -1548,7 +1548,7 @@ async function updateNavbarAuth() {
             clearCachedNavbarProfile();
 
             const loginHTML = `
-                <a href="${window.APP_CONFIG.root}/user/login_user.php" class="guest-profile" style="text-decoration: none;">
+                <a href="${window.APP_CONFIG.root}/user/login" class="guest-profile" style="text-decoration: none;">
                     <div class="guest-avatar">
                         <i data-feather="user"></i>
                     </div>
@@ -1575,7 +1575,7 @@ async function updateNavbarAuth() {
         // ditimpa pesan error, supaya tidak "flicker" balik ke Login.
         if (!cachedUser) {
             authContainers.forEach(container => {
-                container.innerHTML = `<a href="${window.APP_CONFIG.root}/user/login_user.php" class="btn-login">Login</a>`;
+                container.innerHTML = `<a href="${window.APP_CONFIG.root}/user/login" class="btn-login">Login</a>`;
             });
         }
     }
@@ -1680,7 +1680,7 @@ document.addEventListener('click', (e) => {
     e.preventDefault();
     // performLogout() selalu membersihkan token lokal + redirect, termasuk
     // saat request gagal, jadi tombol Logout tidak pernah "diam" lagi.
-    performLogout(window.location.origin + window.APP_CONFIG.root + '/user/dashboard_user.php');
+    performLogout(window.location.origin + window.APP_CONFIG.root + '/user/dashboard');
 });
 
 

@@ -1281,6 +1281,117 @@ function clearCachedNavbarProfile() {
     } catch (e) {}
 }
 
+// =========================================================
+// LOGOUT MANDIRI (tidak bergantung pada TokenManager/api.js)
+//
+// LATAR MASALAH (bug "tidak bisa logout"):
+//  1. Banyak halaman user (profil, pengaturan, kontak, tentang, dll) TIDAK
+//     memuat js/api.js, jadi window.TokenManager undefined. Akibatnya header
+//     Authorization tidak dikirim (token tak masuk blacklist) DAN
+//     localStorage jwt_access_token/jwt_refresh_token tidak pernah dihapus.
+//     Setelah redirect, auth_me.php masih menerima JWT lama -> user tampak
+//     tetap login meski sudah menekan Logout.
+//  2. Pembersihan storage + redirect hanya dilakukan bila `out.ok === true`.
+//     Bila respons bukan JSON valid (di lokal XAMPP display_errors sering
+//     menyisipkan warning/notice ke body) res.json() melempar error, sehingga
+//     tombol Logout versi mobile tidak melakukan apa pun.
+//
+// SOLUSI: baca/bersihkan token langsung dari localStorage dengan key yang
+// identik dengan TokenManager (js/api.js) & AuthStorage (js/auth_storage.js),
+// lalu SELALU bersihkan state klien dan redirect apa pun hasil responsnya.
+// =========================================================
+
+function ksmAuthContext() {
+    try {
+        return /(^|\/)admin\//.test(window.location.pathname) ? 'admin' : 'user';
+    } catch (e) {
+        return 'user';
+    }
+}
+
+function ksmTokenKeys() {
+    const suffix = ksmAuthContext() === 'admin' ? '_admin' : '';
+    return {
+        access: 'jwt_access_token' + suffix,
+        refresh: 'jwt_refresh_token' + suffix,
+        expiry: 'jwt_token_expiry' + suffix,
+    };
+}
+
+function ksmReadLocal(key) {
+    try {
+        return localStorage.getItem(key);
+    } catch (e) {
+        return null;
+    }
+}
+
+function ksmRemoveLocal(key) {
+    try {
+        localStorage.removeItem(key);
+    } catch (e) {}
+}
+
+// Hapus seluruh jejak sesi di sisi klien untuk konteks aktif.
+function ksmClearClientSession() {
+    const keys = ksmTokenKeys();
+    ksmRemoveLocal(keys.access);
+    ksmRemoveLocal(keys.refresh);
+    ksmRemoveLocal(keys.expiry);
+    ksmRemoveLocal('currentUser');
+    ksmRemoveLocal('authToken');
+    ksmRemoveLocal('adminLoggedIn');
+    ksmRemoveLocal('adminLoginTime');
+    clearCachedNavbarProfile();
+
+    // Biarkan TokenManager membersihkan state internalnya bila api.js dimuat.
+    if (window.TokenManager && typeof window.TokenManager.clearTokens === 'function') {
+        try { window.TokenManager.clearTokens(); } catch (e) {}
+    }
+
+    try { sessionStorage.clear(); } catch (e) {}
+}
+
+/**
+ * Jalankan logout: blacklist token di server (best effort), bersihkan state
+ * klien, lalu redirect. Pembersihan & redirect tidak pernah dibatalkan oleh
+ * kegagalan jaringan/respons agar tombol Logout selalu berfungsi.
+ *
+ * @param {string} [redirectUrl] tujuan setelah logout
+ */
+async function performLogout(redirectUrl) {
+    const target = redirectUrl
+        || (window.location.origin + window.APP_CONFIG.root + '/user/dashboard_user.php');
+    const keys = ksmTokenKeys();
+    const accessToken = ksmReadLocal(keys.access);
+    const refreshToken = ksmReadLocal(keys.refresh);
+
+    const headers = {
+        'Content-Type': 'application/json',
+        'X-KSM-Context': ksmAuthContext(),
+    };
+    if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
+
+    const body = {};
+    if (refreshToken) body.refresh_token = refreshToken;
+
+    try {
+        await fetch(`${window.APP_CONFIG.apiBase}/auth_logout.php`, {
+            method: 'POST',
+            credentials: 'include',
+            headers,
+            body: JSON.stringify(body),
+        });
+    } catch (err) {
+        // Server tidak terjangkau — sesi lokal tetap dibersihkan di bawah.
+        console.error('Logout request error:', err);
+    } finally {
+        ksmClearClientSession();
+        window.location.href = target;
+    }
+}
+
+
 // Dipisah jadi fungsi sendiri supaya bisa dipakai dua kali: sekali untuk
 // render instan dari cache (sebelum fetch selesai), sekali lagi untuk
 // render data asli setelah fetch selesai (validasi).
@@ -1534,37 +1645,13 @@ function setupMobileHeaderAuth() {
     }, listenerOptions);
 
     if (mobileLogoutBtn) {
-        mobileLogoutBtn.addEventListener('click', async (e) => {
+        mobileLogoutBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            try {
-                // Blacklist JWT tokens
-                const logoutHeaders = { 'Content-Type': 'application/json' };
-                const logoutBody = {};
-                if (window.TokenManager) {
-                    const at = window.TokenManager.getAccessToken();
-                    const rt = window.TokenManager.getRefreshToken();
-                    if (at) logoutHeaders['Authorization'] = `Bearer ${at}`;
-                    if (rt) logoutBody.refresh_token = rt;
-                }
-                const res = await fetch(`${window.APP_CONFIG.apiBase}/auth_logout.php`, {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: logoutHeaders,
-                    body: JSON.stringify(logoutBody)
-                });
-                const out = await res.json();
-                if (out.ok) {
-                    if (window.TokenManager) window.TokenManager.clearTokens();
-                    clearCachedNavbarProfile();
-                    sessionStorage.clear();
-                    window.location.href = window.location.origin + window.APP_CONFIG.root + '/user/dashboard_user.php';
-                }
-            } catch (err) {
-                console.error('Mobile logout error:', err);
-            }
+            performLogout();
         }, listenerOptions);
     }
+
 
     // Close dropdown when clicking outside
     document.addEventListener('click', (e) => {
@@ -1586,46 +1673,16 @@ function setupMobileHeaderAuth() {
 }
 
 // ===== GLOBAL LOGOUT HANDLER (EVENT DELEGATION) =====
-document.addEventListener('click', async (e) => {
+document.addEventListener('click', (e) => {
     const logoutBtn = e.target.closest('#btnLogout');
-    if (logoutBtn) {
-        e.preventDefault();
-        try {
-            console.log("Logout initiated...");
-            // Blacklist JWT tokens on logout
-            const logoutHeaders = { 'Content-Type': 'application/json' };
-            const logoutBody = {};
-            if (window.TokenManager) {
-                const at = window.TokenManager.getAccessToken();
-                const rt = window.TokenManager.getRefreshToken();
-                if (at) logoutHeaders['Authorization'] = `Bearer ${at}`;
-                if (rt) logoutBody.refresh_token = rt;
-            }
-            const res = await fetch(`${window.APP_CONFIG.apiBase}/auth_logout.php`, {
-                method: 'POST',
-                credentials: 'include',
-                headers: logoutHeaders,
-                body: JSON.stringify(logoutBody)
-            });
-            const out = await res.json();
+    if (!logoutBtn) return;
 
-            if (out.ok) {
-                if (window.TokenManager) window.TokenManager.clearTokens();
-                clearCachedNavbarProfile();
-                sessionStorage.clear();
-                localStorage.removeItem('authToken');
-                localStorage.removeItem('adminLoggedIn');
-                localStorage.removeItem('adminLoginTime');
-                // Ensure the redirect is absolute from the origin
-                window.location.href = window.location.origin + window.APP_CONFIG.root + '/user/dashboard_user.php';
-            }
-        } catch (err) {
-            console.error('Logout script error:', err);
-            // Fallback: Navigate directly to have PHP handle redirect
-            window.location.href = logoutBtn.getAttribute('href');
-        }
-    }
+    e.preventDefault();
+    // performLogout() selalu membersihkan token lokal + redirect, termasuk
+    // saat request gagal, jadi tombol Logout tidak pernah "diam" lagi.
+    performLogout(window.location.origin + window.APP_CONFIG.root + '/user/dashboard_user.php');
 });
+
 
 // Initialize navbar auth on load
 if (document.readyState === 'loading') {

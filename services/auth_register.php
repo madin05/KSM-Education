@@ -7,6 +7,8 @@ ksmedu_session_start(KSMEDU_CTX_USER);
 require_once __DIR__ . '/db.php';
 
 require_once __DIR__ . '/jwt_helper.php';
+require_once __DIR__ . '/email_otp_helpers.php';
+
 
 // Set header JSON
 header('Content-Type: application/json; charset=utf-8');
@@ -52,15 +54,35 @@ if (strlen($password) < 6) {
 }
 
 
+/**
+ * Balasan tunggal untuk semua jalur registrasi yang "diterima": akun baru
+ * berhasil dibuat, email sudah terdaftar, maupun pengiriman email gagal.
+ * Bentuk respons dibuat identik agar pemanggil tidak bisa menyimpulkan apakah
+ * sebuah email sudah terdaftar (user enumeration).
+ */
+function register_generic_response(string $email): void
+{
+    echo json_encode([
+        'ok' => true,
+        'requires_verification' => true,
+        'email_sent' => true,
+        'message' => 'Registrasi diproses. Kode OTP telah dikirim ke email Anda jika email dapat digunakan.',
+        'email' => $email
+    ]);
+}
+
 try {
-    // Check if email already exists
+    // Email yang sudah terdaftar TIDAK diberi tahu ke klien. Akun lama tidak
+    // diubah dan tidak ada OTP baru yang diterbitkan di sini; pemilik akun yang
+    // sah dapat memakai "Kirim Ulang OTP" pada halaman verifikasi.
     $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ? LIMIT 1");
     $stmt->execute([$email]);
     if ($stmt->fetch()) {
-        http_response_code(409);
-        echo json_encode(['ok' => false, 'message' => 'Email sudah terdaftar!']);
+        error_log('Registration attempt for existing email (generic response returned).');
+        register_generic_response($email);
         exit;
     }
+
 
 
     $pdo->beginTransaction();
@@ -79,41 +101,26 @@ try {
     $walletStmt = $pdo->prepare("INSERT INTO user_token_wallets (user_id, balance) VALUES (?, 0)");
     $walletStmt->execute([(int)$userId]);
 
+    // Akun tersimpan sebagai BELUM TERVERIFIKASI (users.email_verified_at NULL)
+    // dan hanya bisa login setelah OTP dikonfirmasi.
+    $otp = otp_issue_for_user($pdo, (int)$userId);
+
     $pdo->commit();
 
-    // Set PHP Session (backward compatibility)
-    // Reset session lama (mis. sisa sesi admin) sebelum memasang akun baru.
+    // Belum ada sesi/token yang diterbitkan di sini: user harus verifikasi OTP
+    // lebih dulu. Sisa sesi lama tetap dibersihkan seperti perilaku sebelumnya.
     $_SESSION = [];
     session_regenerate_id(true);
 
-    $_SESSION['user_id'] = $userId;
-    $_SESSION['role'] = 'user';
-    $_SESSION['name'] = $name;
-    $_SESSION['email'] = $email;
+    if (!otp_send_email($email, $name, $otp)) {
+        // Kegagalan transport hanya dicatat ke log; balasan tetap sama dengan
+        // jalur sukses agar tidak menjadi kanal informasi tambahan.
+        error_log('Registration: pengiriman email OTP gagal untuk user id ' . (int)$userId . '.');
+    }
 
-    // Generate JWT Tokens
-    $userData = [
-        'id' => $userId,
-        'name' => $name,
-        'email' => $email,
-        'role' => 'user'
-    ];
-    $accessToken = generate_access_token($userData);
-    $refreshToken = generate_refresh_token($userData);
+    register_generic_response($email);
 
-    echo json_encode([
-        'ok' => true, 
-        'message' => 'Registrasi berhasil!',
-        'user' => [
-            'id' => $userId,
-            'name' => $name,
-            'email' => $email,
-            'role' => 'user'
-        ],
-        'access_token' => $accessToken['token'],
-        'refresh_token' => $refreshToken['token'],
-        'expires_in' => $accessToken['expires_in']
-    ]);
+
 
 } catch (Exception $e) {
     if ($pdo->inTransaction()) {

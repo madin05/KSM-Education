@@ -38,21 +38,49 @@ try {
     $email = trim($data['email']);
     $password = $data['password'];
 
-    $stmt = $pdo->prepare("SELECT id, password_hash, name, role, email FROM users WHERE email = ? AND (account_status = 'active' OR account_status IS NULL) LIMIT 1");
+    $stmt = $pdo->prepare("SELECT id, password_hash, name, role, email, email_verified_at FROM users WHERE email = ? AND (account_status = 'active' OR account_status IS NULL) LIMIT 1");
+
     $stmt->execute([$email]);
     $user = $stmt->fetch();
-    
-    if (!$user) { 
-        http_response_code(401);
-        echo json_encode(['ok'=>false,'message'=>'Email tidak terdaftar!']); 
-        exit; 
-    }
 
-    if (!password_verify($data['password'], $user['password_hash'])) {
+    // Kredensial salah selalu memakai satu pesan yang sama sehingga klien tidak
+    // bisa membedakan "email tidak terdaftar" dari "password salah"
+    // (mencegah user enumeration).
+    $invalidCredentials = 'Email atau password salah!';
+
+    if (!$user) {
+        // Tetap jalankan satu password_verify() terhadap hash dummy agar waktu
+        // respons untuk email tidak terdaftar mirip dengan email terdaftar
+        // (mengurangi kebocoran lewat timing).
+        password_verify(
+            $password,
+            '$2y$10$usesomesillystringforeasyverificationabcdefghijklmnopqrstuv'
+        );
         http_response_code(401);
-        echo json_encode(['ok'=>false,'message'=>'Password salah!']); 
+        echo json_encode(['ok'=>false,'message'=>$invalidCredentials]);
         exit;
     }
+
+    if (!password_verify($password, $user['password_hash'])) {
+        http_response_code(401);
+        echo json_encode(['ok'=>false,'message'=>$invalidCredentials]);
+        exit;
+    }
+
+
+    // Email OTP: akun yang belum terverifikasi tidak boleh login.
+    // Kolom email_verified_at bisa NULL untuk akun lama yang di-backfill
+    // migrasi 009, jadi akun lama tetap dapat login seperti sebelumnya.
+    if (array_key_exists('email_verified_at', $user) && empty($user['email_verified_at'])) {
+        http_response_code(403);
+        echo json_encode([
+            'ok'=>false,
+            'needs_verification'=>true,
+            'message'=>'Silakan verifikasi email terlebih dahulu.'
+        ]);
+        exit;
+    }
+
 
 
     // Set PHP Session (backward compatibility)

@@ -48,31 +48,21 @@ registerForm.addEventListener('submit', async function(e) {
         const result = await response.json();
 
         if (result.ok) {
-            showAlert('Registrasi berhasil! Mengalihkan...', 'success');
-            
-            // Sync sessionStorage
-            // Registrasi = login baru. Buang jejak sesi sebelumnya (termasuk
-            // token JWT admin) sebelum menulis kredensial akun baru.
+            showAlert(result.message || 'Registrasi berhasil! Mengalihkan...', 'success');
+
+            // Akun belum aktif sampai OTP diverifikasi, jadi tidak ada token
+            // yang disimpan di sini. Jejak sesi lama tetap dibersihkan.
             if (window.AuthStorage) {
                 window.AuthStorage.clearAll();
-                window.AuthStorage.setTokens(result);
-                window.AuthStorage.setSession({
-                    email: email,
-                    name: name,
-                    role: (result.user && result.user.role) || 'user'
-                });
-            } else {
-                if (window.TokenManager) window.TokenManager.clearTokens();
-                sessionStorage.setItem('userLoggedIn', 'true');
-                sessionStorage.setItem('userEmail', email);
-                sessionStorage.setItem('userName', name);
-                sessionStorage.setItem('userType', 'user');
+            } else if (window.TokenManager) {
+                window.TokenManager.clearTokens();
             }
 
             setTimeout(() => {
-                window.location.href = 'dashboard_user.php';
+                window.location.href = 'verify_email.php?email=' + encodeURIComponent(email);
             }, 1500);
         } else {
+
             showAlert(result.message || 'Registrasi gagal.');
             submitButton.classList.remove('loading-state');
             submitButton.textContent = originalText;

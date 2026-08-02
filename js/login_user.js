@@ -110,11 +110,18 @@ if (loginForm) {
                 setTimeout(() => {
                     window.location.href = './dashboard_user.php';
                 }, 1000);
+            } else if (result.needs_verification) {
+                // Email belum diverifikasi: arahkan ke halaman OTP.
+                showAlert(result.message || 'Silakan verifikasi email terlebih dahulu.', 'error');
+                setTimeout(() => {
+                    window.location.href = './verify_email.php?email=' + encodeURIComponent(email);
+                }, 1500);
             } else {
                 showAlert(result.message || 'Email atau password salah!', 'error');
                 loginButton.classList.remove('loading-state');
                 loginButton.textContent = originalText;
             }
+
         } catch (error) {
             console.error('Login error:', error);
             showAlert('Terjadi kesalahan server. Coba lagi nanti.', 'error');

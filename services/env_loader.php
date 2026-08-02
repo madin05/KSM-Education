@@ -11,20 +11,39 @@ function loadEnv($path) {
 
     $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
-        // Skip comments
-        if (strpos(trim($line), '#') === 0) {
+        $trimmed = trim($line);
+
+        // Skip blank lines and comments
+        if ($trimmed === '' || $trimmed[0] === '#' || $trimmed[0] === ';') {
+            continue;
+        }
+
+        // Baris tanpa '=' bukan pasangan key=value (mis. penanda section atau
+        // baris rusak). Dilewati agar tidak memicu "Undefined array key 1".
+        if (strpos($trimmed, '=') === false) {
             continue;
         }
 
         // Parse key=value
-        list($name, $value) = explode('=', $line, 2);
+        [$name, $value] = explode('=', $trimmed, 2);
         $name = trim($name);
         $value = trim($value);
 
-        // Remove quotes if present
-        if (!empty($value) && (strpos($value, '"') === 0 || strpos($value, "'") === 0)) {
-            $value = substr($value, 1, -1);
+        if ($name === '') {
+            continue;
         }
+
+        // Buang kutip pembungkus hanya bila berpasangan, supaya nilai seperti
+        // "abc (tanpa penutup) tidak kehilangan karakter terakhirnya.
+        $len = strlen($value);
+        if ($len >= 2) {
+            $first = $value[0];
+            $last = $value[$len - 1];
+            if (($first === '"' && $last === '"') || ($first === "'" && $last === "'")) {
+                $value = substr($value, 1, -1);
+            }
+        }
+
 
         if (!array_key_exists($name, $_SERVER) && !array_key_exists($name, $_ENV)) {
             putenv(sprintf('%s=%s', $name, $value));

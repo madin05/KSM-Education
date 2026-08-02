@@ -32,6 +32,14 @@ define('JWT_REFRESH_EXPIRY', (int) get_env_var('JWT_REFRESH_EXPIRY', '604800'));
 define('JWT_ISSUER', 'ksm-education');
 define('JWT_ALGORITHM', 'HS256');
 
+// Rentang waktu (detik) setelah sebuah refresh token dirotasi, di mana token
+// lama masih boleh dipakai sekali lagi tanpa dianggap serangan. Ini menutup
+// race condition normal: beberapa tab/permintaan paralel bisa mengirim refresh
+// token yang sama dalam hitungan milidetik sebelum salah satunya selesai
+// menyimpan token pengganti.
+define('JWT_ROTATION_GRACE', (int) get_env_var('JWT_ROTATION_GRACE', '30'));
+
+
 // ===== BASE64URL ENCODING (RFC 4648) =====
 
 /**
@@ -144,6 +152,104 @@ function generate_jti(): string {
 }
 
 /**
+ * Ambil generasi sesi (token_version) untuk dimasukkan sebagai klaim `tv`.
+ *
+ * Nilai diambil dari baris user bila sudah tersedia; kalau tidak, dibaca dari
+ * DB agar pemanggil lama (yang hanya meneruskan id/name/role) tetap ikut
+ * mendapat klaim ini.
+ *
+ * Mengembalikan null bila kolom token_version belum ada (migrasi 012 belum
+ * dijalankan). Token tanpa klaim `tv` tetap diterima oleh verifikator, jadi
+ * penerapan migrasi tidak wajib serentak dengan deploy kode.
+ *
+ * @param array $user Baris user, minimal berisi 'id'.
+ */
+function ksmedu_resolve_token_version(array $user): ?int {
+    if (isset($user['token_version']) && $user['token_version'] !== '') {
+        return (int) $user['token_version'];
+    }
+    if (empty($user['id'])) {
+        return null;
+    }
+
+    try {
+        global $pdo;
+        if (!$pdo) {
+            return null;
+        }
+        $stmt = $pdo->prepare("SELECT token_version FROM users WHERE id = ? LIMIT 1");
+        $stmt->execute([(int) $user['id']]);
+        $tv = $stmt->fetchColumn();
+        return ($tv === false || $tv === null) ? null : (int) $tv;
+    } catch (Exception $e) {
+        // Kolom/tabel belum siap: jalankan tanpa klaim tv.
+        return null;
+    }
+}
+
+/**
+ * Naikkan token_version user sehingga SELURUH access & refresh token yang
+ * sudah beredar untuk user tersebut langsung tidak berlaku.
+ *
+ * Dipakai saat reuse refresh token terdeteksi (indikasi token dicuri).
+ *
+ * @return bool true bila generasi berhasil dinaikkan.
+ */
+function revoke_all_user_sessions(int $userId, string $reason = 'reuse_detected'): bool {
+    try {
+        global $pdo;
+        if (!$pdo) {
+            return false;
+        }
+        $stmt = $pdo->prepare("UPDATE users SET token_version = token_version + 1 WHERE id = ?");
+        $stmt->execute([$userId]);
+        error_log(sprintf('Session revocation for user %d (reason: %s)', $userId, $reason));
+        return $stmt->rowCount() > 0;
+    } catch (Exception $e) {
+        error_log('revoke_all_user_sessions failed: ' . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Cek apakah klaim `tv` pada token masih sesuai generasi sesi user saat ini.
+ *
+ * FAIL CLOSED: bila status tidak dapat dipastikan (query gagal), token
+ * dianggap tidak valid. Ini konsisten dengan pemeriksaan revokasi lain di
+ * proyek ini — kegagalan infrastruktur tidak boleh menjadi celah otorisasi.
+ *
+ * Token lama tanpa klaim `tv` dianggap valid agar sesi yang sedang berjalan
+ * tidak terputus saat fitur ini dirilis; token tersebut akan hilang sendiri
+ * setelah rotasi/kedaluwarsa berikutnya.
+ */
+function jwt_token_version_valid(array $payload): bool {
+    if (!isset($payload['tv'])) {
+        return true;
+    }
+    if (empty($payload['sub'])) {
+        return false;
+    }
+
+    try {
+        global $pdo;
+        if (!$pdo) {
+            return false;
+        }
+        $stmt = $pdo->prepare("SELECT token_version FROM users WHERE id = ? LIMIT 1");
+        $stmt->execute([(int) $payload['sub']]);
+        $current = $stmt->fetchColumn();
+        if ($current === false || $current === null) {
+            return false;
+        }
+        return (int) $current === (int) $payload['tv'];
+    } catch (Exception $e) {
+        error_log('Token version check failed: ' . $e->getMessage());
+        return false;
+    }
+}
+
+
+/**
  * Generate an Access Token (short-lived, 30 minutes default)
  * 
  * @param array       $user    User data ['id', 'name', 'role', 'email']
@@ -170,6 +276,13 @@ function generate_access_token(array $user, ?string $context = null): array {
         'email' => $user['email'] ?? ''
     ];
 
+    // Access token juga membawa `tv` supaya pencabutan sesi (reuse detection)
+    // langsung mematikan access token yang masih hidup, bukan hanya memblokir
+    // refresh berikutnya.
+    $tv = ksmedu_resolve_token_version($user);
+    if ($tv !== null) {
+        $payload['tv'] = $tv;
+    }
 
     return [
         'token' => jwt_encode($payload, JWT_SECRET),
@@ -177,6 +290,7 @@ function generate_access_token(array $user, ?string $context = null): array {
         'jti' => $jti
     ];
 }
+
 
 /**
  * Generate a Refresh Token (long-lived, 7 days default)
@@ -202,6 +316,10 @@ function generate_refresh_token(array $user, ?string $context = null): array {
         'role' => $user['role'] ?? 'user'
     ];
 
+    $tv = ksmedu_resolve_token_version($user);
+    if ($tv !== null) {
+        $payload['tv'] = $tv;
+    }
 
     return [
         'token' => jwt_encode($payload, JWT_SECRET),
@@ -209,6 +327,30 @@ function generate_refresh_token(array $user, ?string $context = null): array {
         'jti' => $jti
     ];
 }
+
+/**
+ * Terbitkan refresh token pengganti sekaligus mencabut yang lama (rotation).
+ *
+ * Urutan penting: token lama dicatat sebagai 'rotated' LEBIH DULU, baru token
+ * baru diterbitkan. Bila proses gagal di tengah, klien akan gagal refresh dan
+ * harus login ulang — kondisi yang aman. Sebaliknya, bila token baru terbit
+ * tapi yang lama tidak tercabut, dua token valid akan hidup bersamaan.
+ *
+ * @param array $user     Baris user (harus berisi id, role, token_version).
+ * @param array $oldClaims Payload refresh token yang sedang dipakai.
+ * @return array|null Hasil generate_refresh_token(), atau null bila pencabutan
+ *                    token lama gagal.
+ */
+function rotate_refresh_token(array $user, array $oldClaims, ?string $context = null): ?array {
+    if (!isset($oldClaims['jti'], $oldClaims['exp'])) {
+        return null;
+    }
+    if (!blacklist_token((string) $oldClaims['jti'], (int) $oldClaims['exp'], 'rotated')) {
+        return null;
+    }
+    return generate_refresh_token($user, $context);
+}
+
 
 // ===== TOKEN VALIDATION =====
 
@@ -281,17 +423,56 @@ function validate_jwt(): ?array {
         }
     }
 
+    // Generasi sesi: menolak token dari generasi lama (mis. setelah reuse
+    // refresh token terdeteksi dan seluruh sesi user dicabut).
+    if (!jwt_token_version_valid($payload)) {
+        return null;
+    }
+
     return $payload;
 }
 
 /**
- * Blacklist a token JTI (used during logout)
+ * Cari catatan pencabutan sebuah jti pada blacklist.
+ *
+ * @return array{reason:string,revoked_age:int}|null null bila jti tidak ada di
+ *         blacklist. revoked_age = detik sejak dicabut (0 bila tidak diketahui).
+ * @throws Exception bila blacklist tidak dapat dibaca — pemanggil harus
+ *         memutuskan (fail closed), bukan menganggap token bersih.
+ */
+function find_blacklisted_token(string $jti): ?array {
+    global $pdo;
+    if (!$pdo) {
+        throw new Exception('Database tidak tersedia untuk pemeriksaan blacklist.');
+    }
+
+    // TIMESTAMPDIFF dihitung di MySQL agar tidak terpengaruh selisih
+    // date.timezone PHP vs time_zone MySQL.
+    $stmt = $pdo->prepare(
+        "SELECT reason, TIMESTAMPDIFF(SECOND, COALESCE(revoked_at, NOW()), NOW()) AS revoked_age
+         FROM jwt_blacklist WHERE token_jti = ? LIMIT 1"
+    );
+    $stmt->execute([$jti]);
+    $row = $stmt->fetch();
+    if (!$row) {
+        return null;
+    }
+
+    return [
+        'reason' => (string) ($row['reason'] ?? 'logout'),
+        'revoked_age' => (int) ($row['revoked_age'] ?? 0),
+    ];
+}
+
+/**
+ * Blacklist a token JTI (used during logout and refresh rotation)
  * 
  * @param string $jti       The JWT ID to blacklist
  * @param int    $expiresAt Unix timestamp when the token expires
+ * @param string $reason    'logout' | 'rotated' | 'reuse_detected'
  * @return bool Success
  */
-function blacklist_token(string $jti, int $expiresAt): bool {
+function blacklist_token(string $jti, int $expiresAt, string $reason = 'logout'): bool {
     try {
         global $pdo;
         if (!$pdo) return false;
@@ -300,8 +481,12 @@ function blacklist_token(string $jti, int $expiresAt): bool {
         // expires_at dihitung oleh MySQL (FROM_UNIXTIME) supaya nilainya selalu
         // sebanding dengan NOW() saat housekeeping/pembacaan, terlepas dari
         // perbedaan date.timezone PHP dan time_zone MySQL.
-        $stmt = $pdo->prepare("INSERT IGNORE INTO jwt_blacklist (token_jti, expires_at) VALUES (?, FROM_UNIXTIME(?))");
-        $stmt->execute([$jti, $expiresAt]);
+        $stmt = $pdo->prepare(
+            "INSERT IGNORE INTO jwt_blacklist (token_jti, expires_at, reason, revoked_at)
+             VALUES (?, FROM_UNIXTIME(?), ?, NOW())"
+        );
+        $stmt->execute([$jti, $expiresAt, $reason]);
+
 
         // Housekeeping dipisahkan dari jalur insert: dijalankan probabilistik
         // (±2% request) agar baris yang baru masuk tidak pernah ikut terhapus

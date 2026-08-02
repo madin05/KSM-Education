@@ -20,6 +20,7 @@ ksmedu_session_start(KSMEDU_CTX_ADMIN);
 header('Content-Type: application/json');
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/jwt_helper.php';
+require_once __DIR__ . '/login_guard.php';
 
 
 try {
@@ -33,11 +34,24 @@ try {
     $raw  = file_get_contents('php://input');
     $data = json_decode($raw ?: '', true);
     if (!is_array($data) || empty($data['email']) || empty($data['password'])) {
+        // Status code harus mencerminkan hasil: input tidak lengkap = 422,
+        // bukan 200 seperti sebelumnya (klien tidak bisa membedakan sukses/gagal
+        // dari status HTTP).
+        http_response_code(422);
         echo json_encode(['ok' => false, 'message' => 'Email dan password wajib diisi!']);
         exit;
     }
 
     $email = trim((string)$data['email']);
+
+    // Brute-force guard untuk panel admin (ambang lebih ketat daripada area
+    // user). Dievaluasi sebelum query & bcrypt agar request terkunci tidak
+    // memakan biaya komputasi.
+    $retryAfter = login_guard_check($pdo, 'admin', $email);
+    if ($retryAfter > 0) {
+        login_guard_reject($retryAfter);
+        exit;
+    }
 
     $stmt = $pdo->prepare(
         "SELECT id, name, email, role, password_hash
@@ -51,13 +65,34 @@ try {
     // Pesan generik: jangan bocorkan apakah email admin terdaftar atau tidak.
     $genericError = ['ok' => false, 'message' => 'Email atau password admin salah!'];
 
-    if (!$user || !password_verify((string)$data['password'], (string)$user['password_hash'])) {
+    if (!$user) {
+        // Dummy verify agar waktu respons untuk email tidak terdaftar mirip
+        // dengan email terdaftar (mengurangi kebocoran lewat timing),
+        // sama seperti auth_login.php.
+        password_verify(
+            (string)$data['password'],
+            '$2y$10$usesomesillystringforeasyverificationabcdefghijklmnopqrstuv'
+        );
+        login_guard_record($pdo, 'admin', $email, false);
+        login_guard_delay(login_guard_current_failures($pdo, 'admin', $email));
+        http_response_code(401);
+        echo json_encode($genericError);
+        exit;
+    }
+
+    if (!password_verify((string)$data['password'], (string)$user['password_hash'])) {
+        login_guard_record($pdo, 'admin', $email, false);
+        login_guard_delay(login_guard_current_failures($pdo, 'admin', $email));
         http_response_code(401);
         echo json_encode($genericError);
         exit;
     }
 
     if (($user['role'] ?? 'user') !== 'admin') {
+        // Password benar tetapi bukan admin: tetap dihitung sebagai kegagalan
+        // agar endpoint admin tidak bisa dipakai sebagai oracle untuk menguji
+        // kredensial akun user tanpa batas.
+        login_guard_record($pdo, 'admin', $email, false);
         http_response_code(403);
         echo json_encode([
             'ok' => false,
@@ -66,6 +101,9 @@ try {
         ]);
         exit;
     }
+
+    login_guard_clear($pdo, 'admin', $email);
+    login_guard_record($pdo, 'admin', $email, true);
 
     // Session PHP (dipakai guard halaman admin & endpoint legacy)
     // Buang sisa sesi sebelumnya (mis. sesi user biasa) supaya tidak ada
@@ -92,6 +130,10 @@ try {
         'refresh_token' => $refreshToken['token'],
         'expires_in'    => $accessToken['expires_in'],
     ]);
+} catch (LoginGuardUnavailableException $e) {
+    // Fail closed: tanpa guard yang bisa dievaluasi, login admin ditolak.
+    error_log('Admin login guard unavailable: ' . $e->getMessage());
+    login_guard_unavailable();
 } catch (Throwable $e) {
     error_log('Admin login error: ' . $e->getMessage());
     http_response_code(500);

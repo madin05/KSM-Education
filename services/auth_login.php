@@ -15,6 +15,8 @@ ksmedu_session_start(KSMEDU_CTX_USER);
 header('Content-Type: application/json');
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/jwt_helper.php';
+require_once __DIR__ . '/login_guard.php';
+
 
 
 // Status code harus konsisten dengan hasil (422/401/405/500), bukan selalu 200.
@@ -38,7 +40,17 @@ try {
     $email = trim($data['email']);
     $password = $data['password'];
 
+    // Brute-force guard: dievaluasi SEBELUM query user dan sebelum
+    // password_verify(), sehingga request yang sudah terkunci tidak menghabiskan
+    // biaya bcrypt maupun query database.
+    $retryAfter = login_guard_check($pdo, 'user', $email);
+    if ($retryAfter > 0) {
+        login_guard_reject($retryAfter);
+        exit;
+    }
+
     $stmt = $pdo->prepare("SELECT id, password_hash, name, role, email, email_verified_at FROM users WHERE email = ? AND (account_status = 'active' OR account_status IS NULL) LIMIT 1");
+
 
     $stmt->execute([$email]);
     $user = $stmt->fetch();
@@ -56,16 +68,21 @@ try {
             $password,
             '$2y$10$usesomesillystringforeasyverificationabcdefghijklmnopqrstuv'
         );
+        login_guard_record($pdo, 'user', $email, false);
+        login_guard_delay(login_guard_current_failures($pdo, 'user', $email));
         http_response_code(401);
         echo json_encode(['ok'=>false,'message'=>$invalidCredentials]);
         exit;
     }
 
     if (!password_verify($password, $user['password_hash'])) {
+        login_guard_record($pdo, 'user', $email, false);
+        login_guard_delay(login_guard_current_failures($pdo, 'user', $email));
         http_response_code(401);
         echo json_encode(['ok'=>false,'message'=>$invalidCredentials]);
         exit;
     }
+
 
 
     // Email OTP: akun yang belum terverifikasi tidak boleh login.
@@ -82,6 +99,11 @@ try {
     }
 
 
+
+    // Kredensial benar: hapus riwayat kegagalan agar pengguna sah tidak
+    // membawa sisa hitungan lockout, lalu catat login sukses untuk audit.
+    login_guard_clear($pdo, 'user', $email);
+    login_guard_record($pdo, 'user', $email, true);
 
     // Set PHP Session (backward compatibility)
     // Reset total isi session lama sebelum memasang identitas baru.
@@ -110,6 +132,11 @@ try {
         'refresh_token' => $refreshToken['token'],
         'expires_in' => $accessToken['expires_in']
     ]);
+} catch (LoginGuardUnavailableException $e) {
+    // Fail closed: guard tidak dapat dievaluasi/dicatat, jadi login ditolak
+    // sementara daripada membuka pintu tanpa proteksi brute-force.
+    error_log('Login guard unavailable: ' . $e->getMessage());
+    login_guard_unavailable();
 } catch (Exception $e) {
     // Jangan bocorkan detail exception (nama tabel, query, path) ke klien.
     error_log('Login error: ' . $e->getMessage());

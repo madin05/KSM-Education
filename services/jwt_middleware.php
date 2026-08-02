@@ -57,8 +57,9 @@ function authenticate_request(): ?array {
         if (isset($pdo) && $pdo instanceof PDO) {
             try {
                 $statusStmt = $pdo->prepare(
-                    "SELECT account_status, UNIX_TIMESTAMP(password_changed_at) AS pwd_changed
+                    "SELECT account_status, token_version, UNIX_TIMESTAMP(password_changed_at) AS pwd_changed
                      FROM users WHERE id = ? LIMIT 1"
+
                 );
                 $statusStmt->execute([(int)$jwt_payload['sub']]);
                 $accountRow = $statusStmt->fetch(PDO::FETCH_ASSOC);
@@ -76,6 +77,17 @@ function authenticate_request(): ?array {
                     $auth_user = null;
                     return null;
                 }
+
+                // Generasi sesi (token_version). Saat seluruh sesi user dicabut
+                // — misalnya karena refresh token reuse terdeteksi — nomor
+                // generasi di DB naik, sehingga access token lama yang masih
+                // belum kedaluwarsa langsung ikut mati.
+                if (isset($jwt_payload['tv'])
+                    && (int) $jwt_payload['tv'] !== (int) ($accountRow['token_version'] ?? 0)) {
+                    $auth_user = null;
+                    return null;
+                }
+
             } catch (Throwable $e) {
                 // Preserve the existing middleware behavior for legacy
                 // installations that have not applied the Phase 3 migration.

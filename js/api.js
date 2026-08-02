@@ -92,8 +92,17 @@ const TokenManager = {
       const data = await res.json();
 
       if (data.ok && data.access_token) {
-        this.setTokens(data.access_token, null, data.expires_in);
+        // Server merotasi refresh token setiap kali dipakai: refresh token
+        // lama sudah dicabut, jadi yang baru WAJIB disimpan. Bila tidak,
+        // percobaan refresh berikutnya akan memakai token mati dan dianggap
+        // token reuse sehingga seluruh sesi dicabut.
+        this.setTokens(
+          data.access_token,
+          data.refresh_token || null,
+          data.expires_in
+        );
         console.log('🔄 JWT Access Token refreshed successfully');
+
         return data.access_token;
       } else {
         console.warn('🔒 Token refresh failed:', data.message);

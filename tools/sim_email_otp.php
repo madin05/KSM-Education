@@ -200,7 +200,11 @@ $consumed = count(array_filter($rows2, static fn($r) => $r['consumed_at'] !== nu
 $jarTxt = is_file($jar2) ? (string)file_get_contents($jar2) : '';
 $hasSessionCookie = stripos($jarTxt, 'PHPSESSID') !== false || stripos($jarTxt, 'ksmedu') !== false;
 $verifyJs = (string)@file_get_contents(__DIR__ . '/../js/verify_email.js');
-$redirectsToDashboard = stripos($verifyJs, 'dashboard_user') !== false;
+// Sejak clean URL diaktifkan, redirect memakai path tanpa ekstensi
+// ('dashboard'), bukan lagi 'dashboard_user.php'. Keduanya diterima.
+$redirectsToDashboard = stripos($verifyJs, 'dashboard_user') !== false
+    || preg_match('/location\.href\s*=\s*[\'"]dashboard[\'"]/i', $verifyJs) === 1;
+
 
 $d = [
     'verify -> HTTP ' . $v2['status'] . ' ok=' . var_export($v2['body']['ok'] ?? null, true),

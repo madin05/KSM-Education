@@ -73,22 +73,47 @@ try {
 
     otp_record_ip_attempt($pdo, 'resend');
 
+    // Akun 'deleted' ikut diambil: pendaftaran ulang atas email tersebut
+    // menerbitkan OTP reaktivasi, dan tombol "kirim ulang" harus tetap bekerja
+    // untuk OTP itu. Status lain (mis. 'suspended') ditolak di bawah.
     $stmt = $pdo->prepare(
-        "SELECT id, name, email, email_verified_at
+        "SELECT id, name, email, email_verified_at, account_status
          FROM users
-         WHERE email = ? AND (account_status = 'active' OR account_status IS NULL)
+         WHERE email = ?
          LIMIT 1"
     );
     $stmt->execute([$email]);
     $user = $stmt->fetch();
 
-    // Email tidak terdaftar atau sudah terverifikasi: balasan generik yang sama.
-    if (!$user || !empty($user['email_verified_at'])) {
+    $accountStatus = $user ? (string)($user['account_status'] ?? 'active') : '';
+
+    // Email tidak terdaftar atau status akun tidak berhak menerima OTP:
+    // balasan generik yang sama.
+    if (!$user || !in_array($accountStatus, ['active', 'deleted'], true)) {
         otp_resend_generic_response();
         exit;
     }
 
     $userId = (int)$user['id'];
+
+    // OTP terakhir menentukan apakah ada proses verifikasi yang sedang berjalan
+    // dan payload registrasi tertunda yang harus dibawa ke OTP baru.
+    $pending = otp_latest_pending($pdo, $userId);
+    $isReactivation = $pending ? !empty($pending['is_reactivation']) : false;
+
+    // Akun aktif yang sudah terverifikasi tidak punya OTP untuk dikirim ulang.
+    if ($accountStatus === 'active' && !empty($user['email_verified_at'])) {
+        otp_resend_generic_response();
+        exit;
+    }
+
+    // Akun yang di-soft-delete hanya boleh menerima kiriman ulang bila memang
+    // ada OTP reaktivasi yang masih menunggu.
+    if ($accountStatus === 'deleted' && !$isReactivation) {
+        otp_resend_generic_response();
+        exit;
+    }
+
 
     // Cooldown 60 detik dihitung dari OTP terakhir yang diterbitkan
     // (termasuk yang sudah dibatalkan), bukan hanya yang masih aktif.
@@ -119,10 +144,17 @@ try {
         exit;
     }
 
-    $pending = otp_latest_pending($pdo, $userId);
     $resendCount = $pending ? ((int)$pending['resend_count'] + 1) : 1;
 
-    $otp = otp_issue_for_user($pdo, $userId, $resendCount);
+    // Payload registrasi tertunda ikut dibawa ke OTP baru: tanpa ini, kirim
+    // ulang akan menghapus nama/password yang menunggu verifikasi sehingga
+    // user tidak bisa login dengan kredensial yang baru saja ia daftarkan.
+    $otp = otp_issue_for_user($pdo, $userId, $resendCount, [
+        'name' => (string)($pending['pending_name'] ?? ''),
+        'password_hash' => (string)($pending['pending_password_hash'] ?? ''),
+        'is_reactivation' => $isReactivation,
+    ]);
+
 
     if (!otp_send_email($user['email'], (string)$user['name'], $otp)) {
         // Kegagalan transport dicatat ke log saja; klien tetap menerima

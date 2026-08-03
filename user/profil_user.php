@@ -81,7 +81,14 @@ include 'components/navbar.php';
 $extra_scripts = <<<'EOT'
 <script src="../js/script.js?v=2025112910"></script>
     <script src="../js/custom_alerts.js"></script>
-    <script src="../js/profil_user.js?v=20260719"></script>
+    <!-- auth_storage.js + api.js WAJIB dimuat sebelum skrip halaman: profil_user.js
+         mengirim Authorization: Bearer via window.TokenManager. Tanpa api.js,
+         auth_me.php dipanggil tanpa token sehingga user yang baru verifikasi OTP
+         (dan hanya punya cookie sesi) bisa terlempar ke halaman login. -->
+    <script src="../js/auth_storage.js?v=20260801"></script>
+    <script src="../js/api.js?v=20260803"></script>
+    <script src="../js/profil_user.js?v=20260803"></script>
+
     <script src="../js/mobile_menu.js?v=20251130"></script>
     <script>
       feather.replace();

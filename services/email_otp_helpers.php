@@ -71,15 +71,43 @@ function otp_generate_code(): string
 }
 
 /**
+ * Normalisasi payload registrasi tertunda menjadi bentuk yang dipakai
+ * otp_issue_for_user(). Dipakai juga untuk membawa payload lama ke OTP baru
+ * saat "Kirim Ulang OTP" (lihat resend_email_otp.php).
+ *
+ * @param array<string,mixed>|null $row Baris email_verifications atau null.
+ * @return array{name: ?string, password_hash: ?string, is_reactivation: bool}
+ */
+function otp_pending_payload_from_row(?array $row): array
+{
+    return [
+        'name' => isset($row['pending_name']) && $row['pending_name'] !== ''
+            ? (string)$row['pending_name'] : null,
+        'password_hash' => isset($row['pending_password_hash']) && $row['pending_password_hash'] !== ''
+            ? (string)$row['pending_password_hash'] : null,
+        'is_reactivation' => !empty($row['is_reactivation']),
+    ];
+}
+
+/**
  * Buat OTP baru untuk user dan batalkan OTP lama yang masih aktif.
  *
  * @param int  $resendCount Nilai resend_count yang dibawa ke baris baru.
+ * @param array{name?: ?string, password_hash?: ?string, is_reactivation?: bool}|null $pending
+ *        Nama/password hasil percobaan registrasi ulang yang BELUM boleh
+ *        ditulis ke tabel users. Nilai ini baru diterapkan setelah OTP
+ *        terbukti benar (lihat verify_email_otp.php), sehingga pihak yang
+ *        tidak memegang akses email tidak bisa mengubah kredensial akun.
  * @return string OTP plaintext (hanya untuk dikirim via email).
  */
-function otp_issue_for_user(PDO $pdo, int $userId, int $resendCount = 0): string
+function otp_issue_for_user(PDO $pdo, int $userId, int $resendCount = 0, ?array $pending = null): string
 {
     $code = otp_generate_code();
     $hash = password_hash($code, PASSWORD_DEFAULT);
+
+    $pendingName = $pending['name'] ?? null;
+    $pendingPasswordHash = $pending['password_hash'] ?? null;
+    $isReactivation = !empty($pending['is_reactivation']) ? 1 : 0;
 
     $ownTransaction = !$pdo->inTransaction();
     if ($ownTransaction) {
@@ -95,10 +123,12 @@ function otp_issue_for_user(PDO $pdo, int $userId, int $resendCount = 0): string
         $invalidate->execute([$userId]);
 
         $insert = $pdo->prepare(
-            'INSERT INTO email_verifications (user_id, otp_hash, expires_at, resend_count)
-             VALUES (?, ?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL ' . (int)KSMEDU_OTP_TTL_MINUTES . ' MINUTE), ?)'
+            'INSERT INTO email_verifications
+                 (user_id, otp_hash, pending_name, pending_password_hash, is_reactivation, expires_at, resend_count)
+             VALUES (?, ?, ?, ?, ?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL ' . (int)KSMEDU_OTP_TTL_MINUTES . ' MINUTE), ?)'
         );
-        $insert->execute([$userId, $hash, $resendCount]);
+        $insert->execute([$userId, $hash, $pendingName, $pendingPasswordHash, $isReactivation, $resendCount]);
+
 
         if ($ownTransaction) {
             $pdo->commit();
@@ -122,11 +152,13 @@ function otp_issue_for_user(PDO $pdo, int $userId, int $resendCount = 0): string
 function otp_latest_pending(PDO $pdo, int $userId): ?array
 {
     $stmt = $pdo->prepare(
-        'SELECT id, otp_hash, attempt_count, resend_count, created_at,
+        'SELECT id, otp_hash, pending_name, pending_password_hash, is_reactivation,
+                attempt_count, resend_count, created_at,
                 expires_at, (expires_at < CURRENT_TIMESTAMP) AS is_expired
          FROM email_verifications
          WHERE user_id = ? AND consumed_at IS NULL
          ORDER BY id DESC LIMIT 1'
+
     );
     $stmt->execute([$userId]);
     $row = $stmt->fetch();
@@ -148,12 +180,14 @@ function otp_latest_pending(PDO $pdo, int $userId): ?array
 function otp_lock_latest_pending(PDO $pdo, int $userId): ?array
 {
     $stmt = $pdo->prepare(
-        'SELECT id, otp_hash, attempt_count, resend_count, created_at,
+        'SELECT id, otp_hash, pending_name, pending_password_hash, is_reactivation,
+                attempt_count, resend_count, created_at,
                 expires_at, (expires_at < CURRENT_TIMESTAMP) AS is_expired
          FROM email_verifications
          WHERE user_id = ? AND consumed_at IS NULL
          ORDER BY id DESC LIMIT 1
          FOR UPDATE'
+
     );
     $stmt->execute([$userId]);
     $row = $stmt->fetch();

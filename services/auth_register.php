@@ -72,20 +72,81 @@ function register_generic_response(string $email): void
 }
 
 try {
-    // Email yang sudah terdaftar TIDAK diberi tahu ke klien. Akun lama tidak
-    // diubah dan tidak ada OTP baru yang diterbitkan di sini; pemilik akun yang
-    // sah dapat memakai "Kirim Ulang OTP" pada halaman verifikasi.
-    $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ? LIMIT 1");
+    // Email yang sudah terdaftar TIDAK diberi tahu ke klien: seluruh jalur di
+    // bawah membalas register_generic_response() yang identik dengan jalur akun
+    // baru, sehingga klien tidak bisa menyimpulkan status sebuah email.
+    $stmt = $pdo->prepare(
+        "SELECT id, name, email_verified_at, account_status
+         FROM users WHERE email = ? LIMIT 1"
+    );
     $stmt->execute([$email]);
-    if ($stmt->fetch()) {
-        error_log('Registration attempt for existing email (generic response returned).');
+    $existing = $stmt->fetch();
+
+    if ($existing) {
+        $existingId = (int)$existing['id'];
+        $status = (string)($existing['account_status'] ?? 'active');
+        $isVerified = !empty($existing['email_verified_at']);
+
+        // Akun aktif yang SUDAH terverifikasi: tidak ada yang dilakukan. Jalur
+        // "lupa password" adalah satu-satunya cara mengganti kredensial akun
+        // yang sudah hidup, bukan endpoint registrasi.
+        if ($isVerified && $status !== 'deleted') {
+            error_log('Registration attempt for existing verified email (generic response returned).');
+            register_generic_response($email);
+            exit;
+        }
+
+        // Sisa jalur = akun belum terverifikasi ATAU akun yang di-soft-delete.
+        // Keduanya berhak menerima OTP baru, tetapi nama/password dari
+        // percobaan ini DITAHAN di email_verifications dan baru diterapkan
+        // setelah OTP terbukti benar. Tanpa penahanan ini, siapa pun yang tahu
+        // sebuah email bisa menimpa kredensial akun tanpa akses ke inbox.
+        $isReactivation = ($status === 'deleted');
+
+        // Registrasi ulang memakai kuota rate limit yang sama dengan tombol
+        // "Kirim Ulang OTP" supaya endpoint ini tidak menjadi jalur pintas
+        // untuk membanjiri inbox orang lain.
+        if (otp_ip_rate_limited($pdo, 'resend', KSMEDU_OTP_IP_MAX_RESEND)) {
+            error_log('Registration re-attempt blocked by IP rate limit.');
+            register_generic_response($email);
+            exit;
+        }
+        otp_record_ip_attempt($pdo, 'resend');
+
+        // Cooldown 60 detik dihitung dari OTP terakhir yang diterbitkan,
+        // sama seperti resend_email_otp.php.
+        $lastStmt = $pdo->prepare(
+            'SELECT TIMESTAMPDIFF(SECOND, created_at, CURRENT_TIMESTAMP) AS age_seconds
+             FROM email_verifications WHERE user_id = ? ORDER BY id DESC LIMIT 1'
+        );
+        $lastStmt->execute([$existingId]);
+        $lastAge = $lastStmt->fetchColumn();
+
+        if ($lastAge !== false && (int)$lastAge < KSMEDU_OTP_RESEND_COOLDOWN) {
+            register_generic_response($email);
+            exit;
+        }
+
+        $pdo->beginTransaction();
+        $otp = otp_issue_for_user($pdo, $existingId, 0, [
+            'name' => $name,
+            'password_hash' => password_hash($password, PASSWORD_DEFAULT),
+            'is_reactivation' => $isReactivation,
+        ]);
+        $pdo->commit();
+
+        // Email dikirim ke alamat pemilik akun (bukan ke nama baru): OTP hanya
+        // bisa dibaca oleh pemegang inbox tersebut.
+        if (!otp_send_email($email, (string)$existing['name'], $otp)) {
+            error_log('Registration re-attempt: pengiriman email OTP gagal untuk user id ' . $existingId . '.');
+        }
+
         register_generic_response($email);
         exit;
     }
 
-
-
     $pdo->beginTransaction();
+
 
     // Hash password
     $hash = password_hash($password, PASSWORD_DEFAULT);

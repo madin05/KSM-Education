@@ -80,18 +80,24 @@ try {
     $pdo->beginTransaction();
 
     // Baris user dikunci agar email_verified_at tidak berubah di tengah alur.
+    // Akun 'deleted' ikut diambil karena OTP reaktivasi (is_reactivation)
+    // memang ditujukan untuk menghidupkannya kembali; status lain seperti
+    // 'suspended' tetap ditolak di bawah.
     $stmt = $pdo->prepare(
-        "SELECT id, name, email, role, email_verified_at
+        "SELECT id, name, email, role, email_verified_at, account_status
          FROM users
-         WHERE email = ? AND (account_status = 'active' OR account_status IS NULL)
+         WHERE email = ?
          LIMIT 1
          FOR UPDATE"
     );
     $stmt->execute([$email]);
     $user = $stmt->fetch();
 
-    // Email tidak ada / sudah terverifikasi: balasan sama dengan OTP salah.
-    if (!$user || !empty($user['email_verified_at'])) {
+    $accountStatus = $user ? (string)($user['account_status'] ?? 'active') : '';
+
+    // Email tidak ada, atau status akun bukan salah satu yang boleh diverifikasi
+    // (mis. 'suspended'): balasan sama dengan OTP salah.
+    if (!$user || !in_array($accountStatus, ['active', 'deleted'], true)) {
         $pdo->rollBack();
         http_response_code(400);
         echo json_encode(['ok' => false, 'message' => $genericFailure]);
@@ -110,6 +116,27 @@ try {
         echo json_encode(['ok' => false, 'message' => $genericFailure]);
         exit;
     }
+
+    $isReactivation = !empty($pending['is_reactivation']);
+
+    // Kombinasi status akun vs jenis OTP harus cocok:
+    // - akun 'deleted' hanya boleh dibuka oleh OTP reaktivasi;
+    // - akun aktif yang sudah terverifikasi tidak punya apa pun untuk
+    //   diverifikasi (OTP reaktivasi untuknya sudah tidak relevan).
+    if ($accountStatus === 'deleted' && !$isReactivation) {
+        $pdo->rollBack();
+        http_response_code(400);
+        echo json_encode(['ok' => false, 'message' => $genericFailure]);
+        exit;
+    }
+
+    if ($accountStatus === 'active' && !empty($user['email_verified_at']) && !$isReactivation) {
+        $pdo->rollBack();
+        http_response_code(400);
+        echo json_encode(['ok' => false, 'message' => $genericFailure]);
+        exit;
+    }
+
 
     // attempt_count dibaca DI DALAM transaksi (nilai terbaru yang terkunci).
     if ((int)$pending['attempt_count'] >= KSMEDU_OTP_MAX_ATTEMPTS) {
@@ -162,20 +189,50 @@ try {
         exit;
     }
 
-    $verify = $pdo->prepare(
-        'UPDATE users
-         SET email_verified_at = CURRENT_TIMESTAMP
-         WHERE id = ? AND email_verified_at IS NULL'
-    );
-    $verify->execute([$userId]);
+    // OTP sudah terbukti dimiliki pemegang inbox, jadi payload registrasi
+    // tertunda (nama/password percobaan terakhir) baru boleh diterapkan di sini.
+    $pendingName = (string)($pending['pending_name'] ?? '');
+    $pendingPasswordHash = (string)($pending['pending_password_hash'] ?? '');
 
-    if ($verify->rowCount() !== 1) {
-        // Akun sudah diverifikasi request lain: batalkan seluruh perubahan.
+    $sets = ['email_verified_at = COALESCE(email_verified_at, CURRENT_TIMESTAMP)'];
+    $params = [];
+
+    if ($pendingName !== '') {
+        $sets[] = 'name = ?';
+        $params[] = $pendingName;
+    }
+    if ($pendingPasswordHash !== '') {
+        $sets[] = 'password_hash = ?';
+        $params[] = $pendingPasswordHash;
+    }
+    if ($isReactivation) {
+        // Kebalikan dari delete_account.php: akun hidup kembali dan
+        // deleted_at dikosongkan.
+        $sets[] = "account_status = 'active'";
+        $sets[] = 'deleted_at = NULL';
+    }
+
+    $params[] = $userId;
+
+    $verify = $pdo->prepare('UPDATE users SET ' . implode(', ', $sets) . ' WHERE id = ?');
+    $verify->execute($params);
+
+    // Baris user sudah dikunci FOR UPDATE di atas, jadi kegagalan di sini
+    // berarti barisnya hilang di tengah transaksi.
+    $stillExists = $pdo->prepare('SELECT name FROM users WHERE id = ? LIMIT 1');
+    $stillExists->execute([$userId]);
+    $currentName = $stillExists->fetchColumn();
+
+    if ($currentName === false) {
         $pdo->rollBack();
         http_response_code(409);
         echo json_encode(['ok' => false, 'message' => $genericFailure]);
         exit;
     }
+
+    // Nama untuk sesi/JWT harus mencerminkan nilai pasca-update.
+    $user['name'] = (string)$currentName;
+
 
     // OTP tidak boleh bisa dipakai ulang: baris verifikasi dihapus.
     $cleanup = $pdo->prepare('DELETE FROM email_verifications WHERE user_id = ?');

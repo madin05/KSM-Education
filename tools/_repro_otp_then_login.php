@@ -14,7 +14,10 @@
 
 require_once __DIR__ . '/../services/env_loader.php';
 
-const BASE      = 'http://localhost/ksmedu';
+// Default XAMPP lokal. Di server lain (mis. produksi, app di document root)
+// timpa lewat env: REPRO_BASE=http://127.0.0.1 php tools/_repro_otp_then_login.php
+define('BASE', rtrim((string)($_ENV['REPRO_BASE'] ?? getenv('REPRO_BASE') ?: 'http://localhost/ksmedu'), '/'));
+
 const KNOWN_OTP = '424242';
 const PASSWORD  = 'Rahasia123';
 

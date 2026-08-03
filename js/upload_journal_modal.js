@@ -221,7 +221,6 @@
 
     const uploadedIds = [];
     try {
-      if (currentType !== "jurnal") throw new Error("Submission opini belum termasuk scope Fase 2.");
       if (typeof uploadFileToServer !== "function" || typeof authFetch !== "function") throw new Error("Layanan API belum siap. Muat ulang halaman dan coba lagi.");
 
       const pdfUpload = await uploadFileToServer(document.getElementById("ksmPdfInput").files[0]);
@@ -236,22 +235,54 @@
         uploadedIds.push(coverUpload.id);
       }
 
-      const response = await authFetch(`${window.APP_CONFIG.apiBase}/submit_journal.php`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: payload.title, abstract: payload.abstract, volume: payload.volume, authors: payload.authors, pengurus: payload.pengurus, email: payload.email, contact: payload.phone, tags: payload.tags, file_upload_id: pdfUpload.id, cover_upload_id: coverUpload?.id || null }),
-      });
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok || !result.ok) {
-        const error = new Error(result.message || "Submission jurnal gagal.");
-        error.status = response.status;
-        throw error;
-      }
+      if (currentType === "jurnal") {
+        // Submit journal
+        const response = await authFetch(`${window.APP_CONFIG.apiBase}/submit_journal.php`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title: payload.title, abstract: payload.abstract, volume: payload.volume, authors: payload.authors, pengurus: payload.pengurus, email: payload.email, contact: payload.phone, tags: payload.tags, file_upload_id: pdfUpload.id, cover_upload_id: coverUpload?.id || null }),
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || !result.ok) {
+          const error = new Error(result.message || "Submission jurnal gagal.");
+          error.status = response.status;
+          throw error;
+        }
 
-      uploadedIds.length = 0;
-      closeUploadModal();
-      if (typeof showToast === "function") showToast(result.message || "Jurnal berhasil dikirim.", "success");
-      global.dispatchEvent(new CustomEvent("ksm:journal-submitted", { detail: result.submission || null }));
+        uploadedIds.length = 0;
+        closeUploadModal();
+        if (typeof showToast === "function") showToast(result.message || "Jurnal berhasil dikirim.", "success");
+        global.dispatchEvent(new CustomEvent("ksm:journal-submitted", { detail: result.submission || null }));
+      } else {
+        // Submit opinion through the same user-facing submission flow as the
+        // journal: upload ids + token debit, handled by submit_opinion.php.
+        const response = await authFetch(`${window.APP_CONFIG.apiBase}/submit_opinion.php`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: payload.title,
+            description: payload.abstract,
+            category: payload.category,
+            authors: payload.authors,
+            email: payload.email,
+            contact: payload.phone,
+            tags: payload.tags,
+            file_upload_id: pdfUpload.id,
+            cover_upload_id: coverUpload?.id || null,
+          }),
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || !result.ok) {
+          const error = new Error(result.message || "Submission opini gagal.");
+          error.status = response.status;
+          throw error;
+        }
+
+        uploadedIds.length = 0;
+        closeUploadModal();
+        if (typeof showToast === "function") showToast(result.message || "Opini berhasil dikirim.", "success");
+        global.dispatchEvent(new CustomEvent("ksm:opinion-submitted", { detail: result.submission || null }));
+      }
     } catch (error) {
       await Promise.all(uploadedIds.map(async (uploadId) => {
         try {
@@ -261,7 +292,7 @@
         }
       }));
       if (error.status === 402 && typeof global.ksmOpenInsufficientModal === "function") global.ksmOpenInsufficientModal();
-      if (typeof showToast === "function") showToast(error.message || "Submission jurnal gagal.", "error");
+      if (typeof showToast === "function") showToast(error.message || (currentType === "jurnal" ? "Submission jurnal gagal." : "Submission opini gagal."), "error");
     } finally {
       submitBtn.classList.remove("loading");
       submitBtn.disabled = false;

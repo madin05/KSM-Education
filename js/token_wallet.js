@@ -1,7 +1,14 @@
 (function (global) {
+  // Interval polling saldo token. 15s cukup responsif untuk top-up manual
+  // via admin/Telegram tanpa membanjiri server.
+  const POLL_INTERVAL_MS = 15000;
+
   const KsmTokenWallet = {
     balance: 0,
     history: [],
+    _initialized: false,
+    _pollTimer: null,
+    _inFlight: null,
 
     getBalance() {
       return this.balance;
@@ -19,14 +26,75 @@
 
     async refresh() {
       if (typeof authFetch !== "function") return;
-      const response = await authFetch(`${window.APP_CONFIG.apiBase}/token_wallet.php`);
-      if (!response.ok) return;
-      const data = await response.json();
-      if (!data.ok) return;
-      this.balance = Number(data.wallet?.balance || 0);
-      this.history = Array.isArray(data.history) ? data.history : [];
-      this.renderBalance();
-      global.dispatchEvent(new CustomEvent("ksm-token-wallet:updated"));
+      // Cegah request bertumpuk saat polling dan refresh manual bersamaan.
+      if (this._inFlight) return this._inFlight;
+
+      this._inFlight = (async () => {
+        const response = await authFetch(`${global.APP_CONFIG.apiBase}/token_wallet.php`);
+        if (!response.ok) return;
+        const data = await response.json();
+        if (!data.ok) return;
+
+        const previousBalance = this.balance;
+        const isFirstLoad = !this._initialized;
+
+        this.balance = Number(data.wallet?.balance || 0);
+        this.history = Array.isArray(data.history) ? data.history : [];
+        this._initialized = true;
+        this.renderBalance();
+
+        const delta = this.balance - previousBalance;
+        global.dispatchEvent(
+          new CustomEvent("ksm-token-wallet:updated", {
+            detail: { balance: this.balance, previousBalance, delta },
+          })
+        );
+
+        // Notifikasi hanya untuk penambahan saldo setelah muatan pertama,
+        // supaya user tahu top-up sudah masuk tanpa perlu refresh halaman.
+        if (!isFirstLoad && delta > 0) {
+          this._notifyTopUp(delta);
+        }
+      })().finally(() => {
+        this._inFlight = null;
+      });
+
+      return this._inFlight;
+    },
+
+    _notifyTopUp(delta) {
+      const message = `Saldo token bertambah ${delta}. Total sekarang ${this.balance}.`;
+      global.dispatchEvent(
+        new CustomEvent("ksm-token-wallet:topup", { detail: { delta, balance: this.balance } })
+      );
+      if (typeof global.showToast === "function") {
+        global.showToast(message, "success");
+      } else {
+        console.info("[token-wallet]", message);
+      }
+    },
+
+    _safeRefresh() {
+      this.refresh().catch((error) => console.error("Token wallet error:", error));
+    },
+
+    /**
+     * Polling berhenti saat tab tidak terlihat (hemat request dan baterai),
+     * lalu langsung refresh sekali begitu user kembali ke tab. Ini yang
+     * membuat saldo terasa real time setelah user selesai bayar di
+     * tab/aplikasi lain (mis. Telegram).
+     */
+    startAutoRefresh(intervalMs = POLL_INTERVAL_MS) {
+      this.stopAutoRefresh();
+      if (document.visibilityState === "hidden") return;
+      this._pollTimer = global.setInterval(() => this._safeRefresh(), intervalMs);
+    },
+
+    stopAutoRefresh() {
+      if (this._pollTimer) {
+        global.clearInterval(this._pollTimer);
+        this._pollTimer = null;
+      }
     },
   };
 
@@ -48,6 +116,11 @@
       if (balanceEl) balanceEl.textContent = KsmTokenWallet.getBalance();
       overlay.classList.add("active");
     };
+
+    // Saldo di modal ikut ter-update kalau top-up masuk saat modal terbuka.
+    global.addEventListener("ksm-token-wallet:updated", () => {
+      if (balanceEl) balanceEl.textContent = KsmTokenWallet.getBalance();
+    });
   }
 
   function initBuyTokenModal() {
@@ -70,7 +143,7 @@
       continueBtn.disabled = true;
       continueBtn.textContent = "Membuka Telegram...";
       try {
-        const response = await authFetch(`${window.APP_CONFIG.apiBase}/token_purchase_link.php`, {
+        const response = await authFetch(`${global.APP_CONFIG.apiBase}/token_purchase_link.php`, {
           method: "POST",
           body: JSON.stringify({}),
         });
@@ -78,7 +151,10 @@
         if (!response.ok || !data.ok || !data.telegram_url) {
           throw new Error(data.message || "Tautan Telegram tidak dapat dibuat.");
         }
-        window.location.href = data.telegram_url;
+        // Percepat polling sebentar: user biasanya kembali beberapa saat
+        // setelah admin approve, jadi saldo langsung terlihat berubah.
+        KsmTokenWallet.startAutoRefresh(5000);
+        global.location.href = data.telegram_url;
       } catch (error) {
         console.error("Telegram purchase link error:", error);
         alert(error.message || "Gagal membuka Telegram. Silakan coba lagi.");
@@ -90,10 +166,28 @@
     });
   }
 
+  function initAutoRefresh() {
+    KsmTokenWallet.startAutoRefresh();
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        KsmTokenWallet._safeRefresh();
+        KsmTokenWallet.startAutoRefresh();
+      } else {
+        KsmTokenWallet.stopAutoRefresh();
+      }
+    });
+
+    // Balik dari Telegram / tab lain lewat bfcache tidak selalu memicu
+    // visibilitychange, jadi 'focus' dipakai sebagai jaring pengaman.
+    global.addEventListener("focus", () => KsmTokenWallet._safeRefresh());
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     KsmTokenWallet.renderBalance();
     initBuyTokenModal();
     initInsufficientModal();
-    KsmTokenWallet.refresh().catch((error) => console.error("Token wallet error:", error));
+    KsmTokenWallet._safeRefresh();
+    initAutoRefresh();
   });
 })(window);

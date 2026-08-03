@@ -714,7 +714,13 @@ nav a.active {
     display: flex !important;
     overflow-y: auto !important;
     align-items: stretch !important;
+    /* Tanpa ini, justify-content:center dari aturan desktop tetap aktif dan
+       (karena drawer memakai flex-direction:column) mendorong logo + link
+       ke tengah vertikal drawer. Isi drawer harus mulai dari atas. */
+    justify-content: flex-start !important;
+    text-align: left !important;
   }
+
 
   nav.active {
     transform: translateX(0) !important;
@@ -733,18 +739,39 @@ nav a.active {
     color: #1e293b;
   }
 
-  /* Logo inside sidebar */
+  /* Logo inside sidebar — WAJIB di kiri-atas drawer.
+     order:-1 mengunci posisinya sebagai item pertama walau ada
+     elemen lain yang disuntik oleh script lain. align-self/justify
+     dipaksa agar tidak ikut aturan center dari layout desktop. */
   .nav-logo {
-    display: block !important;
-    padding: 0.5rem 1.5rem 1.25rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    order: -1 !important;
+    align-self: stretch !important;
+    width: 100% !important;
+    margin: 0 0 10px !important;
+    padding: 0.25rem 1.25rem 1rem !important;
     border-bottom: 1px solid #f0f0f0 !important;
-    margin-bottom: 12px !important;
+    text-align: left !important;
+    flex: 0 0 auto !important;
+  }
+
+  .nav-logo a,
+  .nav-logo .logo-link {
+    display: inline-flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   .nav-logo img {
-    width: 80px !important;
+    width: 78px !important;
     height: auto !important;
+    margin: 0 !important;
+    display: block !important;
   }
+
 
   /* Auth section at bottom of sidebar */
   .nav-auth-section {

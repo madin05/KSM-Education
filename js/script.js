@@ -1256,11 +1256,20 @@ function getAvatarColor(name) {
 // fetch otomatis menimpa tampilan cache begitu selesai.
 // =========================================================
 
-const NAVBAR_PROFILE_CACHE_KEY = 'ksm_navbar_profile_cache';
+// Cache dipisah per konteks (user vs admin) mengikuti pemisahan key JWT &
+// cookie session di services/auth_context.php. Dengan satu key bersama,
+// profil admin bisa "bocor" terender di navbar area user (dan sebaliknya).
+const NAVBAR_PROFILE_CACHE_BASE = 'ksm_navbar_profile_cache';
+
+function navbarProfileCacheKey() {
+    return ksmAuthContext() === 'admin'
+        ? NAVBAR_PROFILE_CACHE_BASE + '_admin'
+        : NAVBAR_PROFILE_CACHE_BASE;
+}
 
 function getCachedNavbarProfile() {
     try {
-        const raw = localStorage.getItem(NAVBAR_PROFILE_CACHE_KEY);
+        const raw = localStorage.getItem(navbarProfileCacheKey());
         return raw ? JSON.parse(raw) : null;
     } catch (e) {
         return null;
@@ -1269,7 +1278,7 @@ function getCachedNavbarProfile() {
 
 function setCachedNavbarProfile(user) {
     try {
-        localStorage.setItem(NAVBAR_PROFILE_CACHE_KEY, JSON.stringify(user));
+        localStorage.setItem(navbarProfileCacheKey(), JSON.stringify(user));
     } catch (e) {
         /* localStorage penuh/tidak tersedia — abaikan, bukan fatal */
     }
@@ -1277,9 +1286,10 @@ function setCachedNavbarProfile(user) {
 
 function clearCachedNavbarProfile() {
     try {
-        localStorage.removeItem(NAVBAR_PROFILE_CACHE_KEY);
+        localStorage.removeItem(navbarProfileCacheKey());
     } catch (e) {}
 }
+
 
 // =========================================================
 // LOGOUT MANDIRI (tidak bergantung pada TokenManager/api.js)
@@ -1331,6 +1341,113 @@ function ksmRemoveLocal(key) {
         localStorage.removeItem(key);
     } catch (e) {}
 }
+
+function ksmWriteLocal(key, value) {
+    try {
+        localStorage.setItem(key, value);
+    } catch (e) {}
+}
+
+// =========================================================
+// RESOLVER TOKEN MANDIRI (BUGFIX: "sudah login tapi halaman lain guest")
+// ---------------------------------------------------------
+// PENYEBAB BUG: updateNavbarAuth() hanya mengirim header Authorization bila
+// window.TokenManager (js/api.js) tersedia. Halaman seperti journals_user,
+// opinions_user, tentang_user, kontak_user, explore_* HANYA memuat script.js
+// tanpa api.js, jadi JWT di localStorage tidak pernah ikut dikirim. Halaman
+// itu bergantung sepenuhnya pada cookie session PHP; begitu session PHP tidak
+// ada / kedaluwarsa (login JWT-only, verifikasi OTP, session gc, cookie
+// KSMEDUSESS hilang), auth_me.php menjawab 401 dan navbar berubah jadi Guest —
+// padahal sesi JWT masih sah. Hasilnya: dashboard tampak login, menu lain tidak.
+//
+// SOLUSI: resolver token yang tidak bergantung pada api.js, lengkap dengan
+// refresh (rotasi) sendiri. Bila api.js ADA, jalur rotasi tetap didelegasikan
+// ke TokenManager agar tidak ada dua permintaan refresh paralel yang saling
+// mencabut refresh token.
+// =========================================================
+
+// Satu promise refresh dibagi ke semua pemanggil: rotasi refresh token di
+// server bersifat sekali pakai, jadi dua request paralel akan saling mematikan.
+let ksmRefreshInFlight = null;
+
+function ksmAccessTokenExpired() {
+    const expiry = ksmReadLocal(ksmTokenKeys().expiry);
+    if (!expiry) return true; // tanpa info kedaluwarsa, anggap perlu divalidasi
+    const ts = parseInt(expiry, 10);
+    if (!Number.isFinite(ts)) return true;
+    return Date.now() > (ts - 30000); // buffer 30 detik
+}
+
+async function ksmRefreshAccessToken() {
+    const keys = ksmTokenKeys();
+    const refreshToken = ksmReadLocal(keys.refresh);
+    if (!refreshToken) return null;
+    if (ksmRefreshInFlight) return ksmRefreshInFlight;
+
+    ksmRefreshInFlight = (async () => {
+        try {
+            const res = await fetch(`${window.APP_CONFIG.apiBase}/auth_refresh.php`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-KSM-Context': ksmAuthContext(),
+                },
+                body: JSON.stringify({ refresh_token: refreshToken }),
+            });
+            const data = await res.json();
+            if (data && data.ok && data.access_token) {
+                ksmWriteLocal(keys.access, data.access_token);
+                // Refresh token dirotasi server: yang baru WAJIB disimpan.
+                if (data.refresh_token) ksmWriteLocal(keys.refresh, data.refresh_token);
+                if (data.expires_in) {
+                    ksmWriteLocal(keys.expiry, String(Date.now() + (data.expires_in * 1000)));
+                }
+                return data.access_token;
+            }
+            return null;
+        } catch (err) {
+            return null; // gangguan jaringan — token lama tetap dipakai
+        } finally {
+            ksmRefreshInFlight = null;
+        }
+    })();
+
+    return ksmRefreshInFlight;
+}
+
+/**
+ * Ambil access token yang layak dipakai untuk konteks halaman aktif.
+ * @param {boolean} [forceRefresh] paksa rotasi (dipakai saat dapat 401)
+ * @returns {Promise<string|null>}
+ */
+async function ksmGetValidAccessToken(forceRefresh) {
+    const keys = ksmTokenKeys();
+
+    if (window.TokenManager && typeof window.TokenManager.getValidToken === 'function') {
+        try {
+            if (forceRefresh) {
+                const rotated = await ksmRefreshAccessToken();
+                if (rotated) return rotated;
+            }
+            const managed = await window.TokenManager.getValidToken();
+            if (managed) return managed;
+        } catch (err) {
+            // lanjut ke jalur mandiri di bawah
+        }
+    }
+
+    const current = ksmReadLocal(keys.access);
+    if (!current) return null;
+    if (!forceRefresh && !ksmAccessTokenExpired()) return current;
+
+    const refreshed = await ksmRefreshAccessToken();
+    // Kalau refresh gagal, tetap kirim token lama: server yang memutuskan.
+    return refreshed || current;
+}
+
+window.ksmGetValidAccessToken = ksmGetValidAccessToken;
+
 
 // Hapus seluruh jejak sesi di sisi klien untuk konteks aktif.
 function ksmClearClientSession() {
@@ -1511,17 +1628,35 @@ async function updateNavbarAuth() {
     }
 
     try {
-        // Fetch current user from API
-        // Build auth headers with JWT if available
-        const authHeaders = {};
-        if (window.TokenManager && window.TokenManager.hasTokens()) {
-            const token = await window.TokenManager.getValidToken();
-            if (token) authHeaders['Authorization'] = `Bearer ${token}`;
+        // Ambil identitas user. Header Authorization SELALU dilampirkan bila ada
+        // JWT di localStorage — tidak lagi bergantung pada window.TokenManager
+        // (js/api.js) yang hanya dimuat sebagian halaman. Inilah inti perbaikan
+        // bug "dashboard login, menu lain guest".
+        const fetchMe = async (forceRefresh) => {
+            const headers = { 'X-KSM-Context': ksmAuthContext() };
+            const token = await ksmGetValidAccessToken(forceRefresh);
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            return fetch(`${window.APP_CONFIG.apiBase}/auth_me.php`, {
+                credentials: 'include',
+                headers,
+            });
+        };
+
+        let response = await fetchMe(false);
+
+        // 401 dengan refresh token tersedia: access token mungkin sudah mati
+        // (mis. dicabut / kedaluwarsa tanpa penanda expiry di localStorage).
+        // Rotasi sekali lalu ulangi — sebelumnya kasus ini langsung dianggap
+        // "belum login" sehingga navbar jatuh ke Guest padahal sesi masih sah.
+        if (response.status === 401 && ksmReadLocal(ksmTokenKeys().refresh)) {
+            const rotated = await ksmRefreshAccessToken();
+            if (rotated) response = await fetchMe(false);
         }
-        const response = await fetch(`${window.APP_CONFIG.apiBase}/auth_me.php`, { credentials: 'include', headers: authHeaders });
+
         const result = await response.json();
 
         if (result.ok && result.user) {
+
             // Logged in
             const user = result.user;
             const { profileHTML, mobileHeaderHTML } = buildNavbarProfileHTML(user);
@@ -1544,8 +1679,16 @@ async function updateNavbarAuth() {
             sessionStorage.setItem('userName', user.name);
             sessionStorage.setItem('userType', user.role);
         } else {
-            // Not logged in
+            // Server memastikan sesi TIDAK sah (bukan gangguan jaringan —
+            // itu ditangani di blok catch). Buang token mati agar percobaan
+            // refresh berikutnya tidak dianggap "token reuse" oleh server,
+            // yang justru mencabut seluruh sesi user.
             clearCachedNavbarProfile();
+            const deadKeys = ksmTokenKeys();
+            ksmRemoveLocal(deadKeys.access);
+            ksmRemoveLocal(deadKeys.refresh);
+            ksmRemoveLocal(deadKeys.expiry);
+
 
             const loginHTML = `
                 <a href="${window.APP_CONFIG.root}/user/login" class="guest-profile" style="text-decoration: none;">

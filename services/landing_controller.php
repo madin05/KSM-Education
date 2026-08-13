@@ -19,10 +19,10 @@ $lang = isset($_GET['lang']) && $_GET['lang'] === 'en' ? 'en' : 'id';
 // Translations Dictionary
 $translations = [
     'id' => [
-        'nav_home' => 'Home',
+        'nav_home' => 'Beranda',
         'nav_journals' => 'Jurnal',
         'nav_articles' => 'Opini & Berita',
-        'nav_about' => 'About',
+        'nav_about' => 'Tentang Kami',
         'hero_title' => 'Temukan <span>Keunggulan Akademik</span> & Berita Edukasi Terbaru',
         'hero_subtitle' => 'Platform terpercaya untuk publikasi, indeksasi, dan penyebaran hasil penelitian teoretis serta praktis bagi akademisi global.',
         'search_placeholder' => 'Cari berdasarkan kata kunci...',
@@ -40,7 +40,7 @@ $translations = [
         'read_more' => 'Baca Selengkapnya',
         'read_time' => 'min baca',
         'views_count' => 'dilihat',
-        'guidelines_title' => 'Author Guidelines',
+        'guidelines_title' => 'Panduan Penulis',
         'guidelines_subtitle' => 'Panduan lengkap tata cara penulisan dan pengiriman naskah artikel ilmiah di KSM Education.',
         'g1_title' => 'Format Naskah',
         'g1_desc' => 'Naskah wajib disusun rapi menggunakan font Montserrat/Inter, mencantumkan abstrak dalam Bahasa Indonesia dan Bahasa Inggris.',

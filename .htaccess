@@ -54,6 +54,7 @@ RewriteRule ^admin/dashboard$       admin/dashboard_admin.php      [L,QSA]
 RewriteRule ^admin/login$           admin/login_admin.php          [L,QSA]
 RewriteRule ^admin/explore_jurnal$  admin/explore_jurnal_admin.php [L,QSA]
 RewriteRule ^admin/explore_opini$   admin/explore_opini_admin.php  [L,QSA]
+RewriteRule ^admin/upload$          admin/upload_admin.php         [L,QSA]
 
 # 4. Same-name pages: /admin/journals -> admin/journals.php.
 #    One safe path segment only, restricted to the two page folders,

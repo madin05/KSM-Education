@@ -27,7 +27,7 @@ require_once __DIR__ . '/services/landing_controller.php';
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="styles/fonts.css">
-    <link rel="stylesheet" href="styles/landing.css?v=202607161225">
+    <link rel="stylesheet" href="styles/landing.css?v=20260813mobile">
     <link rel="stylesheet" href="styles/ad_carousel.css?v=20260717">
     <link rel="shortcut icon" type="image/x-icon" href="assets/favicon.ico" />
     <script src="https://unpkg.com/feather-icons"></script>
@@ -37,13 +37,14 @@ require_once __DIR__ . '/services/landing_controller.php';
     <!-- Top Navigation Bar Component -->
     <?php require_once __DIR__ . '/user/components/landing_header.php'; ?>
 
-    <!-- Promotional Ad Carousel Section (Top Banner) -->
-    <section class="landing-carousel-section" style="max-width: 1200px; margin: 95px auto 20px; padding: 0 24px;">
-        <?php include __DIR__ . '/user/components/ad_carousel.php'; ?>
-    </section>
-
     <!-- Hero Section -->
-    <section class="landing-hero" style="padding-top: 40px;">
+    <section class="landing-hero" aria-roledescription="carousel" aria-label="KSM Education featured content">
+        <div class="landing-hero-slides">
+            <div class="landing-hero-slide active" style="background-image: url('assets/slideshow-1.jpg');"></div>
+            <div class="landing-hero-slide" style="background-image: url('assets/slideshow-2.jpg');"></div>
+            <div class="landing-hero-slide" style="background-image: url('assets/slideshow-3.png');"></div>
+        </div>
+
         <div class="hero-deco-1"></div>
         <div class="hero-deco-2"></div>
         
@@ -84,12 +85,9 @@ require_once __DIR__ . '/services/landing_controller.php';
                     <?php echo $t['cta_news']; ?>
                 </a>
             </div>
-        </div>
-    </section>
-
-    <!-- Compact Statistics Bar -->
-    <section class="landing-stats-bar">
-        <div class="landing-stats-container">
+        
+            <!-- Floating Glassmorphism Statistics Bar -->
+            <div class="landing-stats-container">
             <div class="landing-stat-item">
                 <div class="landing-stat-icon-wrapper">
                     <i data-feather="file-text"></i>
@@ -120,7 +118,10 @@ require_once __DIR__ . '/services/landing_controller.php';
                 </div>
             </div>
         </div>
+        </div>
     </section>
+
+    
 
     <!-- Split Content Area (The Core) -->
     <section class="landing-split-section">

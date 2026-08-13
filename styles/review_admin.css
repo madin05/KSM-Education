@@ -39,13 +39,13 @@
 }
 
 .review-type-tab:hover {
-  border-color: #93c5fd;
-  color: #1d4ed8;
+  border-color: rgba(44, 62, 80, 0.3);
+  color: #2c3e50;
 }
 
 .review-type-tab.active {
-  background: #1d4ed8;
-  border-color: #1d4ed8;
+  background: #2c3e50;
+  border-color: #2c3e50;
   color: #fff;
 }
 
@@ -87,7 +87,7 @@
 .admin-review-page .page-header h1 svg {
   width: 24px;
   height: 24px;
-  color: #3b82f6;
+  color: #2c3e50;
 }
 
 .admin-review-page .page-header p {
@@ -125,13 +125,13 @@
 }
 
 .review-tab:hover {
-  border-color: #3b82f6;
-  color: #2563eb;
+  border-color: #2c3e50;
+  color: #2c3e50;
 }
 
 .review-tab.active {
-  background: #3b82f6;
-  border-color: #3b82f6;
+  background: #2c3e50;
+  border-color: #2c3e50;
   color: #fff;
 }
 
@@ -213,7 +213,7 @@
 }
 
 .review-sort-item.active {
-  color: #2563eb;
+  color: #2c3e50;
   font-weight: 600;
 }
 
@@ -277,7 +277,7 @@
 }
 
 .review-title-btn:hover {
-  color: #2563eb;
+  color: #2c3e50;
   text-decoration: underline;
 }
 
@@ -509,13 +509,13 @@
   padding: 2px 9px;
   margin: 0 4px 4px 0;
   border-radius: 999px;
-  background: #eff6ff;
-  color: #1d4ed8;
+  background: rgba(44, 62, 80, 0.08);
+  color: #2c3e50;
   font-size: 0.74rem;
 }
 
 .review-detail-grid dd a {
-  color: #2563eb;
+  color: #2c3e50;
   font-weight: 600;
 }
 
@@ -547,8 +547,8 @@
 
 #rejectReasonInput:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  border-color: #2c3e50;
+  box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.4);
 }
 
 .reject-actions {
@@ -629,8 +629,8 @@
 }
 
 [data-theme="dark"] .review-type-tab.active {
-  background: #1d4ed8;
-  border-color: #1d4ed8;
+  background: #2c3e50;
+  border-color: #2c3e50;
   color: #fff;
 }
 
@@ -640,8 +640,8 @@
 }
 
 [data-theme="dark"] .review-tab.active {
-  background: #3b82f6;
-  border-color: #3b82f6;
+  background: #2c3e50;
+  border-color: #2c3e50;
   color: #fff;
 }
 

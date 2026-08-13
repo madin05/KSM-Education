@@ -34,10 +34,10 @@ if ($uploadError !== UPLOAD_ERR_OK) {
     exit;
 }
 
-$maxSize = 20 * 1024 * 1024; // 20MB limit
+$maxSize = 5 * 1024 * 1024; // 5MB limit
 if ((int)$file['size'] < 1 || (int)$file['size'] > $maxSize) {
     http_response_code(400);
-    echo json_encode(['ok' => false, 'message' => 'File too large']);
+    echo json_encode(['ok' => false, 'message' => 'Ukuran file terlalu besar. Maksimal 5 MB']);
     exit;
 }
 

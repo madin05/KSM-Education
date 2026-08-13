@@ -60,13 +60,13 @@
 }
 
 .token-view-btn:hover {
-  border-color: var(--primary-color, #2563eb);
-  color: var(--primary-color, #2563eb);
+  border-color: var(--color-primary, #2c3e50);
+  color: var(--color-primary, #2c3e50);
 }
 
 .token-view-btn.active {
-  background: var(--primary-color, #2563eb);
-  border-color: var(--primary-color, #2563eb);
+  background: var(--color-primary, #2c3e50);
+  border-color: var(--color-primary, #2c3e50);
   color: #fff;
 }
 
@@ -77,7 +77,7 @@
 
 .token-view-btn:focus-visible,
 .token-stat-card:focus-visible {
-  outline: 2px solid var(--primary-color, #2563eb);
+  outline: 2px solid var(--color-primary-focus, rgba(44, 62, 80, 0.4));
   outline-offset: 2px;
 }
 

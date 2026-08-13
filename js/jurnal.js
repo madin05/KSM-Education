@@ -109,9 +109,15 @@
                 }
               })(),
               uploadDate: o.created_at,
-              coverImage:
-                o.cover_url ||
-                "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500&h=400&fit=crop",
+              coverImage: (() => {
+                const url = o.cover_url;
+                if (!url || url === "null" || url === "undefined" || url === "") return "../assets/slideshow-1.jpg";
+                if (url.startsWith("http") || url.startsWith("data:")) return url;
+                if (url.startsWith("../")) return url;
+                if (url.startsWith("uploads/")) return "../" + url;
+                if (url.startsWith("/uploads/")) return ".." + url;
+                return "../" + url;
+              })(),
               views: parseInt(o.views) || 0,
               _type: "opini",
             }));
@@ -140,6 +146,14 @@
           return [];
         }
       };
+      const fixCover = (url) => {
+        if (!url || url === "null" || url === "undefined" || url === "") return "../assets/slideshow-1.jpg";
+        if (url.startsWith("http") || url.startsWith("data:")) return url;
+        if (url.startsWith("../")) return url;
+        if (url.startsWith("uploads/")) return "../" + url;
+        if (url.startsWith("/uploads/")) return ".." + url;
+        return "../" + url;
+      };
       return {
         id: String(j.id),
         title: j.title || "Untitled",
@@ -152,9 +166,7 @@
         uploadDate: j.created_at,
         fileData: j.file_url,
         file: j.file_url,
-        coverImage:
-          j.cover_url ||
-          "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500&h=400&fit=crop",
+        coverImage: fixCover(j.cover_url),
         email: j.email || "",
         contact: j.contact || "",
         views: parseInt(j.views) || 0,
@@ -335,10 +347,10 @@
 
       card.innerHTML = `
         <div style="width: 100%; height: 200px; overflow: hidden; position: relative;">
-          <img src="${journal.coverImage}" 
+            <img src="${journal.coverImage}" 
               alt="${journal.title}" 
-              style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s;"
-              onerror="this.src='https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500&h=400&fit=crop'">
+              style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; color: transparent;"
+              onerror="this.onerror=null; this.src='../assets/slideshow-1.jpg'">
           <div style="position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.7); color: white; padding: 6px 10px; border-radius: 6px; font-size: 12px; display: flex; align-items: center; gap: 4px; font-weight: 600;">
             <i data-feather="eye" style="width: 14px; height: 14px;"></i> ${
               journal.views
@@ -407,7 +419,9 @@
                   <i data-feather="more-vertical"></i>
                 </button>
                 <div id="dropdown-${journal.id}" class="dropdown-content">
-                
+                  <button class="dropdown-item-btn dd-download" onclick="event.stopPropagation(); downloadJournalPdf('${journal.file || journal.fileData || ''}', '${journal.title.replace(/'/g, "\\'")}'); closeDropdown('${journal.id}')">
+                    <i data-feather="download"></i> Download
+                  </button>
                   <button class="dropdown-item-btn dd-edit" onclick="event.stopPropagation(); window.editJournalManager.openEditModal('${journal.id}'); closeDropdown('${journal.id}')">
                     <i data-feather="edit"></i> Edit
                   </button>

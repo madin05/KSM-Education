@@ -5,85 +5,246 @@
    jadi tombol refresh di dashboard/token/analitik tampil tanpa gaya sama sekali. */
 
 /* ===================================================================
-   NAV ADMIN — grup menu dengan dropdown
-   Basis (.nav-dropdown, .dropdown-menu, drawer mobile) diwarisi dari
-   header.css; di sini hanya penyesuaian khusus panel admin.
+   ADMIN HEADER & CONTAINER LAYOUT
    =================================================================== */
+header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04) !important;
+  width: 100% !important;
+  left: 0 !important;
+}
+
+.header-container {
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 12px 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 20px !important;
+  box-sizing: border-box !important;
+  flex-wrap: nowrap !important;
+}
+
+header .logo,
+.header-container .logo {
+  display: flex !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+}
+
+header .logo a,
+.header-container .logo a {
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+header .logo img,
+.header-container .logo img,
+.admin-nav .logo img {
+  height: 38px !important;
+  max-height: 38px !important;
+  width: auto !important;
+  max-width: 180px !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+
 .admin-nav {
-  gap: 4px;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex: 1 !important;
+  justify-content: center !important;
+}
+
+.auth-section {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  flex-shrink: 0 !important;
+}
+
+.admin-identity {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #334155 !important;
+  white-space: nowrap !important;
+  padding: 6px 12px !important;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+}
+
+.admin-identity svg,
+.admin-identity i {
+  width: 15px !important;
+  height: 15px !important;
+  color: #64748b !important;
+}
+
+.auth-section .btn-register {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  padding: 8px 16px !important;
+  border-radius: 999px !important;
+  background: #fef2f2 !important;
+  color: #dc2626 !important;
+  border: 1px solid #fecaca !important;
+  font-family: "Montserrat", system-ui, -apple-system, sans-serif !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.03em !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 1px 3px rgba(220, 38, 38, 0.08) !important;
+  cursor: pointer !important;
+}
+
+.auth-section .btn-register:hover {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.3) !important;
+  transform: translateY(-1px) !important;
+  text-decoration: none !important;
+}
+
+.auth-section .btn-register svg,
+.auth-section .btn-register i {
+  width: 14px !important;
+  height: 14px !important;
+  stroke: currentColor !important;
+}
+
+/* ===================================================================
+   NAV ADMIN — grup menu dengan dropdown
+   =================================================================== */
+
+.admin-nav .nav-dropdown {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
 }
 
 .admin-nav > a,
 .admin-nav .nav-link.has-caret {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 9px 13px;
-  border-radius: 10px;
-  color: #64748b;
-  font-family: "Montserrat", sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  white-space: nowrap;
-  transition: background 0.18s ease, color 0.18s ease;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 8px 15px !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #475569 !important;
+  font-family: "Montserrat", system-ui, -apple-system, sans-serif !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
 }
 
 .admin-nav > a > svg,
-.admin-nav .nav-link.has-caret > svg:first-child {
-  width: 15px;
-  height: 15px;
-  flex-shrink: 0;
+.admin-nav .nav-link.has-caret > svg:first-child,
+.admin-nav > a > i,
+.admin-nav .nav-link.has-caret > i:first-child {
+  width: 15px !important;
+  height: 15px !important;
+  flex-shrink: 0 !important;
 }
 
 .admin-nav > a:hover,
 .admin-nav .nav-link.has-caret:hover {
-  background: #eff4fb;
-  color: #1d4ed8;
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #1e293b !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06) !important;
+  transform: translateY(-1px) !important;
 }
 
 /* Halaman aktif — juga menandai grup induknya */
 .admin-nav > a.active,
 .admin-nav .nav-dropdown.has-active > .nav-link.has-caret {
-  background: #e8f0fe;
-  color: #1d4ed8;
+  background: #2c3e50 !important;
+  border-color: #2c3e50 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(44, 62, 80, 0.25) !important;
+}
+
+.admin-nav > a.active > svg,
+.admin-nav .nav-dropdown.has-active > .nav-link.has-caret > svg,
+.admin-nav > a.active > i,
+.admin-nav .nav-dropdown.has-active > .nav-link.has-caret > i {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 .admin-nav > a:focus-visible,
 .admin-nav .nav-link.has-caret:focus-visible,
 .admin-nav .dropdown-menu a:focus-visible {
-  outline: 2px solid #2563eb;
+  outline: 2px solid var(--color-primary-focus, rgba(44, 62, 80, 0.4));
   outline-offset: 2px;
 }
 
 .admin-nav .nav-link.has-caret .caret {
-  width: 14px;
-  height: 14px;
-  opacity: 0.7;
+  width: 14px !important;
+  height: 14px !important;
+  opacity: 0.75 !important;
+  transition: transform 0.2s ease !important;
 }
 
-/* ===== DROPDOWN (desktop) =====
-   header.css memakai display:none/block. Di sini di-override supaya bisa
-   dianimasikan; aturan mobile di header.css memakai !important sehingga
-   drawer tetap berperilaku seperti semula. */
+.admin-nav .nav-dropdown.open .nav-link.has-caret .caret {
+  transform: rotate(180deg) !important;
+}
+
+.admin-nav a,
+.admin-nav button,
+.admin-nav .nav-link,
+.admin-nav .dropdown-menu a,
+.admin-nav .dropdown-menu .nav-menu-item,
+.admin-nav .dropdown-menu .nav-menu-text,
+.admin-nav .dropdown-menu .nav-menu-text strong,
+.admin-nav .dropdown-menu .nav-menu-text small {
+  text-decoration: none !important;
+}
+
+/* ===== DROPDOWN (desktop) ===== */
 .admin-nav .dropdown-menu {
+  position: absolute !important;
+  background: #ffffff !important;
   display: block;
-  top: calc(100% + 10px);
+  top: calc(100% + 8px);
   left: 0;
   min-width: 268px;
   padding: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-color-soft, rgba(44, 62, 80, 0.15));
   border-radius: 14px;
-  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 14px 34px rgba(44, 62, 80, 0.15);
   opacity: 0;
   visibility: hidden;
+  pointer-events: none;
   transform: translateY(-6px);
   transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+  z-index: 1000 !important;
 }
 
 .admin-nav .nav-dropdown.open .dropdown-menu {
   opacity: 1;
   visibility: visible;
+  pointer-events: auto;
   transform: translateY(0);
 }
 
@@ -94,6 +255,8 @@
   gap: 10px;
   padding: 9px 10px;
   border-radius: 10px;
+  text-decoration: none !important;
+  transition: background 0.18s ease;
 }
 
 .admin-nav .dropdown-menu .nav-menu-item .nav-menu-icon {
@@ -102,9 +265,9 @@
   flex: 0 0 32px;
   width: 32px;
   height: 32px;
-  border-radius: 9px;
-  background: #f1f5f9;
-  color: #64748b;
+  border-radius: 999px;
+  background: var(--color-primary-soft, rgba(44, 62, 80, 0.08));
+  color: var(--color-primary, #2c3e50);
   transition: background 0.18s ease, color 0.18s ease;
 }
 
@@ -115,8 +278,8 @@
 
 .admin-nav .dropdown-menu .nav-menu-item:hover .nav-menu-icon,
 .admin-nav .dropdown-menu .nav-menu-item.active .nav-menu-icon {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: var(--color-primary, #2c3e50);
+  color: var(--color-text-on-primary, #ffffff);
 }
 
 .admin-nav .dropdown-menu .nav-menu-text {
@@ -131,20 +294,22 @@
   font-size: 13px;
   font-weight: 600;
   line-height: 1.3;
+  text-decoration: none !important;
 }
 
 .admin-nav .dropdown-menu .nav-menu-text small {
   color: #94a3b8;
   font-size: 11.5px;
   line-height: 1.35;
+  text-decoration: none !important;
 }
 
 .admin-nav .dropdown-menu .nav-menu-item.active strong {
-  color: #1d4ed8;
+  color: var(--color-primary, #2c3e50);
 }
 
 .admin-nav .dropdown-menu .nav-menu-item.active {
-  background: #f5f9ff;
+  background: var(--color-primary-soft, rgba(44, 62, 80, 0.08));
 }
 
 /* Label pemisah di dalam dropdown */
@@ -164,7 +329,7 @@
   margin-left: auto;
   padding: 1px 6px;
   border-radius: 999px;
-  background: #dc2626;
+  background: var(--color-primary, #2c3e50);
   color: #fff;
   font-size: 10.5px;
   font-weight: 700;
@@ -182,7 +347,7 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #dc2626;
+  background: var(--color-primary, #2c3e50);
   flex-shrink: 0;
 }
 
@@ -204,7 +369,6 @@
     justify-content: flex-start;
   }
 
-  /* Caret didorong ke ujung kanan tanpa mengganggu badge/ikon */
   .admin-nav .nav-link.has-caret .caret {
     margin-left: auto;
   }
@@ -219,7 +383,6 @@
     padding: 10px 12px !important;
   }
 
-  /* Keterangan disembunyikan agar drawer tetap ringkas */
   .admin-nav .dropdown-menu .nav-menu-text small {
     display: none;
   }
@@ -236,33 +399,33 @@
   width: 38px;
   height: 38px;
   padding: 0;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color-soft, rgba(44, 62, 80, 0.15));
   border-radius: 10px;
   background: #fff;
-  color: #475569;
+  color: var(--color-primary, #2c3e50);
   font-family: inherit;
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .btn-refresh:hover {
-  background: #f1f5f9;
-  border-color: #93c5fd;
-  color: #2563eb;
+  background: var(--color-primary, #2c3e50);
+  border-color: var(--color-primary, #2c3e50);
+  color: var(--color-text-on-primary, #ffffff);
 }
 
 .btn-refresh:focus-visible {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+  border-color: var(--color-primary, #2c3e50);
+  box-shadow: 0 0 0 3px var(--color-primary-focus, rgba(44, 62, 80, 0.4));
 }
 
 .btn-refresh:active {
   transform: scale(0.96);
+  background: var(--color-primary-active, #1a252f);
 }
 
 .btn-refresh svg {

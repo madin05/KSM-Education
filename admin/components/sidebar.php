@@ -22,7 +22,7 @@ $nav_groups = [
         'items' => [
             ['file' => 'journals.php',         'url' => 'journals',   'label' => 'Artikel Jurnal', 'desc' => 'Kelola & terbitkan jurnal',   'icon' => 'book'],
             ['file' => 'opinions.php',         'url' => 'opinions',   'label' => 'Artikel Opini',  'desc' => 'Kelola & terbitkan opini',    'icon' => 'edit-3'],
-            ['file' => 'dashboard_admin.php',  'url' => 'dashboard',  'hash' => '#upload', 'label' => 'Upload Artikel', 'desc' => 'Unggah konten baru', 'icon' => 'upload-cloud'],
+            ['file' => 'upload_admin.php',     'url' => 'upload',     'label' => 'Upload Artikel', 'desc' => 'Unggah konten baru', 'icon' => 'upload-cloud'],
         ],
     ],
     [
@@ -47,10 +47,6 @@ $nav_groups = [
 // Cek apakah salah satu item dalam grup adalah halaman aktif.
 $group_is_active = static function (array $group) use ($current_page): bool {
     foreach ($group['items'] as $item) {
-        // 'Upload' menunjuk ke dashboard; jangan ikut menandai grup saat di dashboard.
-        if (isset($item['hash'])) {
-            continue;
-        }
         if ($item['file'] === $current_page) {
             return true;
         }
@@ -169,7 +165,7 @@ $group_is_active = static function (array $group) use ($current_page): bool {
             class="btn-register"
             href="../services/auth_logout.php?redirect=<?php echo urlencode('../admin/login'); ?>"
           >
-            LOGOUT
+            <i data-feather="log-out"></i> LOGOUT
           </a>
         </div>
       </div>

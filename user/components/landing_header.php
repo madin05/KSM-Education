@@ -20,16 +20,25 @@ $user_name = $user_name ?? '';
             <a href="user/journals_user.php"><?php echo $t['nav_journals']; ?></a>
             <a href="user/opinions_user.php"><?php echo $t['nav_articles']; ?></a>
             <a href="#about"><?php echo $t['nav_about']; ?></a>
+
+            <div class="landing-mobile-nav-footer">
+                <?php if (!$is_logged_in): ?>
+                    <div class="landing-nav-auth">
+                        <a href="user/login_user.php" class="btn-signin"><?php echo $lang === 'en' ? 'Sign In' : 'Masuk'; ?></a>
+                        <a href="user/register_user.php" class="btn-register"><?php echo $lang === 'en' ? 'Register' : 'Daftar'; ?></a>
+                    </div>
+                <?php endif; ?>
+            </div>
         </nav>
 
         <div class="landing-nav-right">
             <!-- Sleek Language Switcher -->
             <div class="lang-switcher">
-                <button class="lang-btn" id="langBtn">
+                <button class="lang-btn" id="langBtnDesktop">
                     🌐 <?php echo $lang === 'en' ? 'EN' : 'ID'; ?> 
                     <i data-feather="chevron-down" style="width: 14px; height: 14px;"></i>
                 </button>
-                <div class="lang-dropdown" id="langDropdown">
+                <div class="lang-dropdown" id="langDropdownDesktop">
                     <button class="lang-item" onclick="changeLanguage('id')">Bahasa (ID)</button>
                     <button class="lang-item" onclick="changeLanguage('en')">English (EN)</button>
                 </div>
@@ -42,14 +51,14 @@ $user_name = $user_name ?? '';
                         <span class="name"><?php echo htmlspecialchars($user_name); ?></span>
                     </a>
                 <?php else: ?>
-                    <a href="user/login_user.php" class="btn-signin">Sign In</a>
-                    <a href="user/register_user.php" class="btn-register">Register</a>
+                    <a href="user/login_user.php" class="btn-signin"><?php echo $lang === 'en' ? 'Sign In' : 'Masuk'; ?></a>
+                    <a href="user/register_user.php" class="btn-register"><?php echo $lang === 'en' ? 'Register' : 'Daftar'; ?></a>
                 <?php endif; ?>
             </div>
         </div>
 
         <!-- Hamburger Button for Mobile -->
-        <button class="landing-mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+        <button class="landing-mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu" aria-expanded="false">
             <i data-feather="menu"></i>
         </button>
     </div>

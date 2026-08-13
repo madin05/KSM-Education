@@ -15,18 +15,28 @@ const FALLBACK_COVER =
  */
 function formatPublicUrl(url) {
   if (!url || typeof url !== 'string') return '';
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
 
-  let cleanPath = url.replace(/^\/ksmaja\//, '/');
+  const root = (window.APP_CONFIG && window.APP_CONFIG.ROOT) ? window.APP_CONFIG.ROOT : '';
+
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    try {
+      const parsed = new URL(url);
+      if (root && parsed.pathname.startsWith('/uploads/') && !parsed.pathname.startsWith(root + '/')) {
+        return parsed.origin + root + parsed.pathname;
+      }
+    } catch (e) {}
+    return url;
+  }
+
+  let cleanPath = url;
+  if (root && cleanPath.startsWith(root + '/')) {
+    cleanPath = cleanPath.substring(root.length);
+  }
   if (!cleanPath.startsWith('/')) {
     cleanPath = '/' + cleanPath;
   }
 
-  const root = window.APP_CONFIG ? window.APP_CONFIG.ROOT : '';
-  if (root && !cleanPath.startsWith(root + '/')) {
-    cleanPath = root + cleanPath;
-  }
-  return cleanPath;
+  return root + cleanPath;
 }
 
 /**

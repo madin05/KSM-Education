@@ -46,9 +46,17 @@
 
       <div class="ksm-upload-row">
         <div class="ksm-upload-form-group" id="ksmVolumeGroup">
-          <label for="ksmFieldVolume">Volume <span class="req">*</span></label>
-          <input type="text" id="ksmFieldVolume" name="volume" placeholder="Contoh: Vol. 12 No. 1" />
-          <div class="ksm-upload-field-error">Volume wajib diisi untuk jurnal.</div>
+          <label>Volume <span class="req">*</span></label>
+          <div class="ksm-volume-inputs">
+            <span class="ksm-volume-prefix">Vol.</span>
+            <input type="number" id="ksmVolNum" placeholder="12" min="1" />
+            <span class="ksm-volume-prefix">No.</span>
+            <input type="number" id="ksmNoNum" placeholder="1" min="1" />
+            <span class="ksm-volume-prefix">(Thn)</span>
+            <input type="number" id="ksmYearNum" placeholder="2026" min="2000" max="2099" style="width: 75px;" />
+          </div>
+          <input type="hidden" id="ksmFieldVolume" name="volume" />
+          <div class="ksm-upload-field-error">Volume dan Nomor wajib diisi.</div>
         </div>
         <div class="ksm-upload-form-group" id="ksmCategoryGroup" style="display:none;">
           <label for="ksmFieldCategory">Kategori Opini <span class="req">*</span></label>
@@ -57,8 +65,12 @@
         </div>
 
         <div class="ksm-upload-form-group">
-          <label for="ksmFieldTags">Tags</label>
-          <input type="text" id="ksmFieldTags" name="tags" placeholder="pisahkan dengan koma" />
+          <label for="ksmFieldTagsInput">Tags (Ketik &amp; Tekan Koma)</label>
+          <div class="ksm-tags-wrap" id="ksmTagsWrap">
+            <div class="ksm-tags-list" id="ksmTagsList"></div>
+            <input type="text" id="ksmFieldTagsInput" placeholder="Ketik tag lalu tekan koma (,)" />
+          </div>
+          <input type="hidden" id="ksmFieldTags" name="tags" />
         </div>
       </div>
 
@@ -101,19 +113,19 @@
 
       <div class="ksm-upload-row">
         <div class="ksm-upload-form-group">
-          <label>Cover Image</label>
+          <label>Cover Image (Max 5 MB)</label>
           <div class="ksm-upload-file-drop" id="ksmCoverDrop">
             <i data-feather="image"></i>
-            <div class="drop-label">Klik untuk pilih gambar cover</div>
+            <div class="drop-label">Klik untuk pilih gambar cover (&lt; 5 MB)</div>
             <div class="file-chosen" id="ksmCoverFileName"></div>
           </div>
           <input type="file" accept="image/*" class="ksm-upload-file-input" id="ksmCoverInput" />
         </div>
         <div class="ksm-upload-form-group">
-          <label>File PDF <span class="req">*</span></label>
+          <label>File PDF <span class="req">*</span> (Max 5 MB)</label>
           <div class="ksm-upload-file-drop" id="ksmPdfDrop">
             <i data-feather="file-text"></i>
-            <div class="drop-label">Klik untuk pilih file PDF</div>
+            <div class="drop-label">Klik untuk pilih file PDF (&lt; 5 MB)</div>
             <div class="file-chosen" id="ksmPdfFileName"></div>
           </div>
           <input type="file" accept="application/pdf" class="ksm-upload-file-input" id="ksmPdfInput" />

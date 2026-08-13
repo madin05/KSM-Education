@@ -64,9 +64,87 @@
     pengurusGroup.style.display = type === "jurnal" ? "block" : "none";
   }
 
+  // =========================================================
+  // VOLUME AUTO-FORMATTER & TAG CHIPS & FILE SIZE VALIDATION
+  // =========================================================
+  let tagList = [];
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB Limit
+
+  function updateVolumeField() {
+    const vol = document.getElementById("ksmVolNum")?.value.trim() || "";
+    const no = document.getElementById("ksmNoNum")?.value.trim() || "";
+    const year = document.getElementById("ksmYearNum")?.value.trim() || "";
+    const hiddenVolume = document.getElementById("ksmFieldVolume");
+    if (!hiddenVolume) return;
+
+    if (vol || no) {
+      let str = `Vol. ${vol || "1"} No. ${no || "1"}`;
+      if (year) str += ` (${year})`;
+      hiddenVolume.value = str;
+    } else {
+      hiddenVolume.value = "";
+    }
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
+  }
+
+  function renderTags() {
+    const listEl = document.getElementById("ksmTagsList");
+    const hiddenTags = document.getElementById("ksmFieldTags");
+    if (!listEl || !hiddenTags) return;
+
+    listEl.innerHTML = "";
+    tagList.forEach((tag, idx) => {
+      const chip = document.createElement("span");
+      chip.className = "ksm-tag-chip";
+      chip.innerHTML = `${escapeHtml(tag)} <button type="button" aria-label="Hapus tag">&times;</button>`;
+      chip.querySelector("button").addEventListener("click", () => {
+        tagList.splice(idx, 1);
+        renderTags();
+      });
+      listEl.appendChild(chip);
+    });
+    hiddenTags.value = tagList.join(",");
+  }
+
+  function addTagsFromInput(rawInput) {
+    if (!rawInput) return;
+    const parts = rawInput.split(",");
+    let added = false;
+    parts.forEach((part) => {
+      const clean = part.trim().replace(/^#/, "");
+      if (clean && !tagList.includes(clean)) {
+        tagList.push(clean);
+        added = true;
+      }
+    });
+    if (added) renderTags();
+  }
+
+  function validateFileSize(file) {
+    if (file && file.size > MAX_FILE_SIZE) {
+      const msg = `Ukuran file "${file.name}" terlalu besar (${(file.size / (1024 * 1024)).toFixed(1)} MB)! Maksimal 5 MB.`;
+      if (typeof showToast === "function") {
+        showToast(msg, "error");
+      } else {
+        alert(msg);
+      }
+      return false;
+    }
+    return true;
+  }
+
   function resetForm() {
     const form = document.getElementById("ksmUploadForm");
     form.reset();
+
+    tagList = [];
+    renderTags();
+
+    const volHidden = document.getElementById("ksmFieldVolume");
+    if (volHidden) volHidden.value = "";
 
     document.getElementById("ksmAuthorRows").innerHTML = "";
     document.getElementById("ksmAuthorRows").appendChild(
@@ -137,6 +215,7 @@
     } else setFieldError(title, false);
 
     if (currentType === "jurnal") {
+      updateVolumeField();
       const volume = document.getElementById("ksmFieldVolume");
       if (!volume.value.trim()) {
         setFieldError(volume, true);
@@ -170,7 +249,19 @@
       document.getElementById("ksmPdfError").style.display = "block";
       valid = false;
     } else {
-      document.getElementById("ksmPdfError").style.display = "none";
+      const pdfFile = pdfInput.files[0];
+      if (!validateFileSize(pdfFile)) {
+        valid = false;
+      } else {
+        document.getElementById("ksmPdfError").style.display = "none";
+      }
+    }
+
+    const coverInput = document.getElementById("ksmCoverInput");
+    if (coverInput && coverInput.files && coverInput.files[0]) {
+      if (!validateFileSize(coverInput.files[0])) {
+        valid = false;
+      }
     }
 
     return valid;
@@ -179,9 +270,16 @@
   async function handleSubmit(e) {
     e.preventDefault();
 
+    // Auto-capture tag input buffer
+    const tagInputEl = document.getElementById("ksmFieldTagsInput");
+    if (tagInputEl && tagInputEl.value.trim()) {
+      addTagsFromInput(tagInputEl.value);
+      tagInputEl.value = "";
+    }
+
     if (!validateForm()) {
       if (typeof showToast === "function") {
-        showToast("Mohon lengkapi field yang wajib diisi.", "error");
+        showToast("Mohon lengkapi field yang wajib diisi dan perhatikan batas ukuran file (Maks 5 MB).", "error");
       }
       return;
     }
@@ -207,11 +305,7 @@
       title: document.getElementById("ksmFieldTitle").value.trim(),
       volume: document.getElementById("ksmFieldVolume").value.trim(),
       category: document.getElementById("ksmFieldCategory").value.trim(),
-      tags: document
-        .getElementById("ksmFieldTags")
-        .value.split(",")
-        .map((t) => t.trim())
-        .filter(Boolean),
+      tags: tagList,
       abstract: document.getElementById("ksmFieldAbstract").value.trim(),
       authors,
       pengurus,
@@ -254,8 +348,6 @@
         if (typeof showToast === "function") showToast(result.message || "Jurnal berhasil dikirim.", "success");
         global.dispatchEvent(new CustomEvent("ksm:journal-submitted", { detail: result.submission || null }));
       } else {
-        // Submit opinion through the same user-facing submission flow as the
-        // journal: upload ids + token debit, handled by submit_opinion.php.
         const response = await authFetch(`${window.APP_CONFIG.apiBase}/submit_opinion.php`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -305,7 +397,13 @@
 
     inputEl.addEventListener("change", () => {
       if (inputEl.files && inputEl.files[0]) {
-        fileNameEl.textContent = inputEl.files[0].name;
+        const file = inputEl.files[0];
+        if (!validateFileSize(file)) {
+          inputEl.value = "";
+          fileNameEl.textContent = "";
+          return;
+        }
+        fileNameEl.textContent = file.name;
       }
     });
 
@@ -326,6 +424,11 @@
     dropEl.addEventListener("drop", (e) => {
       const file = e.dataTransfer.files[0];
       if (file) {
+        if (!validateFileSize(file)) {
+          inputEl.value = "";
+          fileNameEl.textContent = "";
+          return;
+        }
         inputEl.files = e.dataTransfer.files;
         fileNameEl.textContent = file.name;
       }
@@ -334,7 +437,7 @@
 
   function init() {
     const overlay = document.getElementById("ksmUploadModal");
-    if (!overlay) return; // halaman ini tidak include modal upload
+    if (!overlay) return;
 
     document
       .getElementById("ksmUploadClose")
@@ -349,6 +452,36 @@
     document
       .getElementById("ksmTypeOpiniBtn")
       .addEventListener("click", () => setType("opini"));
+
+    // Listeners Volume Inputs
+    ["ksmVolNum", "ksmNoNum", "ksmYearNum"].forEach((id) => {
+      const input = document.getElementById(id);
+      if (input) {
+        input.addEventListener("input", updateVolumeField);
+        input.addEventListener("change", updateVolumeField);
+      }
+    });
+
+    // Listeners Tags Input
+    const tagInputEl = document.getElementById("ksmFieldTagsInput");
+    if (tagInputEl) {
+      tagInputEl.addEventListener("input", (e) => {
+        if (e.target.value.includes(",")) {
+          addTagsFromInput(e.target.value);
+          e.target.value = "";
+        }
+      });
+      tagInputEl.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === ",") {
+          e.preventDefault();
+          addTagsFromInput(e.target.value);
+          e.target.value = "";
+        } else if (e.key === "Backspace" && !e.target.value && tagList.length > 0) {
+          tagList.pop();
+          renderTags();
+        }
+      });
+    }
 
     document
       .getElementById("ksmAddAuthorBtn")
@@ -381,7 +514,6 @@
       .getElementById("ksmUploadForm")
       .addEventListener("submit", handleSubmit);
 
-    // Tombol pemicu "Upload Jurnal Baru" di halaman manapun
     document
       .querySelectorAll("[data-ksm-open-upload]")
       .forEach((btn) =>

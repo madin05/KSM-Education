@@ -32,7 +32,7 @@
 .visitor-panel-head svg {
   width: 18px;
   height: 18px;
-  color: var(--primary-color, #2563eb);
+  color: var(--color-primary, #2c3e50);
 }
 
 .visitor-panel-note {
@@ -72,7 +72,7 @@
   max-width: 34px;
   min-height: 3px;
   border-radius: 4px 4px 0 0;
-  background: linear-gradient(180deg, #3b82f6, #2563eb);
+  background: linear-gradient(180deg, #34495e, #2c3e50);
   transition: filter 0.15s ease;
 }
 
@@ -159,7 +159,7 @@
 .visitor-progress-fill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  background: linear-gradient(90deg, #34495e, #2c3e50);
 }
 
 /* --- Sel URL panjang --- */

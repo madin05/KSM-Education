@@ -92,6 +92,15 @@ class PaginationManager {
       }
     };
 
+    function fixAdminCoverUrl(url) {
+      if (!url || url === "null" || url === "undefined" || url === "") return "../assets/slideshow-1.jpg";
+      if (url.startsWith("http") || url.startsWith("data:")) return url;
+      if (url.startsWith("../")) return url;
+      if (url.startsWith("uploads/")) return "../" + url;
+      if (url.startsWith("/uploads/")) return ".." + url;
+      return "../" + url;
+    }
+
     if (this.dataType === "jurnal") {
       return {
         id: String(item.id),
@@ -104,9 +113,7 @@ class PaginationManager {
         uploadDate: item.created_at,
         fileData: item.file_url,
         file: item.file_url,
-        coverImage:
-          item.cover_url ||
-          "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500&h=400&fit=crop",
+        coverImage: fixAdminCoverUrl(item.cover_url),
         email: item.email || "",
         contact: item.contact || "",
         volume: item.volume || "",
@@ -121,9 +128,7 @@ class PaginationManager {
         author_name: item.author_name || "Anonymous",
         date: item.created_at,
         uploadDate: item.created_at,
-        coverImage:
-          item.cover_url ||
-          "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500&h=400&fit=crop",
+        coverImage: fixAdminCoverUrl(item.cover_url),
         fileUrl: item.file_url,
         file: item.file_url,
         views: parseInt(item.views) || 0,
@@ -289,7 +294,9 @@ class PaginationManager {
                 <i data-feather="more-vertical"></i>
               </button>
               <div id="pg-dropdown-jurnal-${item.id}" class="dropdown-content">
-                
+                <button class="dropdown-item-btn dd-download" onclick="event.stopPropagation(); downloadJournalPdf('${item.file || item.fileData || ''}', '${safeTitle}'); closePaginationDropdown('jurnal-${item.id}')">
+                  <i data-feather="download"></i> Download
+                </button>
                 <button class="dropdown-item-btn dd-edit" onclick="event.stopPropagation(); window.editJournalManager?.openEditModal('${item.id}'); closePaginationDropdown('jurnal-${item.id}')">
                   <i data-feather="edit"></i> Edit
                 </button>
@@ -318,8 +325,8 @@ class PaginationManager {
 
       card.innerHTML = `
         <div class="opinion-cover" data-explore-url="${exploreUrl}">
-          <img src="${item.coverImage}" alt="${item.title}"
-               onerror="this.src='https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500&h=400&fit=crop'">
+          <img src="${item.coverImage}" alt="${item.title}" style="color: transparent;"
+               onerror="this.onerror=null; this.src='../assets/slideshow-1.jpg'">
           <div class="opinion-views">
             <i data-feather="eye"></i> ${item.views}
           </div>
@@ -351,7 +358,9 @@ class PaginationManager {
                 <i data-feather="more-vertical"></i>
               </button>
               <div id="pg-dropdown-opini-${item.id}" class="dropdown-content">
-                
+                <button class="dropdown-item-btn dd-download" onclick="event.stopPropagation(); downloadJournalPdf('${item.fileUrl || item.file || ''}', '${safeTitle}'); closePaginationDropdown('opini-${item.id}')">
+                  <i data-feather="download"></i> Download
+                </button>
                 <button class="dropdown-item-btn dd-edit" onclick="event.stopPropagation(); window.openEditOpinionModal('${item.id}'); closePaginationDropdown('opini-${item.id}')">
                   <i data-feather="edit"></i> Edit
                 </button>

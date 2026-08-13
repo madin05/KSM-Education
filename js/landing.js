@@ -1,5 +1,62 @@
 // js/landing.js
 
+function initLandingHeroSlideshow() {
+    const hero = document.querySelector('.landing-hero');
+    if (!hero) return;
+
+    const slides = Array.from(hero.querySelectorAll('.landing-hero-slide'));
+    const dots = Array.from(hero.querySelectorAll('#landingHeroDots button'));
+    const previous = document.getElementById('landingHeroPrev');
+    const next = document.getElementById('landingHeroNext');
+    if (!slides.length) return;
+
+    let activeIndex = 0;
+    let autoplayInterval = null;
+    let touchStartX = 0;
+
+    const showSlide = (index) => {
+        activeIndex = (index + slides.length) % slides.length;
+        slides.forEach((slide, slideIndex) => slide.classList.toggle('active', slideIndex === activeIndex));
+        dots.forEach((dot, dotIndex) => {
+            dot.classList.toggle('active', dotIndex === activeIndex);
+            dot.setAttribute('aria-current', dotIndex === activeIndex ? 'true' : 'false');
+        });
+    };
+
+    const stopAutoplay = () => {
+        if (autoplayInterval) {
+            clearInterval(autoplayInterval);
+            autoplayInterval = null;
+        }
+    };
+
+    const startAutoplay = () => {
+        stopAutoplay();
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        autoplayInterval = setInterval(() => showSlide(activeIndex + 1), 4000);
+    };
+
+    previous?.addEventListener('click', () => { showSlide(activeIndex - 1); startAutoplay(); });
+    next?.addEventListener('click', () => { showSlide(activeIndex + 1); startAutoplay(); });
+    dots.forEach((dot) => dot.addEventListener('click', () => {
+        showSlide(Number(dot.dataset.index));
+        startAutoplay();
+    }));
+    hero.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowLeft') { event.preventDefault(); showSlide(activeIndex - 1); startAutoplay(); }
+        if (event.key === 'ArrowRight') { event.preventDefault(); showSlide(activeIndex + 1); startAutoplay(); }
+    });
+    hero.addEventListener('touchstart', (event) => { touchStartX = event.changedTouches[0].screenX; }, { passive: true });
+    hero.addEventListener('touchend', (event) => {
+        const distance = event.changedTouches[0].screenX - touchStartX;
+        if (Math.abs(distance) > 50) showSlide(activeIndex + (distance < 0 ? 1 : -1));
+        startAutoplay();
+    }, { passive: true });
+
+    showSlide(0);
+    startAutoplay();
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     // Initialize Feather icons
     if (typeof feather !== 'undefined') {
@@ -25,13 +82,33 @@ document.addEventListener("DOMContentLoaded", function () {
     const landingNavMenu = document.getElementById('landingNavMenu');
     
     if (mobileMenuBtn && landingNavMenu) {
+        const closeMobileMenu = () => {
+            landingNavMenu.classList.remove('active');
+            document.body.classList.remove('menu-open');
+            mobileMenuBtn.setAttribute('aria-expanded', 'false');
+            const icon = mobileMenuBtn.querySelector('i');
+            if (icon) icon.setAttribute('data-feather', 'menu');
+            if (typeof feather !== 'undefined') feather.replace();
+        };
+
+        landingNavMenu.addEventListener('click', (e) => {
+            const mobileNavAnchor = e.target.closest('a');
+            if (mobileNavAnchor) {
+                closeMobileMenu();
+            }
+            e.stopPropagation();
+        });
+
         mobileMenuBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             landingNavMenu.classList.toggle('active');
+            const isOpen = landingNavMenu.classList.contains('active');
+            document.body.classList.toggle('menu-open', isOpen);
+            mobileMenuBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
             
             // Toggle between menu and x icon
             const icon = mobileMenuBtn.querySelector('i');
-            if (landingNavMenu.classList.contains('active')) {
+            if (isOpen) {
                 icon.setAttribute('data-feather', 'x');
             } else {
                 icon.setAttribute('data-feather', 'menu');
@@ -42,24 +119,23 @@ document.addEventListener("DOMContentLoaded", function () {
         // Close menu if user clicks outside
         document.addEventListener('click', () => {
             if (landingNavMenu.classList.contains('active')) {
-                landingNavMenu.classList.remove('active');
-                mobileMenuBtn.querySelector('i').setAttribute('data-feather', 'menu');
-                if (typeof feather !== 'undefined') feather.replace();
+                closeMobileMenu();
             }
         });
+
     }
 
     // Language Switcher Dropdowns (Header & Footer)
-    const langBtn = document.getElementById('langBtn');
-    const langDropdown = document.getElementById('langDropdown');
+    const langBtnDesktop = document.getElementById('langBtnDesktop');
+    const langDropdownDesktop = document.getElementById('langDropdownDesktop');
     
-    if (langBtn && langDropdown) {
-        langBtn.addEventListener('click', (e) => {
+    if (langBtnDesktop && langDropdownDesktop) {
+        langBtnDesktop.addEventListener('click', (e) => {
             e.stopPropagation();
-            langDropdown.classList.toggle('show');
+            langDropdownDesktop.classList.toggle('show');
         });
         document.addEventListener('click', () => {
-            langDropdown.classList.remove('show');
+            langDropdownDesktop.classList.remove('show');
         });
     }
 
@@ -212,6 +288,8 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+
+    initLandingHeroSlideshow();
 });
 
 // Helper function to switch languages via URL parameter

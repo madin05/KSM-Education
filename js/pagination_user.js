@@ -2,6 +2,32 @@
 // User-only: Share button saja, tidak ada Edit/Hapus/Detail admin
 // Self-init via DOMContentLoaded
 
+function formatPublicUrl(url) {
+  if (!url || typeof url !== "string") return "";
+
+  const root = (window.APP_CONFIG && window.APP_CONFIG.ROOT) ? window.APP_CONFIG.ROOT : "";
+
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    try {
+      const parsed = new URL(url);
+      if (root && parsed.pathname.startsWith("/uploads/") && !parsed.pathname.startsWith(root + "/")) {
+        return parsed.origin + root + parsed.pathname;
+      }
+    } catch (e) {}
+    return url;
+  }
+
+  let cleanPath = url;
+  if (root && cleanPath.startsWith(root + "/")) {
+    cleanPath = cleanPath.substring(root.length);
+  }
+  if (!cleanPath.startsWith("/")) {
+    cleanPath = "/" + cleanPath;
+  }
+
+  return root + cleanPath;
+}
+
 class PaginationUser {
   constructor(options = {}) {
     this.containerSelector = options.containerSelector || "#journalContainer";
@@ -71,11 +97,9 @@ class PaginationUser {
       }
     };
 
-    const formatUrl = (u) => (typeof formatPublicUrl === "function" ? formatPublicUrl(u) : u);
-
     if (this.dataType === "jurnal") {
-      const cover = formatUrl(item.cover_url);
-      const file = formatUrl(item.file_url);
+      const cover = formatPublicUrl(item.cover_url);
+      const file = formatPublicUrl(item.file_url);
       return {
         id: String(item.id),
         title: item.title || "Untitled",
@@ -90,8 +114,8 @@ class PaginationUser {
         views: parseInt(item.views) || 0,
       };
     } else {
-      const cover = formatUrl(item.cover_url);
-      const file = formatUrl(item.file_url);
+      const cover = formatPublicUrl(item.cover_url);
+      const file = formatPublicUrl(item.file_url);
       return {
         id: String(item.id),
         title: item.title || "Untitled",
@@ -206,13 +230,15 @@ class PaginationUser {
       }
     };
 
+    const root = (window.APP_CONFIG && window.APP_CONFIG.ROOT) ? window.APP_CONFIG.ROOT : "";
     const exploreUrl =
       this.dataType === "jurnal"
-        ? `explore_jurnal?id=${item.id}&type=jurnal`
-        : `explore_opini?id=${item.id}&type=opini`;
+        ? `${root}/user/explore_jurnal?id=${item.id}&type=jurnal`
+        : `${root}/user/explore_opini?id=${item.id}&type=opini`;
 
     const tags = Array.isArray(item.tags) ? item.tags : [];
     const dropdownId = `user-dropdown-${this.dataType}-${item.id}`;
+    const safeTitle = (item.title || "").replace(/'/g, "\\'").replace(/"/g, "&quot;");
 
     if (this.dataType === "jurnal") {
       const author =
@@ -250,10 +276,10 @@ class PaginationUser {
                 <i data-feather="more-vertical"></i>
               </button>
               <div id="${dropdownId}" class="dropdown-content">
-                <button class="dropdown-item-btn dd-download" onclick="event.stopPropagation(); window.paginationUser?.downloadFile('${item.file_url || ''}', '${item.title.replace(/'/g, "\\'")}', '${this.dataType}', '${item.id}')">
+                <button class="dropdown-item-btn dd-download" onclick="event.stopPropagation(); window.paginationUser?.downloadFile('${item.file_url || ''}', '${safeTitle}', '${this.dataType}', '${item.id}')">
                   <i data-feather="download"></i> Download
                 </button>
-                <button class="dropdown-item-btn dd-share" onclick="event.stopPropagation(); window.paginationUser?.copyToClipboard('${window.location.origin + window.APP_CONFIG.ROOT + "/" + exploreUrl}', '${item.title.replace(/'/g, "\\'")}')">
+                <button class="dropdown-item-btn dd-share" onclick="event.stopPropagation(); window.paginationUser?.copyToClipboard('${window.location.origin + exploreUrl}', '${safeTitle}')">
                   <i data-feather="share-2"></i> Share
                 </button>
               </div>
@@ -292,10 +318,10 @@ class PaginationUser {
                 <i data-feather="more-vertical"></i>
               </button>
               <div id="${dropdownId}" class="dropdown-content">
-                <button class="dropdown-item-btn dd-download" onclick="event.stopPropagation(); window.paginationUser?.downloadFile('${item.id}', '${item.title.replace(/'/g, "\\'")}', '${this.dataType}')">
+                <button class="dropdown-item-btn dd-download" onclick="event.stopPropagation(); window.paginationUser?.downloadFile('${item.file_url || ''}', '${safeTitle}', '${this.dataType}', '${item.id}')">
                   <i data-feather="download"></i> Download
                 </button>
-                <button class="dropdown-item-btn dd-share" onclick="event.stopPropagation(); window.paginationUser?.openShareModal('${item.id}', '${item.title.replace(/'/g, "\\'")}', '${exploreUrl}')">
+                <button class="dropdown-item-btn dd-share" onclick="event.stopPropagation(); window.paginationUser?.copyToClipboard('${window.location.origin + exploreUrl}', '${safeTitle}')">
                   <i data-feather="share-2"></i> Share
                 </button>
               </div>
@@ -349,19 +375,26 @@ class PaginationUser {
         const data = await response.json();
 
         if (!data.ok) {
-          showAlert.error(
-            data.message || "File tidak ditemukan!",
-            "Download Gagal",
-          );
+          if (typeof showAlert !== "undefined" && showAlert.error) {
+            showAlert.error(data.message || "File tidak ditemukan!", "Download Gagal");
+          } else if (typeof showToast === "function") {
+            showToast("File tidak ditemukan!", "error");
+          }
           return;
         }
-        fileUrl = data.data?.file_url || data.file_url || data.fileUrl;
+        fileUrl = data.data?.file_url || data.result?.file_url || data.opinion?.file_url || data.journal?.file_url || data.file_url || data.fileUrl;
       }
 
       if (!fileUrl) {
-        showAlert.error("File tidak ditemukan!", "Download Gagal");
+        if (typeof showAlert !== "undefined" && showAlert.error) {
+          showAlert.error("File tidak ditemukan!", "Download Gagal");
+        } else if (typeof showToast === "function") {
+          showToast("File tidak ditemukan!", "error");
+        }
         return;
       }
+
+      fileUrl = formatPublicUrl(fileUrl);
 
       // Trigger download
       const link = document.createElement("a");
@@ -371,12 +404,11 @@ class PaginationUser {
       document.body.appendChild(link);
       link.click();
 
-      // Small delay before removing to ensure download starts
       setTimeout(() => document.body.removeChild(link), 100);
 
       if (typeof showToast === "function") {
         showToast(`${itemTitle}.pdf berhasil diunduh!`, "success", "Download Sukses");
-      } else {
+      } else if (typeof showAlert !== "undefined" && showAlert.success) {
         showAlert.success(
           `${itemTitle}.pdf berhasil diunduh!`,
           "Download Sukses",
@@ -384,10 +416,12 @@ class PaginationUser {
       }
     } catch (error) {
       console.error("Download error:", error);
-      showAlert.error(
-        "Gagal download file: " + error.message,
-        "Download Gagal",
-      );
+      if (typeof showAlert !== "undefined" && showAlert.error) {
+        showAlert.error(
+          "Gagal download file: " + error.message,
+          "Download Gagal",
+        );
+      }
     }
 
     // Close dropdown

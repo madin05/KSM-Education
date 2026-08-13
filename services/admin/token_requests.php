@@ -39,7 +39,7 @@ try {
                 tpr.status, tpr.created_at, tpr.submitted_at, tpr.approved_at,
                 tpr.rejected_at, tpr.rejection_reason, tpr.telegram_chat_id,
                 tpr.telegram_user_id, tpr.telegram_proof_file_id, tpr.telegram_proof_type,
-                tpr.processed_by, tpr.processed_by_telegram_id,
+                tpr.proof_file_path, tpr.processed_by, tpr.processed_by_telegram_id,
                 u.name AS user_name, u.email AS user_email,
                 admin.name AS processed_by_name,
                 w.balance AS user_balance
@@ -92,8 +92,9 @@ try {
                 'rejectionReason' => $row['rejection_reason'],
                 'telegramChatId' => $row['telegram_chat_id'] === null ? null : (int)$row['telegram_chat_id'],
                 'telegramUserId' => $row['telegram_user_id'] === null ? null : (int)$row['telegram_user_id'],
-                'hasProof' => !empty($row['telegram_proof_file_id']),
-                'proofType' => $row['telegram_proof_type'],
+                'hasProof' => !empty($row['telegram_proof_file_id']) || !empty($row['proof_file_path']),
+                'proofFilePath' => $row['proof_file_path'],
+                'proofType' => $row['telegram_proof_type'] ?: 'image',
                 'processedByName' => $row['processed_by_name'],
                 'processedByTelegramId' => $row['processed_by_telegram_id'] === null
                     ? null

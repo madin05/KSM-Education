@@ -4,7 +4,7 @@ $base_css = '<link rel="stylesheet" href="../styles/dashboard_user.css?v=2025011
   <link rel="stylesheet" href="../styles/token_wallet.css?v=20260715" />
   <link rel="stylesheet" href="../styles/upload_journal_modal.css?v=20260715" />
   <link rel="stylesheet" href="../styles/my_journals_user.css?v=20260715" />
-  <link rel="stylesheet" href="../styles/token_history_user.css?v=20260715" />';
+  <link rel="stylesheet" href="../styles/token_history_user.css?v=20260815" />';
 include 'components/header.php';
 include 'components/navbar.php';
 ?>
@@ -56,6 +56,18 @@ include 'components/navbar.php';
         </button>
       </div>
 
+      <div class="ksm-history-selection-bar">
+        <label class="ksm-history-select-all">
+          <input type="checkbox" id="ksmSelectAllHistory" />
+          <span>Pilih semua</span>
+        </label>
+        <span class="ksm-history-selected-count" id="ksmHistorySelectedCount" aria-live="polite"></span>
+        <button type="button" class="ksm-history-delete-btn" id="ksmDeleteSelectedHistory" disabled>
+          <i data-feather="trash-2"></i>
+          Hapus Riwayat
+        </button>
+      </div>
+
       <!-- ===== LIST ===== -->
       <section class="ksm-token-history-list" id="ksmTokenHistoryList">
         <!-- Diisi oleh js/token_history_user.js -->
@@ -71,8 +83,8 @@ $extra_scripts = <<<'EOT'
 <script src="../js/script.js?v=2025112910"></script>
     <script src="../js/custom_alerts.js"></script>
     <script src="../js/api.js?v=20260729"></script>
-    <script src="../js/token_wallet.js?v=20260729"></script>
-    <script src="../js/token_history_user.js?v=20260715"></script>
+    <script src="../js/token_wallet.js?v=20260815"></script>
+    <script src="../js/token_history_user.js?v=20260814"></script>
     <script src="../js/mobile_menu.js?v=20251130"></script>
     <script>
       feather.replace();

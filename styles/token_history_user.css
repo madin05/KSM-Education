@@ -46,6 +46,62 @@
   margin-bottom: 60px;
 }
 
+.ksm-history-selection-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0 0 20px;
+}
+
+.ksm-history-select-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #4b5563;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ksm-history-select-all input,
+.ksm-history-checkbox input {
+  width: 18px;
+  height: 18px;
+  accent-color: #2c3e50;
+  cursor: pointer;
+}
+
+.ksm-history-selected-count {
+  color: #6b7280;
+  font-size: 12px;
+  min-height: 18px;
+}
+
+.ksm-history-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-left: auto;
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: #dc2626;
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ksm-history-delete-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.ksm-history-delete-btn:disabled {
+  display: none;
+}
+
 .ksm-token-history-card {
   background: #fff;
   border-radius: 10px;
@@ -106,4 +162,26 @@
     border-bottom: none;
     padding-bottom: 0;
   }
+
+  .ksm-history-selection-bar {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .ksm-history-delete-btn {
+    width: 100%;
+    justify-content: center;
+    margin-left: 0;
+  }
+}
+
+.ksm-history-checkbox {
+  display: flex;
+  align-items: center;
+}
+
+.ksm-token-history-main {
+  display: flex;
+  align-items: center;
+  gap: 18px;
 }

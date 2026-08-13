@@ -9,6 +9,27 @@ const FALLBACK_COVER =
   'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500&h=400&fit=crop';
 
 /**
+ * Format relative upload URLs dynamically based on environment (localhost vs VPS)
+ * @param {string} url
+ * @returns {string}
+ */
+function formatPublicUrl(url) {
+  if (!url || typeof url !== 'string') return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+
+  let cleanPath = url.replace(/^\/ksmaja\//, '/');
+  if (!cleanPath.startsWith('/')) {
+    cleanPath = '/' + cleanPath;
+  }
+
+  const root = window.APP_CONFIG ? window.APP_CONFIG.ROOT : '';
+  if (root && !cleanPath.startsWith(root + '/')) {
+    cleanPath = root + cleanPath;
+  }
+  return cleanPath;
+}
+
+/**
  * Safely parses a JSON string field; returns the original value if it is
  * already an array/object, or `fallback` on failure.
  * @param {string|any} value

@@ -71,7 +71,11 @@ class PaginationUser {
       }
     };
 
+    const formatUrl = (u) => (typeof formatPublicUrl === "function" ? formatPublicUrl(u) : u);
+
     if (this.dataType === "jurnal") {
+      const cover = formatUrl(item.cover_url);
+      const file = formatUrl(item.file_url);
       return {
         id: String(item.id),
         title: item.title || "Untitled",
@@ -80,12 +84,14 @@ class PaginationUser {
         tags: parseJson(item.tags),
         uploadDate: item.created_at,
         coverImage:
-          item.cover_url ||
+          cover ||
           "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500&h=400&fit=crop",
-        file_url: item.file_url,
+        file_url: file,
         views: parseInt(item.views) || 0,
       };
     } else {
+      const cover = formatUrl(item.cover_url);
+      const file = formatUrl(item.file_url);
       return {
         id: String(item.id),
         title: item.title || "Untitled",
@@ -95,9 +101,9 @@ class PaginationUser {
         tags: parseJson(item.tags),
         uploadDate: item.created_at,
         coverImage:
-          item.cover_url ||
+          cover ||
           "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=500&h=400&fit=crop",
-        file_url: item.file_url,
+        file_url: file,
         views: parseInt(item.views) || 0,
       };
     }

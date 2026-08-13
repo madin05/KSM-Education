@@ -141,23 +141,34 @@
     continueBtn?.addEventListener("click", async () => {
       const originalText = continueBtn.innerHTML;
       continueBtn.disabled = true;
-      continueBtn.textContent = "Membuka Telegram...";
+      continueBtn.textContent = "Membuka WhatsApp...";
       try {
-        const response = await authFetch(`${global.APP_CONFIG.apiBase}/token_purchase_link.php`, {
+        let response = await authFetch(`${global.APP_CONFIG.apiBase}/wa_purchase_link.php`, {
           method: "POST",
           body: JSON.stringify({}),
         });
-        const data = await response.json();
-        if (!response.ok || !data.ok || !data.telegram_url) {
-          throw new Error(data.message || "Tautan Telegram tidak dapat dibuat.");
+        let data = await response.json();
+        
+        // Fallback to Telegram if WA link endpoint is unavailable
+        if (!response.ok || !data.ok || !data.wa_url) {
+          response = await authFetch(`${global.APP_CONFIG.apiBase}/token_purchase_link.php`, {
+            method: "POST",
+            body: JSON.stringify({}),
+          });
+          data = await response.json();
+        }
+
+        const targetUrl = data.wa_url || data.telegram_url;
+        if (!data.ok || !targetUrl) {
+          throw new Error(data.message || "Tautan pembelian WhatsApp tidak dapat dibuat.");
         }
         // Percepat polling sebentar: user biasanya kembali beberapa saat
         // setelah admin approve, jadi saldo langsung terlihat berubah.
         KsmTokenWallet.startAutoRefresh(5000);
-        global.location.href = data.telegram_url;
+        global.location.href = targetUrl;
       } catch (error) {
-        console.error("Telegram purchase link error:", error);
-        alert(error.message || "Gagal membuka Telegram. Silakan coba lagi.");
+        console.error("Purchase link error:", error);
+        alert(error.message || "Gagal membuka WhatsApp. Silakan coba lagi.");
       } finally {
         continueBtn.disabled = false;
         continueBtn.innerHTML = originalText;

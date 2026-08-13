@@ -1,4 +1,4 @@
-﻿/* ===== ADMIN EXPLORE ARTICLE DETAIL STYLES ===== */
+/* ===== ADMIN EXPLORE ARTICLE DETAIL STYLES ===== */
 /* Shared by explore_jurnal_admin.php and explore_opini_admin.php */
 
 /* ===== BREADCRUMB ===== */
@@ -56,13 +56,13 @@
 }
 
 .badge-jurnal {
-  background: #dbeafe;
-  color: #1e40af;
+  background: #e5e7eb;
+  color: #374151;
 }
 
 .badge-opini {
-  background: #fed7aa;
-  color: #c2410c;
+  background: #e5e7eb;
+  color: #374151;
 }
 
 .article-title {
@@ -195,6 +195,8 @@
   background: #f8fafc;
   border-radius: 12px;
   border: 1px solid #e2e8f0;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .author-card svg,
@@ -202,12 +204,19 @@
   width: 20px;
   height: 20px;
   color: #3b82f6;
+  flex-shrink: 0;
+}
+
+.author-card span {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 /* ===== CONTACT ===== */
 .contact-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 16px;
 }
 
@@ -219,6 +228,8 @@
   background: #f8fafc;
   border-radius: 12px;
   border: 1px solid #e2e8f0;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .contact-item svg,
@@ -226,12 +237,18 @@
   width: 20px;
   height: 20px;
   color: #3b82f6;
+  flex-shrink: 0;
 }
 
-.contact-item a {
+.contact-item a,
+.contact-item span {
   color: #3b82f6;
   text-decoration: none;
   font-weight: 500;
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  min-width: 0;
 }
 
 .contact-item a:hover {
@@ -426,13 +443,13 @@
 }
 
 .result-type-jurnal {
-  background: #dbeafe;
-  color: #1e40af;
+  background: #e5e7eb;
+  color: #374151;
 }
 
 .result-type-opini {
-  background: #fed7aa;
-  color: #c2410c;
+  background: #e5e7eb;
+  color: #374151;
 }
 
 .search-result-title {
@@ -1054,20 +1071,31 @@ body.menu-open {
 /* ===== EMPTY / LOADING STATES ===== */
 .comments-empty {
   text-align: center;
-  padding: 40px 20px;
-  color: #94a3b8;
-  font-size: 14px;
+  padding: 40px 24px;
+  background: white;
+  border-radius: 12px;
+  border: 1px dashed #cbd5e1;
+  color: #64748b;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  gap: 10px;
 }
 
 .comments-empty svg,
 .comments-empty i {
   width: 36px;
   height: 36px;
-  color: #cbd5e1;
+  color: #94a3b8;
+  stroke-width: 1.5;
+}
+
+.comments-empty p {
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748b;
+  margin: 0;
 }
 
 .comments-loading {

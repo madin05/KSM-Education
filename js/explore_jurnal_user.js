@@ -204,6 +204,23 @@ async function loadArticleDetail() {
   }
 }
 
+// Helper to format public upload URLs dynamically based on environment (localhost vs VPS)
+function formatPublicUrl(url) {
+  if (!url || typeof url !== "string") return "";
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+
+  let cleanPath = url.replace(/^\/ksmaja\//, "/");
+  if (!cleanPath.startsWith("/")) {
+    cleanPath = "/" + cleanPath;
+  }
+
+  const root = window.APP_CONFIG ? window.APP_CONFIG.ROOT : "";
+  if (root && !cleanPath.startsWith(root + "/")) {
+    cleanPath = root + cleanPath;
+  }
+  return cleanPath;
+}
+
 // ===== DISPLAY ARTICLE =====
 async function displayArticle(article, type) {
   console.log("Displaying article:", article.title);
@@ -217,10 +234,12 @@ async function displayArticle(article, type) {
   // Cover Image
   const coverImg = document.getElementById("articleCover");
   if (coverImg) {
-    const coverUrl =
+    let rawCover =
       article.coverImage ||
       article.cover ||
       "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=1200&h=400&fit=crop";
+
+    let coverUrl = formatPublicUrl(rawCover);
 
     coverImg.style.display = "block";
     coverImg.src = coverUrl;
@@ -328,7 +347,12 @@ async function displayArticle(article, type) {
   const phoneEl = document.getElementById("articlePhone");
 
   if (emailLink) {
-    const email = article.email || "-";
+    let email = article.email || "-";
+    // Sanitize if email has title prefix or extra text
+    const match = email.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+    if (match) {
+      email = match[0];
+    }
     emailLink.textContent = email;
     emailLink.href = email !== "-" ? `mailto:${email}` : "#";
     console.log("Email set:", email);
@@ -357,15 +381,17 @@ async function displayArticle(article, type) {
   // PDF VIEWER
   const pdfSection = document.getElementById("pdfSection");
   if (pdfSection) {
-    const pdfUrl =
+    let rawPdf =
       article.file_url || article.fileData || article.file || article.pdfUrl;
+
+    let pdfUrl = formatPublicUrl(rawPdf);
 
     if (pdfUrl) {
       pdfSection.style.display = "block";
 
       const pdfIframe = document.getElementById("pdfIframe");
       if (pdfIframe) {
-        pdfIframe.src = pdfUrl; // sekarang: /ksmaja/serve_pdf.php?file=/ksmaja/uploads/xxx.pdf
+        pdfIframe.src = pdfUrl;
       }
 
       const downloadLink = document.getElementById("pdfDownload");

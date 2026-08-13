@@ -34,6 +34,8 @@ let articles = [];
 function _mapJournal(j) {
   const authors = parseJsonField(j.authors);
   const tags    = parseJsonField(j.tags);
+  const cover   = formatPublicUrl(j.cover_url);
+  const file    = formatPublicUrl(j.file_url);
   return {
     id:          j.id,
     title:       j.title,
@@ -46,9 +48,10 @@ function _mapJournal(j) {
     tags,
     date:        j.created_at,
     uploadDate:  j.created_at,
-    fileData:    j.file_url,
-    coverImage:  j.cover_url || FALLBACK_COVER,
-    cover:       j.cover_url,
+    fileData:    file,
+    file_url:    file,
+    coverImage:  cover || FALLBACK_COVER,
+    cover:       cover,
     views:       j.views || 0,
     type:        'jurnal',
   };
@@ -58,6 +61,8 @@ function _mapJournal(j) {
 function _mapOpinion(o) {
   const authorName = o.author_name || 'Anonymous';
   const tags       = parseJsonField(o.tags);
+  const cover      = formatPublicUrl(o.cover_url);
+  const file       = formatPublicUrl(o.file_url);
   return {
     id:          o.id,
     title:       o.title,
@@ -72,10 +77,11 @@ function _mapOpinion(o) {
     tags,
     date:        o.created_at,
     uploadDate:  o.created_at,
-    coverImage:  o.cover_url || FALLBACK_COVER,
-    cover:       o.cover_url,
-    fileUrl:     o.file_url,
-    fileData:    o.file_url,
+    coverImage:  cover || FALLBACK_COVER,
+    cover:       cover,
+    fileUrl:     file,
+    fileData:    file,
+    file_url:    file,
     views:       o.views || 0,
     type:        'opini',
   };

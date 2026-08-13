@@ -9,7 +9,7 @@ if (empty($_SESSION['user_id'])) {
 }
 
 $page_title = 'KSM Education';
-$base_css = '<link rel="stylesheet" href="../styles/dashboard_user.css?v=20260718" />
+$base_css = '<link rel="stylesheet" href="../styles/dashboard_user.css?v=20260813" />
   <link rel="stylesheet" href="../styles/token_wallet.css?v=20260715" />
   <link rel="stylesheet" href="../styles/upload_journal_modal.css?v=20260715" />';
 include 'components/header.php';
@@ -45,7 +45,7 @@ include 'components/navbar.php';
       <!-- Statistics Section -->
       <section class="statistics">
         <h2>Statistik</h2>
-        <div class="stats-grid">
+        <div class="stats-grid" aria-label="Geser untuk melihat statistik lainnya">
           <div class="stat-card">
             <div class="stat-icon">
               <i data-feather="bar-chart-2"></i>

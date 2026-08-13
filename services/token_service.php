@@ -33,7 +33,7 @@ function token_get_history(PDO $pdo, int $userId, int $limit = 100): array
 {
     $limit = max(1, min(100, $limit));
     $stmt = $pdo->prepare(
-        "SELECT public_id, amount, status, created_at, approved_at, rejected_at
+        "SELECT id, public_id, amount, status, created_at, approved_at, rejected_at
          FROM token_purchase_requests
          WHERE user_id = ?
          ORDER BY id DESC LIMIT {$limit}"
@@ -42,7 +42,10 @@ function token_get_history(PDO $pdo, int $userId, int $limit = 100): array
 
     return array_map(static function (array $row): array {
         return [
-            'id' => $row['public_id'],
+            // ID database selalu tersedia, termasuk untuk riwayat lama yang
+            // belum memiliki public_id. Dipakai oleh aksi hapus milik user.
+            'id' => (string)$row['id'],
+            'publicId' => $row['public_id'],
             'amount' => (int)$row['amount'],
             'status' => $row['status'],
             'createdAt' => $row['created_at'],

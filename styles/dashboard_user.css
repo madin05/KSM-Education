@@ -60,12 +60,6 @@ body {
   border-radius: 10px;
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
   text-align: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.stat-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
 }
 
 .stat-icon {
@@ -109,12 +103,6 @@ body {
   border-radius: 10px;
   text-align: center;
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.ksm-token-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
 }
 
 /* Penjaga tambahan: paksa ikon Token tetap 34px (samakan dengan
@@ -126,6 +114,57 @@ body {
 .ksm-token-card .stat-icon svg {
   width: 26px !important;
   height: 26px !important;
+}
+
+/* Statistik mobile: satu kartu per slide agar angka tetap lega dan mudah dibaca.
+   scroll-snap memberi rasa carousel native tanpa library/JavaScript tambahan. */
+@media (max-width: 600px) {
+  .statistics {
+    margin-bottom: 34px;
+  }
+
+  .statistics h2 {
+    margin-bottom: 14px;
+  }
+
+  .stats-grid {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding: 4px 2px 14px;
+    margin: 0 -2px;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 2px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .stats-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .stat-card,
+  .ksm-token-card {
+    flex: 0 0 82%;
+    min-height: 132px;
+    padding: 24px 16px;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  .stat-icon {
+    margin-bottom: 10px;
+  }
+
+  .stat-icon svg,
+  .ksm-token-card .stat-icon svg {
+    width: 30px !important;
+    height: 30px !important;
+  }
+
+  .stat-number {
+    font-size: 30px;
+  }
 }
 
 /* ===== ARTIKEL SAYA + AKTIVITAS TERBARU (two-column dashboard cards) ===== */
@@ -505,18 +544,18 @@ body {
   border-radius: 4px;
   font-size: 11px;
   font-weight: 700;
-  color: white;
+  color: #374151;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   z-index: 2;
 }
 
 .badge-jurnal {
-  background: #3498db;
+  background: #e5e7eb;
 }
 
 .badge-opini {
-  background: #9b59b6;
+  background: #e5e7eb;
 }
 
 .article-image-container {

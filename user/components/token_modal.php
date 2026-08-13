@@ -20,8 +20,8 @@
 
     <h3 class="ksm-modal-title">Beli Token</h3>
     <p class="ksm-modal-subtitle">
-      Token digunakan untuk mengunggah jurnal atau opini. Lanjutkan ke bot
-      Telegram KSM Education untuk memilih paket dan mengirim bukti transfer.
+      Token digunakan untuk mengunggah jurnal atau opini. Lanjutkan ke WhatsApp
+      KSM Education untuk memilih paket dan mengirim bukti transfer.
     </p>
 
     <div class="ksm-token-summary">
@@ -30,12 +30,12 @@
     </div>
 
     <button type="button" class="ksm-btn-telegram" id="ksmContactAdminBtn">
-      <i data-feather="send"></i>
-      Lanjutkan di Telegram
+      <i data-feather="message-square"></i>
+      Lanjutkan di WhatsApp
     </button>
 
     <p class="ksm-token-note">
-      Bot akan meminta foto bukti transfer. Setelah admin menyetujuinya,
+      Kirimkan foto bukti transfer Anda di WhatsApp. Setelah admin menyetujuinya,
       token otomatis masuk ke akun Anda dan tercatat di Riwayat Token.
     </p>
   </div>

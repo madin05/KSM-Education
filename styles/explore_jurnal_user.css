@@ -1,4 +1,4 @@
-﻿/* ===== RESET & BASE STYLES ===== */
+/* ===== RESET & BASE STYLES ===== */
 * {
   margin: 0;
   padding: 0;
@@ -159,13 +159,13 @@ body {
 }
 
 .result-type-jurnal {
-  background: #e3f2fd;
-  color: #1976d2;
+  background: #e5e7eb;
+  color: #374151;
 }
 
 .result-type-opini {
-  background: #fff3e0;
-  color: #f57c00;
+  background: #e5e7eb;
+  color: #374151;
 }
 
 .search-result-title {
@@ -231,13 +231,13 @@ body {
 }
 
 .badge-jurnal {
-  background: #e3f2fd;
-  color: #1976d2;
+  background: #e5e7eb;
+  color: #374151;
 }
 
 .badge-opini {
-  background: #fff3e0;
-  color: #f57c00;
+  background: #e5e7eb;
+  color: #374151;
 }
 
 /* ===== ARTICLE CARD ===== */
@@ -427,18 +427,27 @@ body {
   padding: 1rem;
   background: #f8f9fa;
   border-radius: 8px;
+  min-width: 0;
+  overflow: hidden;
 }
 
-.contact-item i {
+.contact-item i,
+.contact-item svg {
   color: #2c5f7d;
   width: 20px;
   height: 20px;
+  flex-shrink: 0;
 }
 
-.contact-item a {
+.contact-item a,
+.contact-item span {
   color: #2c5f7d;
   text-decoration: none;
   font-weight: 500;
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  min-width: 0;
 }
 
 .contact-item a:hover {
@@ -786,6 +795,8 @@ body.menu-open {
   background: #f8fafc;
   border-radius: 12px;
   border: 1px solid #e2e8f0;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .author-card svg,
@@ -793,12 +804,19 @@ body.menu-open {
   width: 20px;
   height: 20px;
   color: #3b82f6;
+  flex-shrink: 0;
+}
+
+.author-card span {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 /* ===== CONTACT GRID ===== */
 .contact-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 16px;
 }
 
@@ -1150,6 +1168,41 @@ body.menu-open {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.comments-empty {
+  text-align: center;
+  padding: 40px 24px;
+  background: white;
+  border-radius: 12px;
+  border: 1px dashed #cbd5e1;
+  color: #64748b;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.comments-empty svg,
+.comments-empty i {
+  width: 36px;
+  height: 36px;
+  color: #94a3b8;
+  stroke-width: 1.5;
+}
+
+.comments-empty p {
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748b;
+  margin: 0;
+}
+
+.comments-loading {
+  display: flex;
+  justify-content: center;
+  padding: 32px;
 }
 
 .comment-card {

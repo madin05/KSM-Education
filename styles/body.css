@@ -806,18 +806,18 @@
     border-radius: 4px;
     font-size: 11px;
     font-weight: 700;
-    color: white;
+    color: #374151;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     z-index: 10;
 }
 
 .card-type-badge.badge-jurnal {
-    background: #3498db;
+    background: #e5e7eb;
 }
 
 .card-type-badge.badge-opini {
-    background: #9b59b6;
+    background: #e5e7eb;
 }
 
 /* Tags Section */

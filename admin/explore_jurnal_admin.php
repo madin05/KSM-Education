@@ -156,10 +156,10 @@ include 'components/sidebar.php';
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Comments Section -->
-    <section id="comments-section" style="max-width:900px;margin:0 auto;padding:0 24px;"></section>
+      <!-- Comments Section -->
+      <section id="comments-section" class="comments-section-container" style="margin-top: 32px;"></section>
+    </div>
 <?php
 $extra_scripts = <<<'EOT'
 <script src="../js/pdf_text_extractor.js"></script>

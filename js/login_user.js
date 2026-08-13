@@ -168,3 +168,109 @@ window.addEventListener('load', async () => {
         if (rememberField) rememberField.checked = true;
     }
 });
+
+// ===== GOOGLE LOGIN (GIS) HANDLER =====
+window.handleGoogleCredentialResponse = async function(response) {
+    if (!response || !response.credential) {
+        showAlert('Gagal mendapatkan respon dari Google.', 'error');
+        return;
+    }
+
+    const idToken = response.credential;
+    showAlert('Memverifikasi akun Google...', 'success');
+
+    try {
+        const res = await fetch(`${window.APP_CONFIG.SERVICES}/auth_google.php`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id_token: idToken })
+        });
+
+        const result = await res.json();
+
+        if (result.ok && result.user) {
+            showAlert('Login Google berhasil! Mengalihkan...', 'success');
+
+            if (window.AuthStorage) {
+                window.AuthStorage.clearAll();
+                window.AuthStorage.setTokens(result);
+                window.AuthStorage.setSession({
+                    email: result.user.email || result.user.name,
+                    name: result.user.name,
+                    role: result.user.role || 'user'
+                });
+            } else {
+                if (window.TokenManager && result.access_token) {
+                    window.TokenManager.setTokens(result.access_token, result.refresh_token, result.expires_in);
+                }
+                sessionStorage.setItem('userLoggedIn', 'true');
+                sessionStorage.setItem('userEmail', result.user.email || '');
+                sessionStorage.setItem('userName', result.user.name);
+                sessionStorage.setItem('userType', result.user.role || 'user');
+            }
+
+            setTimeout(() => {
+                window.location.href = './dashboard';
+            }, 1000);
+        } else {
+            showAlert(result.message || 'Login dengan Google gagal.', 'error');
+        }
+    } catch (err) {
+        console.error('Google Auth Error:', err);
+        showAlert('Terjadi kesalahan koneksi saat login Google.', 'error');
+    }
+};
+
+// ===== INITIALIZE GOOGLE GIS & RENDER RESPONSIVE BUTTON =====
+function initGoogleAuth(textType = 'signin_with') {
+    const container = document.getElementById('googleBtnContainer');
+    if (!container) return;
+
+    const clientId = window.GOOGLE_CLIENT_ID || '725947779944-0ka8orralbvn0fi34jgp02no84t1i34g.apps.googleusercontent.com';
+
+    let isGoogleInitialized = false;
+
+    const render = () => {
+        if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) {
+            setTimeout(render, 150);
+            return;
+        }
+
+        if (!isGoogleInitialized) {
+            google.accounts.id.initialize({
+                client_id: clientId,
+                callback: window.handleGoogleCredentialResponse,
+                auto_prompt: false
+            });
+            isGoogleInitialized = true;
+        }
+
+        // Dynamic width calculation based on exact container width
+        const targetWidth = Math.min(Math.max(container.clientWidth || 300, 200), 400);
+
+        container.innerHTML = '';
+        google.accounts.id.renderButton(container, {
+            type: 'standard',
+            shape: 'rectangular',
+            theme: 'filled_blue',
+            text: textType,
+            size: 'large',
+            logo_alignment: 'left',
+            width: targetWidth
+        });
+    };
+
+    render();
+
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(render, 200);
+    });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => initGoogleAuth('signin_with'));
+} else {
+    initGoogleAuth('signin_with');
+}

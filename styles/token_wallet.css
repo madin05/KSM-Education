@@ -14,8 +14,8 @@
    satu-satunya pembeda visual dari 2 kartu lain, itu diatur di
    dashboard_user.css. */
 .ksm-token-card {
-  padding: 26px 20px;
-  border-radius: 12px;
+  padding: 16px 12px;
+  border-radius: 10px;
   text-align: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex;
@@ -29,20 +29,20 @@
 }
 
 .ksm-token-card .stat-icon svg {
-  width: 34px;
-  height: 34px;
+  width: 26px;
+  height: 26px;
   color: #2c3e50;
 }
 
 .ksm-token-card .stat-number {
-  font-size: 38px;
+  font-size: 26px;
   font-weight: 700;
   color: #2c3e50;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .ksm-token-card .stat-label {
-  font-size: 12px;
+  font-size: 11px;
   color: #666;
   font-weight: 500;
   text-transform: uppercase;

@@ -1,5 +1,7 @@
 <?php
+require_once __DIR__ . '/../services/env_loader.php';
 $page_title = 'User Register - KSM Education';
+$google_client_id = getenv('GOOGLE_CLIENT_ID') ?: '725947779944-0ka8orralbvn0fi34jgp02no84t1i34g.apps.googleusercontent.com';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -9,6 +11,10 @@ $page_title = 'User Register - KSM Education';
     <title>User Register - KSM Education</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+      window.GOOGLE_CLIENT_ID = <?= json_encode($google_client_id) ?>;
+    </script>
     <!--
       ===== DARK MODE — INIT AWAL (anti-flash) =====
       Halaman auth tidak memakai user/components/header.php, jadi init
@@ -115,6 +121,16 @@ $page_title = 'User Register - KSM Education';
           <div class="loading"></div>
         </button>
       </form>
+
+      <!-- Divider -->
+      <div class="divider">
+        <span>ATAU</span>
+      </div>
+
+      <!-- Social Login / Google Identity Services -->
+      <div class="social-login-container" style="display: flex; justify-content: center; align-items: center; width: 100%; margin: 10px 0 20px;">
+        <div id="googleBtnContainer" style="width: 100%; min-height: 44px; display: flex; justify-content: center;"></div>
+      </div>
 
       <!-- Footer Links -->
       <div class="signup-link">

@@ -298,15 +298,17 @@ if (window._dualUploadHandlerLoaded) {
     }
   }
 
+  // ===== SHARED CONSTANTS =====
+  /** Indonesian phone number validation regex. */
+  const PHONE_REGEX = /^(?:(?:\+|00)62|[0])8[1-9]\d{7,11}$/;
+
   // ===== DUAL UPLOAD HANDLER - SINGLE DEFINITION ONLY =====
 
   class DualUploadHandler {
     constructor() {
       // SINGLETON PATTERN
       if (DualUploadHandler._instance) {
-        console.warn(
-          "DualUploadHandler already exists, returning existing instance",
-        );
+        console.warn("DualUploadHandler already exists, returning existing instance");
         return DualUploadHandler._instance;
       }
       DualUploadHandler._instance = this;
@@ -320,6 +322,62 @@ if (window._dualUploadHandlerLoaded) {
         this.initJurnalForm();
         this.initOpiniForm();
       }, 100);
+    }
+
+    /**
+     * Checks admin status; shows warning and opens login modal if not admin.
+     * @returns {boolean} true when caller should abort.
+     */
+    _checkAdminOrAbort(formId) {
+      const isAdmin = (window.loginManager && typeof window.loginManager.isAdmin === 'function')
+        ? window.loginManager.isAdmin()
+        : localStorage.getItem('adminLoggedIn') === 'true';
+
+      if (!isAdmin) {
+        showAlert.warning('Login sebagai admin terlebih dahulu!', 'Login Diperlukan');
+        if (window.loginManager && typeof window.loginManager.openLoginModal === 'function') {
+          window.loginManager.openLoginModal();
+        }
+        this[formId === 'uploadFormJurnal' ? 'isSubmittingJurnal' : 'isSubmittingOpini'] = false;
+        this.enableSubmitButton(formId);
+        return true;
+      }
+      return false;
+    }
+
+    /**
+     * Uploads a File object to the server and returns the resulting URL.
+     * Throws on failure.
+     * @param {File} file
+     * @returns {Promise<string>} uploaded file URL
+     */
+    async _uploadFile(file) {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await fetch(`${window.APP_CONFIG.apiBase}/upload.php`, {
+        method: 'POST',
+        body: formData,
+      });
+      const result = await response.json();
+      if (!result.ok) throw new Error(result.message || 'Upload file gagal');
+      return result.url;
+    }
+
+    /**
+     * Uploads a cover image if provided; returns the URL or null.
+     * @param {File|null} coverFile
+     * @param {string} progressMsg
+     * @returns {Promise<string|null>}
+     */
+    async _uploadCover(coverFile, progressMsg = 'Mengupload cover image...') {
+      if (!coverFile) return null;
+      this.updateLoadingMessage(progressMsg);
+      try {
+        return await this._uploadFile(coverFile);
+      } catch (e) {
+        console.warn('Cover upload skipped:', e.message);
+        return null;
+      }
     }
 
     initJurnalForm() {
@@ -359,187 +417,110 @@ if (window._dualUploadHandlerLoaded) {
     }
 
     async handleJurnalSubmit() {
-      // Cek flag untuk mencegah double submit
       if (this.isSubmittingJurnal) {
-        console.warn("Submit sedang diproses, mohon tunggu...");
+        console.warn('Submit sedang diproses, mohon tunggu...');
         return;
       }
 
       this.isSubmittingJurnal = true;
-      this.disableSubmitButton("uploadFormJurnal");
+      this.disableSubmitButton('uploadFormJurnal');
 
       try {
-        // Set flag menjadi true
-        this.isSubmittingJurnal = true;
+        if (this._checkAdminOrAbort('uploadFormJurnal')) return;
 
-        // Enhanced Admin Check
-        const isAdmin = window.loginManager && typeof window.loginManager.isAdmin === 'function' 
-                        ? window.loginManager.isAdmin() 
-                        : (localStorage.getItem("adminLoggedIn") === "true");
-
-        if (!isAdmin) {
-          showAlert.warning("Login sebagai admin terlebih dahulu!", "Login Diperlukan");
-          if (window.loginManager && typeof window.loginManager.openLoginModal === 'function') {
-            window.loginManager.openLoginModal();
-          }
+        const file = this.jurnalFileManager.getUploadedFile();
+        if (!file) {
+          showAlert.warning('Upload file jurnal terlebih dahulu!', 'File Belum Diupload');
           this.isSubmittingJurnal = false;
-          this.enableSubmitButton("uploadFormJurnal"); 
-          return;
-        }
-
-        if (!this.jurnalFileManager.getUploadedFile()) {
-          showAlert.warning("Upload file jurnal terlebih dahulu!", "File Belum Diupload");
-          this.isSubmittingJurnal = false; // Reset flag
           return;
         }
 
         const authors = this.jurnalAuthorsManager.getAuthors();
         if (authors.length === 0) {
-          showAlert.warning("Minimal 1 penulis!", "Penulis Diperlukan");
-          this.isSubmittingJurnal = false; // Reset flag
+          showAlert.warning('Minimal 1 penulis!', 'Penulis Diperlukan');
+          this.isSubmittingJurnal = false;
           return;
         }
 
         const pengurus = this.jurnalPengurusManager.getPengurus();
         if (pengurus.length === 0) {
-          showAlert.warning("Minimal 1 pengurus!", "Pengurus Diperlukan");
-          this.isSubmittingJurnal = false; // Reset flag
-          return;
-        }
-
-        const judul = document.getElementById("judulJurnal").value.trim();
-        const email = document.getElementById("emailJurnal").value.trim();
-        const kontak = document.getElementById("kontakJurnal").value.trim();
-        const abstrak = document.getElementById("abstrakJurnal").value.trim();
-        const volume = document.getElementById("volumeJurnal").value.trim();
-        const tags = this.jurnalTagsManager.getTags();
-
-        if (
-          !judul ||
-          !email ||
-          !kontak ||
-          !abstrak ||
-          !volume ||
-          tags.length === 0
-        ) {
-          if (tags.length === 0) {
-            showAlert.warning("Minimal harus ada 1 tag!", "Tag Diperlukan");
-          } else {
-            showAlert.warning("Semua field harus diisi!", "Field Kosong");
-          }
+          showAlert.warning('Minimal 1 pengurus!', 'Pengurus Diperlukan');
           this.isSubmittingJurnal = false;
           return;
         }
 
-        const phoneRegex = /^(?:(?:\+|00)62|[0])8[1-9]\d{7,11}$/;
-        if (!phoneRegex.test(kontak.replace(/\D/g, ""))) {
-          showAlert.warning("Nomor kontak harus berupa nomor HP yang valid!\n\nFormat: 08XXXXXXXXX", "Nomor Invalid");
-          this.isSubmittingJurnal = false; // Reset flag
+        const judul   = document.getElementById('judulJurnal').value.trim();
+        const email   = document.getElementById('emailJurnal').value.trim();
+        const kontak  = document.getElementById('kontakJurnal').value.trim();
+        const abstrak = document.getElementById('abstrakJurnal').value.trim();
+        const volume  = document.getElementById('volumeJurnal').value.trim();
+        const tags    = this.jurnalTagsManager.getTags();
+
+        if (!judul || !email || !kontak || !abstrak || !volume || tags.length === 0) {
+          showAlert.warning(
+            tags.length === 0 ? 'Minimal harus ada 1 tag!' : 'Semua field harus diisi!',
+            tags.length === 0 ? 'Tag Diperlukan' : 'Field Kosong',
+          );
+          this.isSubmittingJurnal = false;
           return;
         }
 
-        const file = this.jurnalFileManager.getUploadedFile();
-        const confirmMsg = `Judul: ${judul}\nPenulis: ${authors.join(", ")} | Pengurus: ${pengurus.join(", ")}\nKontak: ${kontak} | Ukuran: ${this.formatFileSize(file.size)}`;
+        if (!PHONE_REGEX.test(kontak.replace(/\D/g, ''))) {
+          showAlert.warning('Nomor kontak harus berupa nomor HP yang valid!\n\nFormat: 08XXXXXXXXX', 'Nomor Invalid');
+          this.isSubmittingJurnal = false;
+          return;
+        }
 
-        const confirmed = await showAlert.confirm(confirmMsg, "Konfirmasi Upload Jurnal");
+        const confirmMsg = `Judul: ${judul}\nPenulis: ${authors.join(', ')} | Pengurus: ${pengurus.join(', ')}\nKontak: ${kontak} | Ukuran: ${this.formatFileSize(file.size)}`;
+        const confirmed = await showAlert.confirm(confirmMsg, 'Konfirmasi Upload Jurnal');
         if (!confirmed) {
-          console.log("Upload dibatalkan oleh user");
-          this.isSubmittingJurnal = false; // Reset flag
+          console.log('Upload dibatalkan oleh user');
+          this.isSubmittingJurnal = false;
           return;
         }
 
-        this.showLoading("Mengupload jurnal ke server...");
+        this.showLoading('Mengupload jurnal ke server...');
+        const fileUrl  = await this._uploadFile(file);
+        console.log('File uploaded:', fileUrl);
+        const coverUrl = await this._uploadCover(this.jurnalCoverManager.getCoverFile());
 
-        // Upload PDF
-        const fileFormData = new FormData();
-        fileFormData.append("file", file);
-
-        const fileUploadResponse = await fetch(`${window.APP_CONFIG.apiBase}/upload.php`, {
-          method: "POST",
-          body: fileFormData,
-        });
-
-        const fileResult = await fileUploadResponse.json();
-
-        if (!fileResult.ok) {
-          throw new Error(fileResult.message || "Upload file gagal");
-        }
-
-        console.log("File uploaded:", fileResult.url);
-
-        // Upload cover
-        let coverUrl = null;
-        const coverFile = this.jurnalCoverManager.getCoverFile();
-
-        if (coverFile) {
-          this.updateLoadingMessage("Mengupload cover image...");
-
-          const coverFormData = new FormData();
-          coverFormData.append("file", coverFile);
-
-          const coverUploadResponse = await fetch(`${window.APP_CONFIG.apiBase}/upload.php`, {
-            method: "POST",
-            body: coverFormData,
-          });
-
-          const coverResult = await coverUploadResponse.json();
-          if (coverResult.ok) {
-            coverUrl = coverResult.url;
-            console.log("Cover uploaded:", coverUrl);
-          }
-        }
-
-        // Create journal
-        this.updateLoadingMessage("Menyimpan metadata ke database...");
-
+        this.updateLoadingMessage('Menyimpan metadata ke database...');
         const metadata = {
-          title: judul,
-          abstract: abstrak,
-          authors: authors,
-          tags: this.jurnalTagsManager.getTags(),
-          fileUrl: fileResult.url,
-          coverUrl: coverUrl,
-          email: email,
-          contact: kontak,
-          pengurus: pengurus,
-          volume: volume, // TAMBAH INI
-          client_temp_id: "upload_" + Date.now(),
+          title:             judul,
+          abstract:          abstrak,
+          authors,
+          tags,
+          fileUrl,
+          coverUrl,
+          email,
+          contact:           kontak,
+          pengurus,
+          volume,
+          client_temp_id:    'upload_' + Date.now(),
           client_updated_at: this.toMySQLDateTime(new Date()),
         };
 
-        console.log("Sending metadata:", metadata);
-
+        console.log('Sending metadata:', metadata);
         const createResponse = await fetch(`${window.APP_CONFIG.apiBase}/create_journal.php`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(metadata),
         });
-
         const createResult = await createResponse.json();
+        if (!createResult.ok) throw new Error(createResult.message || 'Gagal menyimpan metadata');
 
-        if (!createResult.ok) {
-          throw new Error(createResult.message || "Gagal menyimpan metadata");
-        }
-
-        console.log("Journal created with ID:", createResult.id);
-
+        console.log('Journal created with ID:', createResult.id);
         this.hideLoading();
-        showAlert.success("Jurnal berhasil diupload ke database!", "Upload Berhasil");
-
-        window.dispatchEvent(
-          new CustomEvent("journals:changed", {
-            detail: { id: createResult.id, action: "created" },
-          }),
-        );
+        showAlert.success('Jurnal berhasil diupload ke database!', 'Upload Berhasil');
+        window.dispatchEvent(new CustomEvent('journals:changed', { detail: { id: createResult.id, action: 'created' } }));
         this.resetJurnalForm();
       } catch (error) {
-        console.error("Upload error:", error);
+        console.error('Upload error:', error);
         this.hideLoading();
-        showAlert.error("Gagal upload: " + error.message, "Gagal Upload");
+        showAlert.error('Gagal upload: ' + error.message, 'Gagal Upload');
       } finally {
-        // Selalu reset flag setelah proses selesai
         this.isSubmittingJurnal = false;
-        this.enableSubmitButton("uploadFormJurnal");
+        this.enableSubmitButton('uploadFormJurnal');
       }
     }
 
@@ -578,160 +559,94 @@ if (window._dualUploadHandlerLoaded) {
 
     async handleOpiniSubmit() {
       if (this.isSubmittingOpini) {
-        console.warn("Submit sedang diproses, mohon tunggu...");
+        console.warn('Submit sedang diproses, mohon tunggu...');
         return;
       }
 
       this.isSubmittingOpini = true;
-      this.disableSubmitButton("uploadFormOpini");
+      this.disableSubmitButton('uploadFormOpini');
 
       try {
-        // Enhanced Admin Check
-        const isAdmin = window.loginManager && typeof window.loginManager.isAdmin === 'function' 
-                        ? window.loginManager.isAdmin() 
-                        : (localStorage.getItem("adminLoggedIn") === "true");
+        if (this._checkAdminOrAbort('uploadFormOpini')) return;
 
-        if (!isAdmin) {
-          showAlert.warning("Login sebagai admin terlebih dahulu!", "Login Diperlukan");
-          if (window.loginManager && typeof window.loginManager.openLoginModal === 'function') {
-            window.loginManager.openLoginModal();
-          }
-          this.isSubmittingOpini = false;
-          this.enableSubmitButton("uploadFormOpini");
-          return;
-        }
-
-        //  FIX: Pakai opiniFileManager (bukan opiniFileHandler)
         const file = this.opiniFileManager.getUploadedFile();
         if (!file) {
-          showAlert.warning("Upload file opini terlebih dahulu!", "File Belum Diupload");
+          showAlert.warning('Upload file opini terlebih dahulu!', 'File Belum Diupload');
           return;
         }
 
         const authors = this.opiniAuthorsManager.getAuthors();
         if (authors.length === 0) {
-          showAlert.warning("Minimal 1 penulis!", "Penulis Diperlukan");
+          showAlert.warning('Minimal 1 penulis!', 'Penulis Diperlukan');
           return;
         }
 
-        const judul = document.getElementById("judulOpini").value.trim();
-        const email = document.getElementById("emailOpini").value.trim();
-        const kontak = document.getElementById("kontakOpini").value.trim();
-        const abstrak = document.getElementById("abstrakOpini").value.trim();
-        const tags = this.opiniTagsManager.getTags();
+        const judul   = document.getElementById('judulOpini').value.trim();
+        const email   = document.getElementById('emailOpini').value.trim();
+        const kontak  = document.getElementById('kontakOpini').value.trim();
+        const abstrak = document.getElementById('abstrakOpini').value.trim();
+        const tags    = this.opiniTagsManager.getTags();
 
         if (!judul || !email || !kontak || !abstrak || tags.length === 0) {
-          if (tags.length === 0) {
-            showAlert.warning("Minimal harus ada 1 tag!", "Tag Diperlukan");
-          } else {
-            showAlert.warning("Semua field harus diisi!", "Field Kosong");
-          }
+          showAlert.warning(
+            tags.length === 0 ? 'Minimal harus ada 1 tag!' : 'Semua field harus diisi!',
+            tags.length === 0 ? 'Tag Diperlukan' : 'Field Kosong',
+          );
           return;
         }
 
-        const phoneRegex = /^(?:(?:\+|00)62|[0])8[1-9]\d{7,11}$/;
-        if (!phoneRegex.test(kontak.replace(/\D/g, ""))) {
-          showAlert.warning("Nomor kontak harus berupa nomor HP yang valid!\n\nFormat: 08XXXXXXXXX", "Nomor Invalid");
+        if (!PHONE_REGEX.test(kontak.replace(/\D/g, ''))) {
+          showAlert.warning('Nomor kontak harus berupa nomor HP yang valid!\n\nFormat: 08XXXXXXXXX', 'Nomor Invalid');
           return;
         }
 
-        const confirmMsg = `Judul: ${judul}\nPenulis: ${authors.join(", ")}\nKontak: ${kontak} | Ukuran: ${this.formatFileSize(file.size)}`;
-
-        const confirmed = await showAlert.confirm(confirmMsg, "Konfirmasi Upload Opini");
+        const confirmMsg = `Judul: ${judul}\nPenulis: ${authors.join(', ')}\nKontak: ${kontak} | Ukuran: ${this.formatFileSize(file.size)}`;
+        const confirmed = await showAlert.confirm(confirmMsg, 'Konfirmasi Upload Opini');
         if (!confirmed) {
-          console.log("Upload dibatalkan");
+          console.log('Upload dibatalkan');
           return;
         }
 
-        this.showLoading("Mengupload opini ke server...");
+        this.showLoading('Mengupload opini ke server...');
+        const fileUrl  = await this._uploadFile(file);
+        console.log('File uploaded:', fileUrl);
+        const coverUrl = await this._uploadCover(this.opiniCoverManager.getCoverFile());
 
-        // Upload PDF
-        const fileFormData = new FormData();
-        fileFormData.append("file", file);
-
-        const fileUploadResponse = await fetch(`${window.APP_CONFIG.apiBase}/upload.php`, {
-          method: "POST",
-          body: fileFormData,
-        });
-
-        const fileResult = await fileUploadResponse.json();
-
-        if (!fileResult.ok) {
-          throw new Error(fileResult.message || "Upload file gagal");
-        }
-
-        console.log(" File uploaded:", fileResult.url);
-
-        // Upload cover -  FIX: Pakai opiniCoverManager
-        let coverUrl = null;
-        const coverFile = this.opiniCoverManager.getCoverFile();
-
-        if (coverFile) {
-          this.updateLoadingMessage("Mengupload cover image...");
-
-          const coverFormData = new FormData();
-          coverFormData.append("file", coverFile);
-
-          const coverUploadResponse = await fetch(`${window.APP_CONFIG.apiBase}/upload.php`, {
-            method: "POST",
-            body: coverFormData,
-          });
-
-          const coverResult = await coverUploadResponse.json();
-          if (coverResult.ok) {
-            coverUrl = coverResult.url;
-            console.log(" Cover uploaded:", coverUrl);
-          }
-        }
-
-        // Create opinion
-        this.updateLoadingMessage("Menyimpan metadata ke database...");
-
+        this.updateLoadingMessage('Menyimpan metadata ke database...');
         const metadata = {
-          title: judul,
-          description: abstrak,
-          category: "opini",
-          author_name: authors.join(", "),
-          email: email,
-          contact: kontak,
-          tags: JSON.stringify(this.opiniTagsManager.getTags()),
-          fileUrl: fileResult.url,
-          coverUrl: coverUrl,
+          title:             judul,
+          description:       abstrak,
+          category:          'opini',
+          author_name:       authors.join(', '),
+          email,
+          contact:           kontak,
+          tags:              JSON.stringify(tags),
+          fileUrl,
+          coverUrl,
           client_updated_at: this.toMySQLDateTime(new Date()),
         };
 
-        console.log("Sending opinion metadata:", metadata);
-
+        console.log('Sending opinion metadata:', metadata);
         const createResponse = await fetch(`${window.APP_CONFIG.apiBase}/create_opinion.php`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(metadata),
         });
-
         const createResult = await createResponse.json();
+        if (!createResult.ok) throw new Error(createResult.message || 'Gagal menyimpan metadata');
 
-        if (!createResult.ok) {
-          throw new Error(createResult.message || "Gagal menyimpan metadata");
-        }
-
-        console.log("Opinion created with ID:", createResult.id);
-
+        console.log('Opinion created with ID:', createResult.id);
         this.hideLoading();
-        showAlert.success("Artikel Opini berhasil diupload!", "Upload Berhasil");
-
-        window.dispatchEvent(
-          new CustomEvent("opinions:changed", {
-            detail: { id: createResult.id, action: "created" },
-          }),
-        );
+        showAlert.success('Artikel Opini berhasil diupload!', 'Upload Berhasil');
+        window.dispatchEvent(new CustomEvent('opinions:changed', { detail: { id: createResult.id, action: 'created' } }));
         this.resetOpiniForm();
       } catch (error) {
-        console.error("Upload error:", error);
+        console.error('Upload error:', error);
         this.hideLoading();
-        showAlert.error("Gagal upload: " + error.message, "Gagal Upload");
+        showAlert.error('Gagal upload: ' + error.message, 'Gagal Upload');
       } finally {
         this.isSubmittingOpini = false;
-        this.enableSubmitButton("uploadFormOpini");
+        this.enableSubmitButton('uploadFormOpini');
       }
     }
 

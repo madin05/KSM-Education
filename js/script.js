@@ -1592,6 +1592,29 @@ function buildNavbarProfileHTML(user) {
     return { profileHTML, mobileHeaderHTML };
 }
 
+function getCachedNavbarProfile() {
+    try {
+        const raw = sessionStorage.getItem('cached_navbar_user');
+        return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+        return null;
+    }
+}
+
+function setCachedNavbarProfile(user) {
+    try {
+        if (user) {
+            sessionStorage.setItem('cached_navbar_user', JSON.stringify(user));
+        }
+    } catch (e) {}
+}
+
+function clearCachedNavbarProfile() {
+    try {
+        sessionStorage.removeItem('cached_navbar_user');
+    } catch (e) {}
+}
+
 async function updateNavbarAuth() {
     // Skip auth update if we are on an admin page to avoid leaking user session into admin UI
     if (window.location.pathname.includes('/admin/')) {

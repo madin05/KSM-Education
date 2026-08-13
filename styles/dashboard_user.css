@@ -50,14 +50,14 @@ body {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
 }
 
 .stat-card {
   background-color: white;
-  padding: 26px 20px;
-  border-radius: 12px;
+  padding: 16px 12px;
+  border-radius: 10px;
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
   text-align: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -69,20 +69,20 @@ body {
 }
 
 .stat-icon {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .stat-icon svg {
-  width: 34px;
-  height: 34px;
+  width: 26px;
+  height: 26px;
   color: #2c3e50;
 }
 
 .stat-number {
-  font-size: 38px;
+  font-size: 26px;
   font-weight: 700;
   color: #2c3e50;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   transition: color 0.3s ease;
 }
 
@@ -91,7 +91,7 @@ body {
 }
 
 .stat-label {
-  font-size: 12px;
+  font-size: 11px;
   color: #666;
   font-weight: 500;
   text-transform: uppercase;
@@ -105,8 +105,8 @@ body {
    aturan background sendiri untuk .ksm-token-card. */
 .ksm-token-card {
   background: #fff !important;
-  padding: 26px 20px;
-  border-radius: 12px;
+  padding: 16px 12px;
+  border-radius: 10px;
   text-align: center;
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -124,8 +124,8 @@ body {
    Kalau nanti isi token_wallet.css sudah dibersihkan langsung di
    sumbernya, override !important ini boleh dihapus. */
 .ksm-token-card .stat-icon svg {
-  width: 34px !important;
-  height: 34px !important;
+  width: 26px !important;
+  height: 26px !important;
 }
 
 /* ===== ARTIKEL SAYA + AKTIVITAS TERBARU (two-column dashboard cards) ===== */

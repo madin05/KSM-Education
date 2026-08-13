@@ -1,9 +1,17 @@
 <?php
+require_once __DIR__ . '/../services/auth_context.php';
+ksmedu_session_start(KSMEDU_CTX_USER);
+
+// Jika user belum login (Guest), tampilkan Landing Page Publik di root
+if (empty($_SESSION['user_id'])) {
+    header("Location: ../");
+    exit();
+}
+
 $page_title = 'KSM Education';
 $base_css = '<link rel="stylesheet" href="../styles/dashboard_user.css?v=20260718" />
   <link rel="stylesheet" href="../styles/token_wallet.css?v=20260715" />
-  <link rel="stylesheet" href="../styles/upload_journal_modal.css?v=20260715" />
-  <link rel="stylesheet" href="../styles/ad_carousel.css?v=20260717" />';
+  <link rel="stylesheet" href="../styles/upload_journal_modal.css?v=20260715" />';
 include 'components/header.php';
 include 'components/navbar.php';
 ?>
@@ -12,10 +20,27 @@ include 'components/navbar.php';
     <!-- Main Content -->
     <div class="container">
 
-      <?php
-      // ===== CAROUSEL IKLAN / PROMOSI (auto-geser tiap beberapa detik) =====
-      include 'components/ad_carousel.php';
-      ?>
+      <!-- ===== BANNER CTA: PUNYA KARYA UNTUK DIBAGIKAN ===== -->
+      <section class="ksm-token-cta">
+        <div class="ksm-token-cta-text">
+          <h3>Punya Karya untuk Dibagikan?</h3>
+          <p>
+            Upload jurnal atau opini Anda menggunakan token. Setiap upload
+            membutuhkan 1 token — belum punya token? Beli dulu, lalu upload
+            karya Anda ke KSM Education.
+          </p>
+        </div>
+        <div class="ksm-token-cta-actions">
+          <button type="button" class="ksm-btn-outline-light" data-ksm-open-buy-token>
+            <i data-feather="shopping-cart"></i>
+            Beli Token
+          </button>
+          <button type="button" class="ksm-btn-solid-light" data-ksm-open-upload>
+            <i data-feather="upload"></i>
+            Upload Jurnal Baru
+          </button>
+        </div>
+      </section>
 
       <!-- Statistics Section -->
       <section class="statistics">
@@ -33,7 +58,7 @@ include 'components/navbar.php';
               <i data-feather="eye"></i>
             </div>
             <div class="stat-number skeleton-stat" id="visitorCount"></div>
-            <div class="stat-label">Pengunjung</div>
+            <div class="stat-label">Views</div>
           </div>
 
           <!-- ===== KARTU TOKEN SAYA ===== -->
@@ -78,28 +103,6 @@ include 'components/navbar.php';
           </div>
         </div>
 
-      </section>
-
-      <!-- ===== BANNER CTA: PUNYA KARYA UNTUK DIBAGIKAN ===== -->
-      <section class="ksm-token-cta">
-        <div class="ksm-token-cta-text">
-          <h3>Punya Karya untuk Dibagikan?</h3>
-          <p>
-            Upload jurnal atau opini Anda menggunakan token. Setiap upload
-            membutuhkan 1 token — belum punya token? Beli dulu, lalu upload
-            karya Anda ke KSM Education.
-          </p>
-        </div>
-        <div class="ksm-token-cta-actions">
-          <button type="button" class="ksm-btn-outline-light" data-ksm-open-buy-token>
-            <i data-feather="shopping-cart"></i>
-            Beli Token
-          </button>
-          <button type="button" class="ksm-btn-solid-light" data-ksm-open-upload>
-            <i data-feather="upload"></i>
-            Upload Jurnal Baru
-          </button>
-        </div>
       </section>
 
       <!-- Articles Section -->
@@ -174,7 +177,14 @@ $extra_scripts = <<<'EOT'
     <script src="../js/jurnal.js?v=20260321"></script>
     <script src="../js/opinions_manager.js"></script>
     <script src="../js/file_upload.js"></script>
-    <script src="../js/dashboard_user.js?v=20260731"></script>
+    <!-- dashboard sub-modules (order matters: utils → store → renderer → feed → share) -->
+    <script src="../js/dashboard/utils.js?v=20260813"></script>
+    <script src="../js/dashboard/article_store.js?v=20260813"></script>
+    <script src="../js/dashboard/article_renderer.js?v=20260813"></script>
+    <script src="../js/dashboard/activity_feed.js?v=20260813"></script>
+    <script src="../js/dashboard/share_manager.js?v=20260813"></script>
+    <!-- orchestrator (must be last) -->
+    <script src="../js/dashboard_user.js?v=20260813"></script>
     <script src="../js/token_wallet.js?v=20260729"></script>
     <script src="../js/upload_journal_modal.js?v=20260715"></script>
     <script src="../js/ad_carousel.js?v=20260717"></script>

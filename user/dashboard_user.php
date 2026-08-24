@@ -9,8 +9,8 @@ if (empty($_SESSION['user_id'])) {
 }
 
 $page_title = 'KSM Education';
-$base_css = '<link rel="stylesheet" href="../styles/dashboard_user.css?v=20260813" />
-  <link rel="stylesheet" href="../styles/token_wallet.css?v=20260715" />
+$base_css = '<link rel="stylesheet" href="../styles/dashboard_user.css?v=20260824_v104" />
+  <link rel="stylesheet" href="../styles/token_wallet.css?v=20260824_v104" />
   <link rel="stylesheet" href="../styles/upload_journal_modal.css?v=20260715" />';
 include 'components/header.php';
 include 'components/navbar.php';

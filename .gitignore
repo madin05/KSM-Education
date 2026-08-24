@@ -1,69 +1,102 @@
-# Node & Dependencies
+# ======================================================================
+# .gitignore — KSM Education
+# Comprehensive security-hardened rules to prevent credential leaks,
+# debug tool exposure, and unnecessary artifact commits.
+# ======================================================================
+
+# ── Node & Dependencies ──────────────────────────────────────────────
 node_modules/
 coverage/
+.nyc_output/
+package-lock.json
 
-# Environment & Secrets
+# ── Environment & Secrets ────────────────────────────────────────────
+# CRITICAL: Never commit real credentials. Only .env.example is allowed.
 .env
 .env.*
 !.env.example
 
-# Zip Archives & Backups
+# ── PHP / Composer Dependencies ──────────────────────────────────────
+vendor/
+composer.lock
+
+# ── Archives, Backups & Database Dumps ───────────────────────────────
 *.zip
 *.rar
 *.tar.gz
 *.7z
 *.bak
+*.old
+*.orig
+*.tmp
+*.swp
 *.sql
 !database/
 database/*.sql
 !database/migrations/
 !database/migrations/*.sql
 
-# Error logs
+# ── Logs & Error Files ───────────────────────────────────────────────
+*.log
 error_log
 services/error_log
-*.log
+php_errors.log
 
-# Debug/Utility scripts (should not be in production/git)
+# ── Debug & Utility Scripts (MUST NOT be deployed) ───────────────────
+# CLI-only admin/debug tools that expose DB access or user enumeration
+tools/
 services/debug_db.php
 services/fix_admin_prod.php
-list_all_users_prod.php
-list_temp_users.php
 services/list_all_users_prod.php
 services/list_temp_users.php
+list_all_users_prod.php
+list_temp_users.php
 
-# User Uploads (Ignore files, but keep directory structure)
+# ── User Uploads (keep directory structure, ignore content) ──────────
 uploads/*
 !uploads/.gitkeep
 
-# OS files
+# ── Deploy Secrets & Server Config ───────────────────────────────────
+deploy/**/*.key
+deploy/**/*.pem
+deploy/**/*.crt
+
+# ── PHP Sessions & Runtime Artifacts ─────────────────────────────────
+sess_*
+*.sess
+
+# ── OS Files ─────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
+Desktop.ini
+ehthumbs.db
+ehthumbs_vista.db
 
-# IDE
+# ── IDE & Editor ─────────────────────────────────────────────────────
 .vscode/
 .idea/
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
 
-# Local development binaries and tunnel logs
+# ── Local Development Binaries & Tunnel Logs ─────────────────────────
 .tools/
 
-# Google verification files (hacker artifacts)
+# ── Google Verification Files (potential hacker artifacts) ───────────
 google*.html
 
-
-# OpenClaw
+# ── AI Agent Artifacts (OpenClaw / Gemini / Antigravity) ─────────────
+# Internal workspace state and agent memory — NEVER commit
+.openclaw/
+openclaw-workspace-state.json
 memory/
-AGENTS.md.bak
-*.session
-*.sessions
-.openclaw/
-
-# OpenClaw
-.openclaw/
-
 AGENTS.md
+AGENTS.md.bak
 HEARTBEAT.md
 IDENTITY.md
 SOUL.md
 TOOLS.md
 USER.md
+*.session
+*.sessions
+detail.md

@@ -84,10 +84,11 @@ class StatisticsManager {
 
       if (data.ok && data.stats) {
         this.currentArticles = data.stats.total_articles || 0;
-        this.currentVisitors = data.stats.total_visitors || 0;
+        this.currentVisitors = data.is_personal ? (data.stats.total_views ?? 0) : (data.stats.total_visitors ?? 0);
         console.log(" Stats loaded:", {
           articles: this.currentArticles,
           visitors: this.currentVisitors,
+          isPersonal: data.is_personal || false
         });
       } else {
         console.warn("Stats API returned not OK");

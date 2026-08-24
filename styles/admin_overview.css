@@ -3,138 +3,139 @@
    Setiap kartu adalah tautan ke halaman detail (review, kontak, token, visitor). */
 
 .admin-overview {
-  margin: 16px 0 40px !important;
+  margin: 24px 0 40px !important;
 }
 
 .admin-overview-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 14px;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  margin-bottom: 18px !important;
 }
 
 .admin-overview-head h2 {
-  margin: 0;
-  font-size: 18px;
-  letter-spacing: 0.5px;
-  color: var(--color-text-heading, #2c3e50);
-  font-weight: 700;
+  margin: 0 !important;
+  font-size: 14.5px !important;
+  letter-spacing: 0.05em !important;
+  color: #2c3e50 !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
 }
 
 .admin-overview-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 16px;
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+  gap: 20px !important;
 }
 
 @media (min-width: 992px) {
   .admin-overview-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, 1fr) !important;
   }
 }
 
 .overview-card {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 16px 18px;
-  border: 1px solid var(--border-color-soft, rgba(44, 62, 80, 0.15));
-  border-top: 4px solid var(--color-primary, #2c3e50);
-  border-radius: 12px;
-  background: var(--card-bg, #fff);
-  color: inherit;
-  text-decoration: none;
-  transition: transform 0.2s ease, box-shadow 0.2s ease,
-    border-color 0.2s ease;
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  padding: 22px 24px !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 16px !important;
+  background: #ffffff !important;
+  color: inherit !important;
+  text-decoration: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03), 0 4px 12px -2px rgba(15, 23, 42, 0.03) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .overview-card:not(.overview-card-static):hover,
 .overview-card:not(.overview-card-static):focus-visible {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(44, 62, 80, 0.15);
-  border-color: var(--color-primary, #2c3e50);
-  outline: none;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 28px -4px rgba(44, 62, 80, 0.12), 0 0 0 1px #cbd5e1 !important;
+  border-color: #cbd5e1 !important;
+  outline: none !important;
 }
 
 .overview-card-static {
-  cursor: default;
+  cursor: default !important;
 }
 
 .overview-icon {
-  flex: 0 0 44px;
-  width: 44px;
-  height: 44px;
-  display: grid;
-  place-items: center;
-  border-radius: 10px;
-  background: var(--color-primary-soft, rgba(44, 62, 80, 0.08));
-  color: var(--color-primary, #2c3e50);
-  transition: background 0.2s ease, color 0.2s ease;
+  flex: 0 0 48px !important;
+  width: 48px !important;
+  height: 48px !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 12px !important;
+  background: rgba(44, 62, 80, 0.08) !important;
+  color: #2c3e50 !important;
+  transition: all 0.2s ease !important;
 }
 
 .overview-card:hover .overview-icon {
-  background: var(--color-primary, #2c3e50);
-  color: var(--color-text-on-primary, #ffffff);
+  background: #2c3e50 !important;
+  color: #ffffff !important;
 }
 
 .overview-icon svg {
-  width: 22px;
-  height: 22px;
+  width: 20px !important;
+  height: 20px !important;
+  stroke: currentColor !important;
 }
 
 .overview-body {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
+  min-width: 0 !important;
 }
 
 .overview-label {
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  color: var(--text-muted, #6b7280);
-  font-weight: 600;
+  font-size: 12px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+  color: #64748b !important;
+  font-weight: 600 !important;
 }
 
 .overview-value {
-  font-size: 26px;
-  line-height: 1.15;
-  font-weight: 700;
-  color: var(--color-primary, #2c3e50);
+  font-size: 26px !important;
+  line-height: 1.15 !important;
+  font-weight: 700 !important;
+  color: #2c3e50 !important;
 }
 
 .overview-detail {
-  font-size: 12px;
-  color: var(--text-muted, #6b7280);
-  white-space: normal;
+  font-size: 12px !important;
+  color: #64748b !important;
+  white-space: normal !important;
 }
 
 /* Badge jumlah item yang butuh tindakan */
 .overview-badge {
-  position: absolute;
-  top: 10px;
-  right: 12px;
-  min-width: 22px;
-  padding: 2px 7px;
-  border-radius: 999px;
-  background: var(--color-primary, #2c3e50);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-  text-align: center;
+  position: absolute !important;
+  top: 12px !important;
+  right: 14px !important;
+  min-width: 20px !important;
+  padding: 2px 7px !important;
+  border-radius: 999px !important;
+  background: #ef4444 !important;
+  color: #ffffff !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-align: center !important;
 }
 
 /* Placeholder saat data belum tiba */
 .admin-overview-grid.is-loading .overview-value,
 .admin-overview-grid.is-loading .overview-detail {
-  color: transparent;
-  background: linear-gradient(90deg, #eceff3 25%, #f6f7f9 37%, #eceff3 63%);
-  background-size: 400% 100%;
-  border-radius: 6px;
-  animation: overviewShimmer 1.3s ease infinite;
+  color: transparent !important;
+  background: linear-gradient(90deg, #f1f5f9 25%, #f8fafc 37%, #f1f5f9 63%) !important;
+  background-size: 400% 100% !important;
+  border-radius: 6px !important;
+  animation: overviewShimmer 1.3s ease infinite !important;
 }
 
 @keyframes overviewShimmer {
@@ -150,39 +151,37 @@
   .overview-card,
   .admin-overview-grid.is-loading .overview-value,
   .admin-overview-grid.is-loading .overview-detail {
-    transition: none;
-    animation: none;
+    transition: none !important;
+    animation: none !important;
   }
 }
 
 /* Dark mode */
 body.dark-mode .overview-card {
-  background: #1f2937;
-  border-color: #374151;
+  background: #1e293b !important;
+  border-color: #334155 !important;
 }
 
 body.dark-mode .overview-icon {
-  background: rgba(96, 165, 250, 0.16);
-  color: #60a5fa;
+  background: rgba(59, 130, 246, 0.16) !important;
+  color: #60a5fa !important;
 }
 
 body.dark-mode .overview-label,
 body.dark-mode .overview-detail {
-  color: #9ca3af;
+  color: #94a3b8 !important;
 }
 
-body.dark-mode .admin-overview-grid.is-loading .overview-value,
-body.dark-mode .admin-overview-grid.is-loading .overview-detail {
-  background: linear-gradient(90deg, #273244 25%, #313e52 37%, #273244 63%);
-  background-size: 400% 100%;
+body.dark-mode .overview-value {
+  color: #f8fafc !important;
 }
 
 @media (max-width: 480px) {
   .admin-overview-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
   }
 
   .overview-value {
-    font-size: 22px;
+    font-size: 22px !important;
   }
 }

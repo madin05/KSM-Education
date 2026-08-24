@@ -1,350 +1,304 @@
-/* ============================================
-   MODAL STYLES - LOGIN & GENERAL
-   ============================================ */
+/* =========================================================
+   LOGIN ADMIN — CLEAN LIGHT MODERN DESIGN SYSTEM
+   ========================================================= */
 
-.modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 10000;
-  animation: fadeIn 0.3s ease;
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --admin-bg: #f8fafc;
+  --admin-accent: #2563eb;
+  --admin-accent-hover: #1d4ed8;
+  --admin-text-main: #0f172a;
+  --admin-text-muted: #64748b;
+  --admin-card-bg: #ffffff;
+  --admin-input-bg: #ffffff;
+  --admin-border-color: #cbd5e1;
+  --admin-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.06), 0 0 0 1px rgba(226, 232, 240, 0.8);
 }
 
-.modal.active {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Modal Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(50px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-/* Modal Overlay */
-.modal-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-}
-
-/* Modal Content */
-.modal-content {
-  position: relative;
-  background: white;
-  border-radius: 15px;
-  max-width: 500px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  animation: slideUp 0.3s ease;
-  box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
-}
-
-.close-modal {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 5px;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-  z-index: 1;
-}
-
-.close-modal:hover {
-  color: red;
-}
-
-.close-modal i {
-  width: 24px;
-  height: 24px;
-  color: #666;
-}
-
-/* LOGIN CONTAINER */
-
-.login-container {
-  padding: 50px 40px;
-  text-align: center;
-}
-
-.login-header {
-  margin-bottom: 40px;
-}
-
-.login-header h2 {
-  font-size: 24px;
-  font-weight: 700;
-  color: #2c3e50;
+body.admin-login-body,
+.admin-login-wrapper {
+  min-height: 100vh;
   margin: 0;
-}
-
-.login-logo {
-  width: 120px;
-  height: auto;
-  margin-bottom: 20px;
-}
-
-/* ============================================
-   LOGIN FORM ELEMENTS
-   ============================================ */
-
-.login-form {
-  margin-bottom: 30px;
-}
-
-.login-form .form-group {
-  margin-bottom: 20px;
-  position: relative;
-}
-
-.login-form input[type="email"],
-.login-form input[type="password"] {
-  width: 100%;
-  padding: 15px 20px;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 15px;
-  font-family: 'Montserrat', sans-serif;
-  transition: all 0.3s ease;
-  background: #fafafa;
-}
-
-.login-form input[type="email"]:focus,
-.login-form input[type="password"]:focus {
-  outline: none;
-  border-color: #2c3e50;
-  background: white;
-}
-
-.login-form input::placeholder {
-  color: #999;
-  font-style: normal;
-}
-
-/* Password Group */
-.password-group {
-  position: relative;
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.password-group input {
-  flex: 1;
-  padding: 12px 45px 12px 12px;
-  border: 2px solid #e0e0e0;
-  border-radius: 5px;
-  font-size: 14px;
-  font-family: 'Montserrat', sans-serif;
-  height: 42px;
-  box-sizing: border-box;
-  transition: border-color 0.3s ease;
-}
-
-.password-group input:focus {
-  outline: none;
-  border-color: #2c3e50;
-  box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.4);
-}
-
-.toggle-password {
-  position: absolute;
-  right: 10px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  width: 36px;
-  height: 36px;
+  padding: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #999;
-  transition: color 0.3s ease;
+  font-family: 'Plus Jakarta Sans', 'Montserrat', -apple-system, sans-serif;
+  background: var(--admin-bg);
+  box-sizing: border-box;
 }
 
-.toggle-password:hover {
-  color: #2c3e50;
+/* Crisp Clean Card */
+.admin-login-card {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 400px;
+  background: var(--admin-card-bg);
+  border-radius: 20px;
+  padding: 36px 32px;
+  box-shadow: var(--admin-shadow);
+  border: 1px solid #e2e8f0;
+  animation: adminCardAppear 0.4s ease forwards;
 }
 
-#eyeIcon {
+@keyframes adminCardAppear {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Badge Header */
+.admin-badge-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.admin-badge {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
+  gap: 6px;
+  padding: 5px 12px;
+  background: #eff6ff;
+  color: #2563eb;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  border: 1px solid #dbeafe;
 }
 
-#eyeIcon svg {
-  width: 20px;
-  height: 20px;
-  stroke: currentColor;
+.admin-badge svg {
+  width: 13px;
+  height: 13px;
+  stroke-width: 2.5;
 }
 
-/* FORM OPTIONS */
+/* Brand & Header */
+.admin-login-card .login-logo {
+  width: 72px;
+  height: auto;
+  display: block;
+  margin: 0 auto 14px;
+}
 
-.form-options {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
+.admin-login-card h1 {
+  font-size: 21px;
+  font-weight: 800;
+  color: #0f172a;
+  text-align: center;
+  margin: 0 0 6px;
+  letter-spacing: -0.3px;
+}
+
+.admin-login-card .subtitle {
+  text-align: center;
+  color: #64748b;
   font-size: 13px;
+  margin: 0 0 24px;
+  line-height: 1.4;
+  font-weight: 500;
 }
 
-.remember-me {
+/* Alert Message */
+.login-alert {
+  display: none;
+  margin-bottom: 20px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  animation: adminAlertSlide 0.2s ease forwards;
+}
+
+.login-alert.is-visible {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+@keyframes adminAlertSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Input Fields & Icons */
+.admin-login-card .form-group {
+  margin-bottom: 18px;
+  text-align: left;
+}
+
+.admin-login-card label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 7px;
+}
+
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-icon svg.field-icon {
+  position: absolute;
+  left: 14px;
+  width: 17px;
+  height: 17px;
+  color: #94a3b8;
+  pointer-events: none;
+  transition: color 0.2s ease;
+}
+
+.admin-login-card input[type="email"],
+.admin-login-card input[type="password"],
+.admin-login-card input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px 12px 42px;
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #0f172a;
+  transition: all 0.2s ease;
+}
+
+.admin-login-card input::placeholder {
+  color: #94a3b8;
+  opacity: 0.75;
+}
+
+.admin-login-card input:focus {
+  outline: none;
+  background: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+}
+
+.admin-login-card input:focus + .field-icon,
+.input-with-icon:focus-within svg.field-icon {
+  color: #2563eb;
+}
+
+/* Password Toggle */
+.password-group {
+  position: relative;
+}
+
+.password-group .toggle-password {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: 0;
   cursor: pointer;
-  color: #666;
+  padding: 6px 8px;
+  border-radius: 8px;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
 }
 
-.remember-me input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-  accent-color: #2c3e50;
+.password-group .toggle-password:hover {
+  color: #0f172a;
+  background: #f1f5f9;
 }
 
-.remember-me span {
-  user-select: none;
+.password-group .toggle-password svg {
+  width: 17px;
+  height: 17px;
 }
 
-.forgot-password {
-  color: #2c3e50;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s ease;
-}
-
-.forgot-password:hover {
-  color: #34495e;
-  text-decoration: underline;
-}
-
-/* LOGIN BUTTON */
-
+/* Login Submit Button */
 .btn-login {
   width: 100%;
-  padding: 15px;
-  background: linear-gradient(135deg, #2c3e50, #34495e);
-  color: white;
+  padding: 13px 20px;
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
+  border-radius: 10px;
+  background: #2563eb;
+  color: #ffffff;
+  font-family: inherit;
   font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.4px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  letter-spacing: 1px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 .btn-login:hover {
-  background: linear-gradient(135deg, #1a252f, #2c3e50);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(44, 62, 80, 0.4);
+  background: #1d4ed8;
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
 }
 
 .btn-login:active {
-  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
 }
 
-/* LOGIN FOOTER */
-
-.login-footer {
-  padding-top: 30px;
-  border-top: 2px solid #f0f0f0;
-  font-size: 13px;
-  color: #666;
+.btn-login[disabled] {
+  opacity: 0.65;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
-.login-footer p {
-  margin: 5px 0;
+/* Back Link */
+.back-link-container {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+  text-align: center;
 }
 
-.login-footer strong {
-  color: #2c3e50;
-  font-weight: 600;
-}
-
-/* ADMIN INDICATOR & UPLOAD SECTION */
-
-/* .admin-logged-in {
-  background: linear-gradient(135deg, #4caf50, #8bc34a);
-  color: white;
-  padding: 8px 20px;
-  border-radius: 5px;
-  font-size: 14px;
-  font-weight: 600;
-  display: flex;
+.back-link {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-}
-
-.admin-logged-in i {
-  width: 18px;
-  height: 18px;
-} */
-
-.upload-section.locked {
-  position: relative;
-  pointer-events: none;
-  opacity: 0.5;
-}
-
-.upload-section.locked::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.8);
-  z-index: 10;
-  border-radius: 10px;
-}
-
-.upload-section.locked::after {
-  content: "🔒 Login sebagai admin untuk upload jurnal";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #2c3e50;
-  color: white;
-  padding: 15px 30px;
-  border-radius: 8px;
+  gap: 6px;
+  font-size: 13px;
   font-weight: 600;
-  font-size: 16px;
-  z-index: 11;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  color: #64748b;
+  text-decoration: none;
+  transition: color 0.2s ease;
 }
 
+.back-link:hover {
+  color: #2563eb;
+}
 
+.back-link svg {
+  width: 15px;
+  height: 15px;
+  transition: transform 0.2s ease;
+}
+
+.back-link:hover svg {
+  transform: translateX(-3px);
+}

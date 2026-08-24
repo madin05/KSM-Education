@@ -1,4 +1,30 @@
 // ===== FORM KONTAK =====
+async function autoFillContactUser() {
+  try {
+    const nameInput = document.getElementById("contactNama");
+    const emailInput = document.getElementById("contactEmail");
+    if (!nameInput || !emailInput) return;
+
+    const authHeaders = {};
+    if (window.TokenManager && window.TokenManager.hasTokens()) {
+      const token = await window.TokenManager.getValidToken();
+      if (token) authHeaders["Authorization"] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${window.APP_CONFIG.apiBase}/auth_me.php`, {
+      credentials: "include",
+      headers: authHeaders,
+    });
+    const result = await response.json().catch(() => ({}));
+    if (result.ok && result.user) {
+      if (result.user.name && !nameInput.value) nameInput.value = result.user.name;
+      if (result.user.email && !emailInput.value) emailInput.value = result.user.email;
+    }
+  } catch (err) {
+    // Non-blocking autofill
+  }
+}
+
 function setupContactForm() {
   const form = document.getElementById("contactForm");
   if (!form) return;
@@ -24,9 +50,16 @@ function setupContactForm() {
     feather.replace();
 
     try {
+      const headers = { "Content-Type": "application/json" };
+      if (window.TokenManager && window.TokenManager.hasTokens()) {
+        const token = await window.TokenManager.getValidToken();
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${window.APP_CONFIG.apiBase}/send_contact.php`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        headers,
         body: JSON.stringify({ name, email, subject, message, website }),
       });
 
@@ -35,6 +68,7 @@ function setupContactForm() {
 
       showToast("Pesan Anda berhasil terkirim. Kami akan segera membalas.", "success", "TERKIRIM");
       form.reset();
+      autoFillContactUser();
     } catch (error) {
       showToast(error.message || "Pesan belum dapat dikirim. Coba lagi nanti.", "error", "GAGAL");
     } finally {
@@ -45,4 +79,7 @@ function setupContactForm() {
   });
 }
 
-document.addEventListener("DOMContentLoaded", setupContactForm);
+document.addEventListener("DOMContentLoaded", () => {
+  autoFillContactUser();
+  setupContactForm();
+});

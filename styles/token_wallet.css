@@ -24,7 +24,6 @@
 }
 
 .ksm-token-card:hover {
-  transform: translateY(-5px);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
 }
 
@@ -70,7 +69,6 @@
 
 .ksm-token-buy-btn:hover {
   background: #2563eb;
-  transform: translateY(-2px);
 }
 
 .ksm-token-buy-btn svg {
@@ -147,7 +145,6 @@
 
 .ksm-btn-solid-light:hover {
   background: #e9edf1;
-  transform: translateY(-2px);
 }
 
 .ksm-token-cta-actions svg {

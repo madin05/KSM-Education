@@ -1,24 +1,3 @@
-/* =========================================================
-   DARK MODE — BAGIAN 2 (lanjutan)
-   Muat file ini TEPAT SETELAH file dark-mode utama di header.php,
-   supaya urutannya tidak masalah (keduanya sama-sama pakai selector
-   [data-theme="dark"] biasa, tidak ada konflik spesifisitas).
-
-   Meng-cover komponen yang belum ada versi gelapnya:
-   1. journal.css — .filter-section, .search-box (varian list page,
-      BUKAN yang di navbar), .sort-dropdown/.sort-menu, .btn-back,
-      .journal-item (list view), pagination, .btn-see-all
-   2. opinions/admin grid — .filter-bar, .opinion-card, .upload-tabs
-   3. my_journals_user.css — kartu "Jurnal Saya", status badge, dst
-   4. Riwayat Token — summary banner & history card
-
-   CATATAN: bagian 1 saya susun berdasarkan journal.css versi yang
-   sempat dikirim di awal percakapan ini. Kalau class-nya sudah
-   berubah sejak itu (mis. pagination_user.js sekarang generate
-   markup dengan nama class lain), kirim journal.css /
-   pagination_user.js terbaru dan saya sesuaikan lagi.
-   ========================================================= */
-
 /* ===== 1. FILTER & SEARCH BAR (journals_user.php / opinions_user.php list) ===== */
 [data-theme="dark"] .filter-section {
   background: #1e293b;
@@ -29,8 +8,26 @@
   background: #0f172a;
 }
 
-[data-theme="dark"] .search-box input {
+[data-theme="dark"] .search-box:focus-within {
+  background: #1e293b !important;
+  box-shadow: 0 0 0 2px #3b82f6 !important;
+}
+
+[data-theme="dark"] .search-box input,
+[data-theme="dark"] .search-box input:focus,
+[data-theme="dark"] .search-box input:focus-visible,
+[data-theme="dark"] .search-box input:active {
   color: #e2e8f0;
+  outline: none !important;
+  outline-width: 0 !important;
+  outline-style: none !important;
+  border: none !important;
+  border-width: 0 !important;
+  border-style: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
 }
 
 [data-theme="dark"] .search-box input::placeholder {

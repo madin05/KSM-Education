@@ -1,6 +1,6 @@
 <?php
 $page_title = 'Daftar Opini - KSM Education';
-$base_css = '<link rel="stylesheet" href="../styles/admin.css" />';
+$base_css = '<link rel="stylesheet" href="../styles/opinions.css?v=20260824" />';
 include 'components/header.php';
 include 'components/navbar.php';
 ?>

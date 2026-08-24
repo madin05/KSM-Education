@@ -3,11 +3,12 @@
    Grafik batang murni CSS (tanpa library chart). */
 
 .visitor-panel {
-  margin-bottom: 24px;
-  padding: 20px;
-  border: 1px solid var(--border-color, #e5e7eb);
-  border-radius: 12px;
+  margin-bottom: 28px;
+  padding: 24px 28px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 16px;
   background: var(--card-bg, #fff);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
 }
 
 .visitor-panel-head {
@@ -15,8 +16,8 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 18px;
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
 .visitor-panel-head h2 {
@@ -26,7 +27,7 @@
   margin: 0;
   font-size: 1.05rem;
   font-weight: 700;
-  color: var(--text-color, #111827);
+  color: var(--text-color, #0f172a);
 }
 
 .visitor-panel-head svg {
@@ -37,13 +38,14 @@
 
 .visitor-panel-note {
   font-size: 0.82rem;
-  color: var(--text-muted, #6b7280);
+  color: var(--text-muted, #64748b);
+  font-weight: 400;
 }
 
 .visitor-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 24px;
+  gap: 28px;
 }
 
 /* --- Grafik batang --- */

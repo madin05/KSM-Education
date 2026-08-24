@@ -1,53 +1,68 @@
-/* Header Styles */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* ===== HEADER STYLES ===== */
 header {
-  background-color: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  height: 64px;
+  background-color: #ffffff;
+  box-shadow: 0 1px 30px rgba(56, 56, 56, 0.214);
+  border-bottom: 1px solid #f1f5f9;
   position: sticky;
   top: 0;
   z-index: 1000;
-  /* Jangan animasikan layout (tinggi/lebar/posisi) saat auth navbar
-     dirender async atau class scrolled berubah. Ini mencegah flicker. */
-  transition: background-color 0.2s ease, box-shadow 0.2s ease,
-    border-color 0.2s ease;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  display: flex;
+  align-items: center;
 }
 
 header.scrolled {
-  background-color: rgba(255, 255, 255, 0.72) !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
+  border-bottom: 1px solid #f1f5f9 !important;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 /* Disable blur when mobile menu is open to prevent stacking context bugs */
 body.menu-open header {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  background-color: white !important;
-  /* Overlay berada di luar header. Naikkan stacking context header saat
-     drawer terbuka agar nav dan tombol hamburger tetap di atas overlay. */
+  background-color: #ffffff !important;
   z-index: 10000;
 }
 
 .header-container {
   max-width: 1200px;
+  width: 100%;
+  height: 100%;
   margin: 0 auto;
-  padding: 20px 30px;
+  padding: 0 30px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: relative; 
+  position: relative;
 }
 
 .header-right {
   display: none;
 }
 
-/* Mobile Header Profiling - visible only on mobile */
-
-/* ===== SHARED MOBILE CONTROLS =====
-   Disimpan di header.css supaya semua halaman user, termasuk Tentang
-   dan Kontak, memiliki hamburger dan overlay yang identik. */
+/* ===== HAMBURGER MENU & OVERLAY ===== */
 .hamburger-menu {
   display: none;
   width: 42px;
@@ -107,15 +122,32 @@ body.menu-open {
   overflow: hidden;
 }
 
+/* ===== LOGO ===== */
 .logo {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex: 0 0 200px;
+  min-width: 200px;
+  height: 100%;
+  justify-content: flex-start;
+  order: 1;
+}
+
+.logo a {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  text-decoration: none;
+  line-height: 1;
 }
 
 .logo img {
   width: 100px;
-  height: auto;
+  height: 36px;
+  max-height: 36px;
+  display: block;
+  object-fit: contain;
 }
 
 .logo-text {
@@ -124,69 +156,53 @@ body.menu-open {
   color: #2c3e50;
 }
 
-/* Logo di dalam drawer nav mobile — HARUS disembunyikan di desktop
-   di sini (bukan cuma di dashboard_user.css), karena header.css
-   ini dimuat di SEMUA halaman termasuk yang tidak memuat
-   dashboard_user.css (Tentang, Kontak, Profil, Pengaturan). Tanpa
-   baris ini, elemen .nav-logo tampil full-size tanpa constraint di
-   halaman-halaman tersebut. Di-override jadi display:block lagi
-   khusus di dalam media query mobile di bawah. */
 .nav-logo {
   display: none;
 }
 
-/* ===== MAIN CONTAINER =====
-   Sama seperti kasus .nav-logo — aturan ini SEBELUMNYA cuma ada di
-   dashboard_user.css. Halaman yang tidak memuat file itu (Tentang,
-   Kontak, Profil, Pengaturan) jadi tidak punya batasan lebar sama
-   sekali untuk .container, sehingga isinya melebar penuh satu
-   halaman padahal navbar di atasnya sudah rapi dibatasi 1200px lewat
-   .header-container. Ditaruh di sini (header.css, dimuat di semua
-   halaman) supaya konsisten di mana pun. */
-.container {
-  max-width: 1200px;
-  margin: 40px auto;
-  padding: 0 30px;
-}
-
-/* ===== NAVIGATION =====
-   Sebelumnya nav di-posisikan absolute+left:50% supaya selalu di
-   tengah header, TAPI itu membuat nav tidak ikut diperhitungkan oleh
-   flexbox sama sekali — jadi begitu isi nav bertambah (dari 2 item
-   jadi 5 item setelah dropdown ARTIKEL diratakan), lebarnya menabrak
-   search bar yang posisinya dihitung terpisah lewat flex order.
-   Sekarang nav jadi flex item biasa (flex:1, justify-content:center)
-   supaya ruang di antara logo dan search/avatar otomatis menyesuaikan
-   lebar nav, berapa pun jumlah link-nya. */
+/* ===== NAVIGATION ===== */
 nav {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 22px;
-  flex: 1;
+  gap: 12px;
   min-width: 0;
+  order: 2;
 }
 
 nav a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   text-decoration: none;
   color: #64748b;
-  font-weight: 500;
+  font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+  font-weight: 600;
   font-size: 14px;
-  transition: all 0.3s;
-  padding: 8px 16px;
+  line-height: 1.4;
+  padding: 8px 18px;
   border-radius: 8px;
+  background-color: transparent;
+  border: 1px solid transparent;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  white-space: nowrap;
+  box-sizing: border-box;
 }
 
 nav a:hover, .nav-link.has-caret:hover {
-  background-color: rgba(44, 62, 80, 0.08);
-  color: #2c3e50;
+  background-color: #f8fafc;
+  color: #1e293b;
 }
 
 nav a.active {
-  background-color: #2c3e50;
-  color: #ffffff;
+  background-color: transparent;
+  color: #2c3e50;
   font-weight: 600;
+  box-shadow: none;
+  position: relative;
 }
+
 
 /* ===== SEARCH BOX ===== */
 .search-box {
@@ -213,7 +229,14 @@ nav a.active {
   background: transparent;
 }
 
-/* ===== NAV DROPDOWN (masih dipakai di komponen lain, mis. mobile drawer) ===== */
+.search-box input:focus {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* ===== NAV DROPDOWN ===== */
 .nav-dropdown {
   position: relative;
   display: flex;
@@ -281,9 +304,10 @@ nav a.active {
   display: flex;
   align-items: center;
   gap: 12px;
-  /* Ruang tetap mencegah header bergeser saat Guest/profil selesai dimuat. */
-  min-width: 76px;
+  flex: 0 0 200px;
+  min-width: 200px;
   justify-content: flex-end;
+  order: 3;
 }
 
 .auth-section .btn-user-login,
@@ -313,8 +337,9 @@ nav a.active {
   color: #2c3e50;
 }
 
-/* Optimized for icon-only/profile-only appearance on Admin page */
-.btn-register.icon-only, .user-profile.btn-register.icon-only, .guest-profile.btn-register.icon-only {
+.btn-register.icon-only,
+.user-profile.btn-register.icon-only,
+.guest-profile.btn-register.icon-only {
   width: 44px;
   height: 44px;
   padding: 0 !important;
@@ -345,15 +370,11 @@ nav a.active {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-
-/* Nav auth section - only visible on mobile (inside side nav) */
 .nav-auth-section {
   display: none;
 }
 
-/* ===== USER PROFILE + DROPDOWN MENU (Profil Saya / Jurnal Saya / Riwayat Token / Pengaturan / Logout) ===== */
-/* .user-profile sekarang murni wrapper posisi relative untuk menu dropdown.
-   Style pill (border, padding, dsb) dipindah ke .user-profile-trigger. */
+/* ===== USER PROFILE DROPDOWN MENU ===== */
 .user-profile {
   position: relative;
   display: flex !important;
@@ -402,9 +423,6 @@ nav a.active {
   flex-shrink: 0;
 }
 
-/* .user-name tetap dipertahankan untuk kompatibilitas (dipakai di
-   tempat lain seperti dashboard_user.js setUserName()), tapi sudah
-   tidak dirender lagi di dalam trigger navbar. */
 .user-name {
   font-size: 14px;
   font-weight: 600;
@@ -412,10 +430,6 @@ nav a.active {
   white-space: nowrap;
 }
 
-/* Header nama+email di dalam dropdown — di sinilah nama lengkap
-   ditampilkan sekarang, dengan ellipsis kalau kepanjangan karena
-   dropdown punya lebar tetap (beda dari navbar yang harus ikut
-   melebar/rusak kalau isinya dipaksa muat). */
 .user-profile-menu-header {
   padding: 10px 12px 12px;
   margin-bottom: 6px;
@@ -500,7 +514,7 @@ nav a.active {
   background: #fef2f2;
 }
 
-/* ===== GUEST PROFILE (Global) ===== */
+/* ===== GUEST PROFILE ===== */
 .guest-profile {
   display: flex;
   align-items: center;
@@ -551,29 +565,39 @@ nav a.active {
   color: #2c3e50;
 }
 
-/* Responsive untuk mobile */
+/* ===== MOBILE RESPONSIVE ===== */
 @media (max-width: 768px) {
+  .header-container {
+    padding: 0.75rem;
+  }
+
+  .header-container .logo {
+    order: 1 !important;
+    margin-right: auto !important;
+    flex: 0 0 auto;
+    min-width: 0;
+  }
+
   .logo img {
     width: 80px;
   }
-  
-  .header-container {
-    padding: .75rem;
+
+  .header-container .header-right {
+    order: 2 !important;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .header-container .hamburger-menu {
+    order: 3 !important;
+    position: relative;
+    display: flex !important;
   }
 
   .auth-section {
     display: none !important;
   }
-
-  .btn-user-login,
-  .btn-login,
-  .btn-register {
-    width: 100%;
-    justify-content: center;
-    padding: 5px;
-  }
-
-  /* Hover for mobile buttons (same as global, retained for specificity in mobile context) */
 
   .mobile-auth-header {
     display: block;
@@ -697,7 +721,7 @@ nav a.active {
     }
   }
 
-  /* Nav & Dropdown for Mobile - Fixed Drawer */
+  /* Nav Drawer Mobile */
   nav {
     position: fixed !important;
     top: 0 !important;
@@ -715,35 +739,32 @@ nav a.active {
     display: flex !important;
     overflow-y: auto !important;
     align-items: stretch !important;
-    /* Tanpa ini, justify-content:center dari aturan desktop tetap aktif dan
-       (karena drawer memakai flex-direction:column) mendorong logo + link
-       ke tengah vertikal drawer. Isi drawer harus mulai dari atas. */
     justify-content: flex-start !important;
     text-align: left !important;
   }
-
 
   nav.active {
     transform: translateX(0) !important;
   }
 
   nav > a {
-    width: auto;
-    margin: 2px 12px;
-    padding: 13px 16px;
-    border-radius: 10px;
-    font-size: 14px;
+    width: calc(100% - 24px) !important;
+    margin: 4px 12px !important;
+    padding: 12px 18px !important;
+    border-radius: 10px !important;
+    font-size: 14.5px !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
+    display: flex !important;
+    align-items: center !important;
   }
 
   nav > a.active {
-    background: #eef2f7;
-    color: #1e293b;
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    font-weight: 700 !important;
   }
 
-  /* Logo inside sidebar — WAJIB di kiri-atas drawer.
-     order:-1 mengunci posisinya sebagai item pertama walau ada
-     elemen lain yang disuntik oleh script lain. align-self/justify
-     dipaksa agar tidak ikut aturan center dari layout desktop. */
   .nav-logo {
     display: flex !important;
     align-items: center !important;
@@ -773,8 +794,6 @@ nav a.active {
     display: block !important;
   }
 
-
-  /* Auth section at bottom of sidebar */
   .nav-auth-section {
     display: flex !important;
     flex-direction: column !important;
@@ -784,7 +803,6 @@ nav a.active {
     margin-top: auto !important;
   }
 
-  /* Dropdown profil di dalam drawer mobile ditampilkan statis (bukan absolute) */
   .nav-auth-section .user-profile-menu {
     position: static;
     opacity: 1;
@@ -809,9 +827,15 @@ nav a.active {
   }
 
   .nav-link.has-caret {
-    width: 100%;
-    justify-content: space-between;
-    padding: 12px 16px;
+    width: calc(100% - 24px) !important;
+    margin: 4px 12px !important;
+    justify-content: space-between !important;
+    padding: 12px 18px !important;
+    text-align: left !important;
+    border-radius: 10px !important;
+    font-size: 14.5px !important;
+    display: flex !important;
+    align-items: center !important;
   }
 
   .nav-dropdown .dropdown-menu {
@@ -833,33 +857,11 @@ nav a.active {
   }
 
   .nav-dropdown .dropdown-menu a {
-    padding: 10px 16px;
-  }
-}
-
-/* Flex Order for Desktop Layout (search bar dihapus, jadi cuma 3 item) */
-.logo { order: 1; }
-nav { order: 2; }
-.auth-section { order: 3; }
-
-/* ===== MOBILE RESPONSIVE ===== */
-@media (max-width: 768px) {
-  .header-container .logo {
-    order: 1 !important;
-    margin-right: auto !important;
-  }
-
-  .header-container .header-right {
-    order: 2 !important;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .header-container .hamburger-menu {
-    order: 3 !important;
-    position: relative;
+    padding: 10px 18px;
+    justify-content: flex-start !important;
+    text-align: left !important;
     display: flex !important;
+    align-items: center !important;
   }
 }
 
@@ -880,11 +882,6 @@ nav { order: 2; }
     width: 40px;
     height: 40px;
     padding: 9px;
-  }
-
-  .container {
-    margin: 28px auto;
-    padding: 0 16px;
   }
 }
 

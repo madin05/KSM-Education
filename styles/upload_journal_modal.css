@@ -72,6 +72,14 @@
   background: #fff;
 }
 
+.ksm-upload-form-group input::placeholder,
+.ksm-upload-form-group textarea::placeholder,
+.ksm-upload-dynamic-row input::placeholder {
+  color: #94a3b8;
+  opacity: 0.6;
+  font-weight: 400;
+}
+
 .ksm-upload-form-group input:focus,
 .ksm-upload-form-group select:focus,
 .ksm-upload-form-group textarea:focus {

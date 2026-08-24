@@ -209,7 +209,7 @@ include 'components/sidebar.php';
 
             <div class="form-group">
               <label for="emailJurnal">Email<span>*</span></label>
-              <input type="email" id="emailJurnal" required />
+              <input type="email" id="emailJurnal" placeholder="email@contoh.com" required />
             </div>
 
             <div class="form-group">
@@ -413,7 +413,7 @@ include 'components/sidebar.php';
 
             <div class="form-group">
               <label for="emailOpini">Email<span>*</span></label>
-              <input type="email" id="emailOpini" required />
+              <input type="email" id="emailOpini" placeholder="email@contoh.com" required />
             </div>
 
             <div class="form-group">

@@ -1,4 +1,4 @@
-﻿/* Main Container */
+/* Main Container */
 .container {
   max-width: 1200px;
   margin: 40px auto;
@@ -19,39 +19,42 @@
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
 }
 
 .stat-card {
   background-color: white;
-  padding: 40px;
+  padding: 16px 12px;
   border-radius: 10px;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   text-align: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .stat-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
 .stat-icon {
-  margin-bottom: 15px;
+  margin-bottom: 8px;
 }
 
+.stat-icon svg,
 .stat-icon #bar-chart-2,
-.stat-icon #eye {
-  width: 70px;
-  height: 70px;
+.stat-icon #eye,
+.stat-icon [data-feather] {
+  width: 26px;
+  height: 26px;
+  color: #2c3e50;
 }
 
 .stat-number {
-  font-size: 48px;
+  font-size: 26px;
   font-weight: 700;
   color: #2c3e50;
-  margin-bottom: 5px;
+  margin-bottom: 2px;
   transition: color 0.3s ease;
 }
 
@@ -60,9 +63,11 @@
 }
 
 .stat-label {
-  font-size: 14px;
-  color: #666;
-  font-weight: 500;
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* Journal List Section */
@@ -454,6 +459,15 @@
   font-size: 14px;
   font-family: 'Montserrat', sans-serif;
   transition: border-color 0.3s ease;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder,
+.author-input::placeholder,
+.pengurus-input::placeholder {
+  color: #94a3b8;
+  opacity: 0.6;
+  font-weight: 400;
 }
 
 .form-group textarea {

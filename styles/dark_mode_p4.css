@@ -153,6 +153,7 @@
 }
 
 [data-theme="dark"] .form-group input,
+[data-theme="dark"] .form-group textarea,
 [data-theme="dark"] .login-form input,
 [data-theme="dark"] .login-form textarea,
 [data-theme="dark"] .login-form select {
@@ -162,8 +163,11 @@
 }
 
 [data-theme="dark"] .form-group input::placeholder,
+[data-theme="dark"] .form-group textarea::placeholder,
 [data-theme="dark"] .login-form input::placeholder {
   color: var(--ksm-dark-text-dim);
+  opacity: 0.55;
+  font-weight: 400;
 }
 
 [data-theme="dark"] .form-group input:focus,
@@ -277,6 +281,8 @@
 [data-theme="dark"] .ksm-upload-form-group input::placeholder,
 [data-theme="dark"] .ksm-upload-form-group textarea::placeholder {
   color: var(--ksm-dark-text-dim);
+  opacity: 0.55;
+  font-weight: 400;
 }
 
 [data-theme="dark"] .ksm-upload-row-add {

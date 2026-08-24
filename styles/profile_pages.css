@@ -145,6 +145,13 @@
   transition: border-color 0.2s ease;
 }
 
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #94a3b8;
+  opacity: 0.6;
+  font-weight: 400;
+}
+
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;

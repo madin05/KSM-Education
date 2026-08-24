@@ -1,14 +1,13 @@
 <?php
 $page_title = 'Kontak - KSM Education';
-$base_css = '<link rel="stylesheet" href="../styles/static_pages.css?v=20260719" />
-  <link rel="stylesheet" href="../styles/profile_pages.css?v=20260719" />';
+$base_css = '<link rel="stylesheet" href="../styles/static_pages.css?v=20260824" />' . "\n"
+  . '    <link rel="stylesheet" href="../styles/profile_pages.css?v=20260824" />' . "\n"
+  . '    <link rel="stylesheet" href="../styles/contact_user.css?v=20260824" />';
 include 'components/header.php';
 include 'components/navbar.php';
 ?>
 
-    <!-- Main Content -->
-    <div class="container">
-
+    <main class="container">
       <!-- Hero -->
       <section class="static-hero">
         <span class="static-hero-tag">Kontak</span>
@@ -26,7 +25,7 @@ include 'components/navbar.php';
             <div class="contact-info-icon"><i data-feather="mail"></i></div>
             <div>
               <h4>Email</h4>
-              <p>lynenatasya2@gmail.com</p>
+              <p>admin@ksmeducation.id</p>
             </div>
           </div>
           <div class="contact-info-card">
@@ -64,8 +63,7 @@ include 'components/navbar.php';
           <div class="profile-card">
             <h3 class="profile-form-title">Kirim Pesan</h3>
             <form id="contactForm" class="profile-form">
-              <!-- Honeypot anti-spam: wajib tetap ada (dicek di services/send_contact.php),
-                   tapi harus benar-benar tidak terlihat oleh user. -->
+              <!-- Honeypot anti-spam: wajib tetap ada (dicek di services/send_contact.php) -->
               <div aria-hidden="true" class="contact-honeypot" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">
                 <label for="contactWebsite">Website</label>
                 <input id="contactWebsite" name="website" type="text" tabindex="-1" autocomplete="off" />
@@ -100,21 +98,18 @@ include 'components/navbar.php';
           </div>
         </div>
       </div>
-
-    </div>
-
-    <!-- Scripts -->
+    </main>
 
 <?php
 $extra_scripts = <<<'EOT'
 <script src="../js/script.js?v=2025112910"></script>
     <script src="../js/custom_alerts.js"></script>
-    <script src="../js/kontak_user.js?v=20260719"></script>
+    <script src="../js/kontak_user.js?v=20260824"></script>
     <script src="../js/mobile_menu.js?v=20251130"></script>
     <script>
       feather.replace();
     </script>
-  
 EOT;
 include 'components/footer.php';
 ?>
+

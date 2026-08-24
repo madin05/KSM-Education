@@ -40,7 +40,7 @@ if (PHP_SAPI !== 'cli') {
 
 require_once __DIR__ . '/../services/db.php';
 
-$email = $argv[1] ?? 'admin@gmail.com';
+$email = $argv[1] ?? 'ksmedu2025@gmail.com';
 $arg2  = $argv[2] ?? null;
 $name  = $argv[3] ?? 'Administrator';
 

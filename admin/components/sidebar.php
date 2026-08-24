@@ -152,21 +152,39 @@ $group_is_active = static function (array $group) use ($current_page): bool {
           // Halaman admin hanya dapat dibuka setelah lolos auth_guard.php,
           // jadi di sini selalu ada sesi admin yang aktif.
           $admin_display_name = htmlspecialchars(
-              $admin_session_user['name'] ?? 'Admin',
+              $admin_session_user['name'] ?? 'Administrator',
+              ENT_QUOTES,
+              'UTF-8'
+          );
+          $admin_email = htmlspecialchars(
+              $admin_session_user['email'] ?? 'admin@ksmeducation.com',
               ENT_QUOTES,
               'UTF-8'
           );
           ?>
-          <span class="admin-identity" title="<?php echo htmlspecialchars($admin_session_user['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
-            <i data-feather="user"></i>
-            <?php echo $admin_display_name; ?>
-          </span>
-          <a
-            class="btn-register"
-            href="../services/auth_logout.php?redirect=<?php echo urlencode('../admin/login'); ?>"
-          >
-            <i data-feather="log-out"></i> LOGOUT
-          </a>
+          <div class="user-profile admin-profile-dropdown">
+            <button class="user-profile-trigger admin-profile-btn" type="button" aria-expanded="false" aria-haspopup="true" title="<?php echo $admin_email; ?>">
+              <span class="admin-avatar">
+                <i data-feather="user"></i>
+              </span>
+              <span class="admin-name"><?php echo $admin_display_name; ?></span>
+              <svg class="caret" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <div class="user-profile-menu admin-profile-menu" role="menu">
+              <div class="user-profile-menu-header">
+                <strong><?php echo $admin_display_name; ?></strong>
+                <span><?php echo $admin_email; ?></span>
+              </div>
+              <a
+                class="user-profile-menu-item user-profile-menu-item--danger"
+                href="../services/auth_logout.php?redirect=<?php echo urlencode('../admin/login'); ?>"
+              >
+                <i data-feather="log-out"></i> Logout
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </header>

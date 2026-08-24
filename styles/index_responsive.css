@@ -1,4 +1,4 @@
-﻿/* Mobile Navigation Overlay */
+/* Mobile Navigation Overlay */
 .nav-overlay {
   display: none;
   position: fixed;
@@ -95,7 +95,8 @@ body.menu-open {
     padding: 1rem 1.5rem !important;
     border-bottom: 1px solid #f0f0f0 !important;
     width: 100% !important;
-    display: block !important;
+    display: flex !important;
+    justify-content: flex-start !important;
     text-align: left !important;
     border-radius: 0 !important;
   }
@@ -216,12 +217,25 @@ body.menu-open {
   }
 
   .stats-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 12px !important;
+    overflow-x: auto !important;
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+  }
+
+  .stats-grid::-webkit-scrollbar {
+    display: none !important;
   }
 
   .stat-card {
-    padding: 1.5rem;
+    flex: 0 0 calc(46% - 6px) !important;
+    min-width: 135px !important;
+    max-width: 180px !important;
+    scroll-snap-align: start !important;
+    padding: 1.25rem 1rem !important;
   }
 
   .stat-number {

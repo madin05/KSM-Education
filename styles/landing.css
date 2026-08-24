@@ -564,6 +564,8 @@ body {
 
 .landing-search-box input::placeholder {
   color: var(--text-muted);
+  opacity: 0.6;
+  font-weight: 400;
 }
 
 .btn-search-submit {

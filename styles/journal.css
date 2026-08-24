@@ -1,4 +1,6 @@
-﻿/* ===== COMPACT JOURNAL DISPLAY (Homepage) ===== */
+@import url("body.css");
+
+/* ===== COMPACT JOURNAL DISPLAY (Homepage) ===== */
 
 .journal-item {
   background-color: white;
@@ -209,11 +211,25 @@
   box-shadow: 0 0 0 2px #2c3e50;
 }
 
-.search-box input {
+.filter-section .search-box input,
+.search-box input,
+.search-box input:focus,
+.search-box input:focus-visible,
+.search-box input:active,
+#searchInput,
+#searchInput:focus,
+#searchInput:focus-visible {
   flex: 1;
-  border: none;
-  background: none;
-  outline: none;
+  outline: none !important;
+  outline-width: 0 !important;
+  outline-style: none !important;
+  border: none !important;
+  border-width: 0 !important;
+  border-style: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
   font-size: 14px;
   font-family: 'Montserrat', sans-serif;
 }
@@ -608,11 +624,6 @@
   /* Prevent scroll when menu open */
   body.menu-open {
     overflow: hidden;
-  }
-
-  /* Header adjustments */
-  .header-container {
-    padding: 0.75rem;
   }
 
   /* Journal items responsive */

@@ -40,7 +40,7 @@
     <form id="ksmUploadForm" novalidate>
       <div class="ksm-upload-form-group">
         <label for="ksmFieldTitle">Judul <span class="req">*</span></label>
-        <input type="text" id="ksmFieldTitle" name="title" required />
+        <input type="text" id="ksmFieldTitle" name="title" placeholder="Masukkan judul karya (mis. Pengaruh Teknologi...)" required />
         <div class="ksm-upload-field-error">Judul wajib diisi.</div>
       </div>
 
@@ -76,7 +76,7 @@
 
       <div class="ksm-upload-form-group">
         <label for="ksmFieldAbstract">Abstrak / Deskripsi <span class="req">*</span></label>
-        <textarea id="ksmFieldAbstract" name="abstract" required></textarea>
+        <textarea id="ksmFieldAbstract" name="abstract" placeholder="Tuliskan ringkasan atau abstrak karya di sini..." required></textarea>
         <div class="ksm-upload-field-error">Abstrak wajib diisi.</div>
       </div>
 
@@ -101,12 +101,12 @@
       <div class="ksm-upload-row">
         <div class="ksm-upload-form-group">
           <label for="ksmFieldEmail">Email <span class="req">*</span></label>
-          <input type="email" id="ksmFieldEmail" name="email" required />
+          <input type="email" id="ksmFieldEmail" name="email" placeholder="email@contoh.com" required />
           <div class="ksm-upload-field-error">Email wajib diisi dan valid.</div>
         </div>
         <div class="ksm-upload-form-group">
           <label for="ksmFieldPhone">No. Telepon <span class="req">*</span></label>
-          <input type="tel" id="ksmFieldPhone" name="phone" required />
+          <input type="tel" id="ksmFieldPhone" name="phone" placeholder="081234567890" required />
           <div class="ksm-upload-field-error">No. telepon wajib diisi.</div>
         </div>
       </div>

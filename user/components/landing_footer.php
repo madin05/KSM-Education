@@ -56,7 +56,7 @@ $t = $t ?? [];
                     🌐 <?php echo $lang === 'en' ? 'EN' : 'ID'; ?> 
                     <i data-feather="chevron-down" style="width: 14px; height: 14px; vertical-align: middle;"></i>
                 </button>
-                <div class="lang-dropdown" id="langDropdownFooter" style="bottom: 100%; top: auto; right: 0; margin-bottom: 6px; margin-top: 0;">
+                <div class="lang-dropdown" id="langDropdownFooter" style="bottom: 100%; top: auto; left: 0; right: auto; margin-bottom: 6px; margin-top: 0; min-width: 140px;">
                     <button class="lang-item" onclick="changeLanguage('id')">Bahasa (ID)</button>
                     <button class="lang-item" onclick="changeLanguage('en')">English (EN)</button>
                 </div>

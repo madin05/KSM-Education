@@ -1,10 +1,10 @@
 <?php
 $page_title = 'Riwayat Token - KSM Education';
-$base_css = '<link rel="stylesheet" href="../styles/dashboard_user.css?v=202501111545" />
-  <link rel="stylesheet" href="../styles/token_wallet.css?v=20260715" />
-  <link rel="stylesheet" href="../styles/upload_journal_modal.css?v=20260715" />
-  <link rel="stylesheet" href="../styles/my_journals_user.css?v=20260715" />
-  <link rel="stylesheet" href="../styles/token_history_user.css?v=20260815" />';
+$base_css = '<link rel="stylesheet" href="../styles/user/dashboard_user.css?v=202501111545" />
+  <link rel="stylesheet" href="../styles/user/token_wallet.css?v=20260715" />
+  <link rel="stylesheet" href="../styles/user/upload_journal_modal.css?v=20260715" />
+  <link rel="stylesheet" href="../styles/user/my_journals_user.css?v=20260715" />
+  <link rel="stylesheet" href="../styles/user/token_history_user.css?v=20260815" />';
 include 'components/header.php';
 include 'components/navbar.php';
 ?>

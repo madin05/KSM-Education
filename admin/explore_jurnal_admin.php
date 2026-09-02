@@ -1,6 +1,6 @@
 <?php
 $page_title = 'Detail Artikel - KSM Education';
-$extra_head = '<link rel="stylesheet" href="../styles/explore_admin.css" />';
+$extra_head = '<link rel="stylesheet" href="../styles/admin/explore_admin.css" />';
 include 'components/header.php';
 include 'components/sidebar.php';
 ?>

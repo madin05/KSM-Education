@@ -123,13 +123,55 @@
     });
   }
 
+  function loadSnapJs(clientKey, snapJsUrl) {
+    return new Promise((resolve, reject) => {
+      if (global.snap) {
+        resolve(global.snap);
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = snapJsUrl || "https://app.sandbox.midtrans.com/snap/snap.js";
+      script.setAttribute("data-client-key", clientKey || "");
+      script.onload = () => resolve(global.snap);
+      script.onerror = () => reject(new Error("Gagal memuat SDK Pembayaran Midtrans Snap."));
+      document.head.appendChild(script);
+    });
+  }
+
   function initBuyTokenModal() {
     const overlay = document.getElementById("ksmBuyTokenModal");
     if (!overlay) return;
     const closeBtn = document.getElementById("ksmBuyTokenClose");
-    const continueBtn = document.getElementById("ksmContactAdminBtn");
+    const payBtn = document.getElementById("ksmMidtransPayBtn") || document.getElementById("ksmContactAdminBtn");
+    const selectedPkgNameEl = document.getElementById("ksmSelectedPkgName");
+    const selectedPkgPriceEl = document.getElementById("ksmSelectedPkgPrice");
+
     const close = () => overlay.classList.remove("active");
     const open = () => overlay.classList.add("active");
+
+    let selectedPackageId = "pkg_10";
+    let selectedTokens = 10;
+    let selectedPrice = 18000;
+
+    const pkgCards = overlay.querySelectorAll(".ksm-pkg-card");
+    pkgCards.forEach((card) => {
+      card.addEventListener("click", () => {
+        pkgCards.forEach((c) => c.classList.remove("active"));
+        card.classList.add("active");
+
+        selectedPackageId = card.dataset.pkgId || "pkg_10";
+        selectedTokens = Number(card.dataset.tokens || 10);
+        selectedPrice = Number(card.dataset.price || 18000);
+
+        const titleText = card.querySelector(".ksm-pkg-title")?.textContent || "Paket Token";
+        if (selectedPkgNameEl) {
+          selectedPkgNameEl.textContent = `${titleText} (${selectedTokens} Token)`;
+        }
+        if (selectedPkgPriceEl) {
+          selectedPkgPriceEl.textContent = `Rp${selectedPrice.toLocaleString("id-ID")}`;
+        }
+      });
+    });
 
     document.querySelectorAll("[data-ksm-open-buy-token]").forEach((button) => {
       button.addEventListener("click", open);
@@ -138,40 +180,73 @@
     overlay.addEventListener("click", (event) => {
       if (event.target === overlay) close();
     });
-    continueBtn?.addEventListener("click", async () => {
-      const originalText = continueBtn.innerHTML;
-      continueBtn.disabled = true;
-      continueBtn.textContent = "Membuka WhatsApp...";
+
+    payBtn?.addEventListener("click", async () => {
+      const originalText = payBtn.innerHTML;
+      payBtn.disabled = true;
+      payBtn.textContent = "Menyiapkan Pembayaran...";
+
       try {
-        let response = await authFetch(`${global.APP_CONFIG.apiBase}/wa_purchase_link.php`, {
+        const response = await authFetch(`${global.APP_CONFIG.apiBase}/midtrans_create_transaction.php`, {
           method: "POST",
-          body: JSON.stringify({}),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ package_id: selectedPackageId, tokens: selectedTokens }),
         });
-        let data = await response.json();
-        
-        // Fallback to Telegram if WA link endpoint is unavailable
-        if (!response.ok || !data.ok || !data.wa_url) {
-          response = await authFetch(`${global.APP_CONFIG.apiBase}/token_purchase_link.php`, {
-            method: "POST",
-            body: JSON.stringify({}),
-          });
-          data = await response.json();
+
+        const data = await response.json();
+
+        if (!response.ok || !data.ok || !data.snap_token) {
+          throw new Error(data.message || "Gagal membuat transaksi pembayaran Midtrans.");
         }
 
-        const targetUrl = data.wa_url || data.telegram_url;
-        if (!data.ok || !targetUrl) {
-          throw new Error(data.message || "Tautan pembelian WhatsApp tidak dapat dibuat.");
+        // Load Midtrans Snap SDK if needed
+        await loadSnapJs(data.client_key, data.snap_js_url);
+
+        if (!global.snap || typeof global.snap.pay !== "function") {
+          // Fallback to redirect URL if snap.pay unavailable
+          if (data.redirect_url) {
+            global.location.href = data.redirect_url;
+            return;
+          }
+          throw new Error("SDK Midtrans Snap tidak dapat diinisialisasi.");
         }
-        // Percepat polling sebentar: user biasanya kembali beberapa saat
-        // setelah admin approve, jadi saldo langsung terlihat berubah.
-        KsmTokenWallet.startAutoRefresh(5000);
-        global.location.href = targetUrl;
+
+        // Trigger Midtrans Snap Popup
+        global.snap.pay(data.snap_token, {
+          onSuccess: function (result) {
+            console.log("Midtrans payment success:", result);
+            if (typeof global.showToast === "function") {
+              global.showToast("Pembayaran berhasil! Saldo token telah bertambah.", "success");
+            } else {
+              alert("Pembayaran berhasil! Saldo token Anda telah bertambah.");
+            }
+            close();
+            KsmTokenWallet.refresh();
+          },
+          onPending: function (result) {
+            console.log("Midtrans payment pending:", result);
+            if (typeof global.showToast === "function") {
+              global.showToast("Menunggu konfirmasi pembayaran QRIS / Transfer.", "info");
+            } else {
+              alert("Menunggu konfirmasi pembayaran Anda. Silakan selesaikan pembayaran.");
+            }
+            KsmTokenWallet.startAutoRefresh(4000);
+          },
+          onError: function (result) {
+            console.error("Midtrans payment error:", result);
+            alert("Pembayaran gagal atau dibatalkan. Silakan coba lagi.");
+          },
+          onClose: function () {
+            console.log("Midtrans payment popup closed");
+            KsmTokenWallet._safeRefresh();
+          },
+        });
       } catch (error) {
-        console.error("Purchase link error:", error);
-        alert(error.message || "Gagal membuka WhatsApp. Silakan coba lagi.");
+        console.error("Midtrans purchase error:", error);
+        alert(error.message || "Gagal memproses pembayaran. Silakan periksa koneksi internet Anda.");
       } finally {
-        continueBtn.disabled = false;
-        continueBtn.innerHTML = originalText;
+        payBtn.disabled = false;
+        payBtn.innerHTML = originalText;
         if (global.feather) global.feather.replace();
       }
     });

@@ -12,13 +12,12 @@ require_once __DIR__ . '/auth_guard.php';
     <!-- Preconnect for Google Fonts CDN fallback -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- Montserrat: offline-first via fonts.css, CDN sebagai fallback -->
-    <link rel="stylesheet" href="../styles/fonts.css" />
-    <link rel="stylesheet" href="../styles/admin.css?v=20260323" />
+    <link rel="stylesheet" href="../styles/base/fonts.css" />
+    <link rel="stylesheet" href="../styles/admin/admin.css?v=20260323" />
     <!-- Navbar admin + tombol muat ulang (berlaku di semua halaman admin) -->
-    <link rel="stylesheet" href="../styles/admin_nav.css?v=20260731" />
-    <link rel="stylesheet" href="../styles/skeleton.css" />
-    <link rel="stylesheet" href="../styles/custom_alerts.css" />
+    <link rel="stylesheet" href="../styles/admin/admin_nav.css?v=20260731" />
+    <link rel="stylesheet" href="../styles/base/skeleton.css" />
+    <link rel="stylesheet" href="../styles/base/custom_alerts.css" />
 
 
     <link rel="shortcut icon" type="image/x-icon" href="../assets/favicon.ico" />

@@ -21,11 +21,11 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="../styles/fonts.css" />
+  <link rel="stylesheet" href="../styles/base/fonts.css" />
 
-  <link rel="stylesheet" href="../styles/login_user.css" />
+  <link rel="stylesheet" href="../styles/user/login_user.css" />
   <!-- dark_mode_p4.css dimuat setelah login_user.css supaya override menang -->
-  <link rel="stylesheet" href="../styles/dark_mode_p4.css?v=20260801" />
+  <link rel="stylesheet" href="../styles/base/dark_mode/dark_mode_p4.css?v=20260801" />
   <script src="../js/config.js"></script>
 
 </head>

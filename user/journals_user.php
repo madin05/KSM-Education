@@ -1,6 +1,14 @@
 <?php
+require_once __DIR__ . '/../services/auth_context.php';
+ksmedu_session_start(KSMEDU_CTX_USER);
+
+if (empty($_SESSION['user_id'])) {
+    header('Location: login_user.php');
+    exit();
+}
+
 $page_title = 'Daftar Jurnal - KSM Education';
-$base_css = '<link rel="stylesheet" href="../styles/journal.css?v=20260824" />';
+$base_css = '<link rel="stylesheet" href="../styles/user/journal.css?v=20260824" />';
 include 'components/header.php';
 include 'components/navbar.php';
 ?>

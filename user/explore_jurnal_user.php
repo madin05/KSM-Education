@@ -1,8 +1,12 @@
 <?php
+require_once __DIR__ . '/../services/auth_context.php';
+ksmedu_session_start(KSMEDU_CTX_USER);
+
+$is_logged_in = !empty($_SESSION['user_id']);
 $page_title = 'Detail Artikel - KSM Education';
-$base_css = '<link rel="stylesheet" href="../styles/explore_jurnal_user.css?v=20260802" />
-<link rel="stylesheet" href="../styles/skeleton.css" />';
-$extra_head = null;
+$base_css = '<link rel="stylesheet" href="../styles/user/explore_jurnal_user.css?v=20260802" />
+<link rel="stylesheet" href="../styles/base/skeleton.css" />';
+$extra_head = '<script>window.IS_LOGGED_IN = ' . json_encode($is_logged_in) . ';</script>';
 include 'components/header.php';
 include 'components/navbar.php';
 ?>

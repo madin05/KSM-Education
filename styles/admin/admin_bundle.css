@@ -1,0 +1,8 @@
+/* ============================================================
+ * ADMIN CSS BUNDLE — Panel Administrator Global Styles
+ * Location: styles/admin/admin_bundle.css
+ * ============================================================ */
+@import url("../base/base.css");
+@import url("./admin.css");
+@import url("./admin_nav.css");
+@import url("./admin_overview.css");

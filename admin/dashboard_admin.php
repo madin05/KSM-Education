@@ -2,9 +2,9 @@
 $page_title = 'KSM Education - Admin';
 // Ringkasan operasional memakai gaya kartu bersama (review/token/visitor).
 $extra_head = '
-  <link rel="stylesheet" href="../styles/review_admin.css?v=' . time() . '" />
-  <link rel="stylesheet" href="../styles/visitor_admin.css?v=' . time() . '" />
-  <link rel="stylesheet" href="../styles/admin_overview.css?v=' . time() . '" />';
+  <link rel="stylesheet" href="../styles/admin/review_admin.css?v=' . time() . '" />
+  <link rel="stylesheet" href="../styles/admin/visitor_admin.css?v=' . time() . '" />
+  <link rel="stylesheet" href="../styles/admin/admin_overview.css?v=' . time() . '" />';
 include 'components/header.php';
 
 include 'components/sidebar.php';

@@ -304,7 +304,7 @@
       card.style.cssText = `
         display: flex; 
         flex-direction: column; 
-        /* var(--ksm-c-card-bg) di-set oleh styles/dark_mode_p5.css saat
+        /* var(--ksm-c-card-bg) di-set oleh styles/base/dark_mode/dark_mode_p5.css saat
            data-theme="dark"; fallback "white" menjaga tampilan light mode. */
         background: var(--ksm-c-card-bg, white);
         border-radius: 10px; 

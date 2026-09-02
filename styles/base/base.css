@@ -1,0 +1,14 @@
+/* ============================================================
+ * BASE CSS BUNDLE — Global Core Design System & Utilities
+ * Location: styles/base/base.css
+ * ============================================================ */
+@import url("./fonts.css");
+@import url("./body.css");
+@import url("./body_2.css");
+@import url("./header.css");
+@import url("./footer.css");
+@import url("./custom_alerts.css");
+@import url("./toast.css");
+@import url("./skeleton.css");
+@import url("./social.css");
+@import url("./index_responsive.css");

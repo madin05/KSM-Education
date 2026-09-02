@@ -1,9 +1,4 @@
-// js/login_admin.js
-// Handler form login administrator (admin/login_admin.php).
-// Halaman ini sengaja tidak memuat api.js, jadi penulisan token dilakukan
-// langsung dengan key yang sama seperti TokenManager di js/api.js —
-// yaitu key KONTEKS ADMIN (bersufiks '_admin') supaya token admin tidak
-// pernah menimpa sesi pengguna biasa.
+
 (function () {
   'use strict';
 

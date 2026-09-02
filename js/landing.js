@@ -8,7 +8,7 @@ function initLandingHeroSlideshow() {
     const dots = Array.from(hero.querySelectorAll('#landingHeroDots button'));
     const previous = document.getElementById('landingHeroPrev');
     const next = document.getElementById('landingHeroNext');
-    if (!slides.length) return;
+    if (slides.length <= 1) return;
 
     let activeIndex = 0;
     let autoplayInterval = null;

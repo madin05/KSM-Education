@@ -1,0 +1,15 @@
+/* ============================================================
+ * USER CSS BUNDLE — User-Facing Pages & Components
+ * Location: styles/user/user.css
+ * ============================================================ */
+@import url("../base/base.css");
+@import url("./dashboard_user.css");
+@import url("./journal.css");
+@import url("./opinions.css");
+@import url("./explore_jurnal_user.css");
+@import url("./my_journals_user.css");
+@import url("./token_history_user.css");
+@import url("./token_wallet.css");
+@import url("./upload_journal_modal.css");
+@import url("./profile_pages.css");
+@import url("./contact_user.css");

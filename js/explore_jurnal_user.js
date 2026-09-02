@@ -409,6 +409,15 @@ async function displayArticle(article, type) {
         downloadLink.download = `${
           article.title || article.judul || "artikel"
         }.pdf`;
+
+        downloadLink.onclick = function (e) {
+          const hasToken = !!(localStorage.getItem("jwt_access_token") || localStorage.getItem("ksm_token"));
+          const isLoggedIn = !!(window.IS_LOGGED_IN || hasToken);
+          if (!isLoggedIn) {
+            e.preventDefault();
+            window.location.href = "login_user.php";
+          }
+        };
       }
     } else {
       pdfSection.style.display = "none";

@@ -9,7 +9,7 @@
 Web-based application for managing academic journals and opinion articles for educational institutions.
 
 ## Features
-- Journal and opinion article management (CRUD)
+- Journal and opinion article management
 - File upload system (PDF documents and cover images)
 - Admin dashboard with statistics
 - Article search functionality

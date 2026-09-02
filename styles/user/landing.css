@@ -126,7 +126,7 @@ body {
   transition: color 0.2s ease;
 }
 
-.landing-nav-links a::after {
+.landing-nav-links a:not(.btn-register):not(.btn-signin)::after {
   content: '';
   position: absolute;
   bottom: 0;
@@ -141,7 +141,7 @@ body {
   color: #ecf0f1;
 }
 
-.landing-nav-links a:hover::after {
+.landing-nav-links a:not(.btn-register):not(.btn-signin):hover::after {
   width: 100%;
 }
 
@@ -183,11 +183,13 @@ body {
   position: absolute;
   top: 100%;
   right: 0;
+  left: auto;
   background: #1e293b;
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
   box-shadow: var(--shadow-xl);
-  min-width: 130px;
+  min-width: 140px;
+  white-space: nowrap;
   display: none;
   z-index: 1010;
   margin-top: 6px;
@@ -196,6 +198,11 @@ body {
 
 .lang-dropdown.show {
   display: block;
+}
+
+#langDropdownFooter {
+  left: 0 !important;
+  right: auto !important;
 }
 
 .lang-item {
@@ -251,10 +258,14 @@ body {
   border: 1px solid #2563eb;
 }
 
+.btn-register::after,
+.btn-signin::after {
+  display: none !important;
+}
+
 .btn-register:hover {
   background: #1d4ed8;
   border-color: #1d4ed8;
-  transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(37, 99, 235, 0.45);
 }
 
@@ -780,7 +791,7 @@ body {
 }
 
 .column-header h2 {
-  font-size: 20px;
+  font-size: 12px;
   font-weight: 800;
   color: var(--primary-navy);
   text-transform: uppercase;
@@ -1389,10 +1400,18 @@ body {
     justify-content: space-between;
   }
 
-  .landing-mobile-nav-footer .lang-dropdown {
-    left: 0;
-    right: auto;
+  .landing-mobile-nav-footer .lang-switcher {
+    position: relative;
     width: 100%;
+  }
+
+  .landing-mobile-nav-footer .lang-dropdown {
+    left: auto !important;
+    right: 0 !important;
+    width: auto !important;
+    min-width: 150px !important;
+    max-width: calc(100vw - 32px) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
   }
 
   .landing-mobile-nav-footer .landing-nav-auth {
@@ -1406,8 +1425,12 @@ body {
   }
 
   .landing-mobile-nav-footer .btn-register {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.7);
+    background: #2563eb;
+    border: none;
+    color: #ffffff;
+    box-shadow: none;
+    border-radius: 8px;
+    font-weight: 600;
   }
 
   .landing-mobile-menu-btn {
@@ -1442,74 +1465,94 @@ body {
     font-size: 15px;
   }
 
+  /* ── Mobile Search Bar: Horizontal pill (Image 1 style) ── */
   .landing-search-container {
     width: 100%;
     margin: 28px auto 24px;
+    padding: 0 4px;
   }
 
   .landing-search-box {
-    position: relative;
     display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-    padding: 10px;
-    border-radius: 18px;
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
+    padding: 5px 5px 5px 6px;
+    border-radius: 99px;
+    background: #ffffff;
+    border: 1px solid rgba(255,255,255,0.35);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
   }
 
+  /* Dropdown trigger: compact, left-aligned */
   .search-filter-custom {
     flex: 0 0 auto;
-    border-right: none;
-    border-bottom: 1px solid rgba(23, 34, 53, 0.12);
+    border-right: 1px solid rgba(44, 62, 80, 0.15);
+    border-bottom: none;
     margin: 0;
-    padding: 0 0 8px;
-    min-height: 34px;
-    width: 100%;
-    justify-content: center;
+    padding: 0 10px 0 0;
+    min-height: unset;
+    width: auto;
+    justify-content: flex-start;
   }
 
+  .filter-trigger {
+    padding: 7px 10px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  /* Search icon: back to inline flow */
   .landing-search-box svg.search-icon {
-    position: absolute;
-    left: 20px;
-    top: 76px;
-    margin: 0;
-    transform: translateY(-50%);
-    z-index: 2;
-    pointer-events: none;
+    position: static;
+    left: auto;
+    top: auto;
+    transform: none;
+    margin: 0 6px 0 10px;
+    flex-shrink: 0;
   }
 
+  /* Input: fills remaining space */
   .landing-search-box input {
-    display: block;
-    flex: 0 0 42px;
-    min-height: 42px;
-    height: 42px;
-    width: 100%;
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+    height: auto;
+    min-height: unset;
     margin: 0;
-    padding: 10px 12px 10px 42px;
-    line-height: 22px;
+    padding: 8px 6px;
+    font-size: 13px;
+    line-height: normal;
     box-sizing: border-box;
-    font-size: 14px;
   }
 
+  /* Dropdown menu: anchored left on mobile */
   .filter-dropdown-menu {
-    left: 50% !important;
-    transform: translateX(-50%) translateY(10px) !important;
+    left: 0 !important;
+    right: auto !important;
+    transform: translateY(10px) !important;
   }
 
   .filter-dropdown-menu.show {
-    transform: translateX(-50%) translateY(0) !important;
+    transform: translateY(0) !important;
   }
 
+  /* Submit button: compact pill, right side */
   .btn-search-submit {
-    display: block;
-    flex: 0 0 42px;
-    min-height: 42px;
-    height: 42px;
-    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: auto;
+    height: auto;
+    min-height: unset;
     margin: 0;
-    padding: 8px 16px;
-    line-height: 24px;
-    box-sizing: border-box;
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: normal;
+    border-radius: 99px;
+    white-space: nowrap;
   }
 
   .landing-hero-ctas {
@@ -1524,21 +1567,49 @@ body {
     justify-content: center;
   }
 
+  /* ── Mobile Stats: Vertical stacked list (Image 3 style) ── */
   .landing-stats-container {
     width: 100%;
+    max-width: 100%;
     margin-top: 28px;
-    padding: 18px 16px;
-    gap: 18px;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 20px 18px;
+    gap: 0;
+    flex-direction: column;
     align-items: stretch;
+    justify-content: flex-start;
+    border-radius: 18px;
   }
 
   .landing-stat-item {
     justify-content: flex-start;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+  }
+
+  .landing-stat-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .landing-stat-item:first-child {
+    padding-top: 0;
   }
 
   .landing-stat-icon-wrapper {
-    width: 42px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+  }
+
+  .landing-stat-val {
+    font-size: 20px;
+  }
+
+  .landing-stat-lbl {
+    font-size: 11px;
   }
 
   .landing-footer-grid {

@@ -8,7 +8,7 @@
  * Membutuhkan:
  *  - journal.css (sudah ter-load via header.php, dipakai untuk
  *    .pengurus-input-group / .pengurus-input / .cover-preview)
- *  - styles/upload_journal_modal.css
+ *  - styles/user/upload_journal_modal.css
  *  - js/upload_journal_modal.js
  *  - components/token_modal.php (untuk modal "token tidak cukup")
  *

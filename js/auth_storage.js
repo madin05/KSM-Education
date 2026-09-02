@@ -1,21 +1,4 @@
-// js/auth_storage.js
-// Penyimpanan kredensial sisi klien yang dipakai bersama oleh halaman login /
-// register (user maupun admin).
-//
-// LATAR MASALAH (bug "admin ikut login di dashboard user"):
-// Halaman login user & admin sengaja TIDAK memuat js/api.js (TokenManager),
-// sehingga penulisan token di sana sebelumnya dilewati begitu saja. Lebih
-// parah lagi, token admin dan token user memakai key localStorage yang SAMA,
-// jadi login di panel admin menimpa token area user — dashboard user pun
-// menampilkan identitas admin (dan sebaliknya).
-//
-// SOLUSI: token dipisah per KONTEKS.
-//   - konteks 'admin' -> key bersufiks '_admin' (halaman di /admin)
-//   - konteks 'user'  -> key tanpa sufiks (halaman /user & publik)
-// Pembersihan sesi (clearAll) hanya menyentuh konteks yang sedang aktif,
-// sehingga logout/login admin tidak lagi memutus sesi pengguna di tab lain.
-//
-// Sengaja tanpa dependensi supaya bisa dimuat di halaman auth yang minimal.
+
 (function (global) {
   'use strict';
 

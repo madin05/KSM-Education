@@ -123,7 +123,7 @@ foreach ([
 t('api-noalias', '/services/auth_login', function (array $r) { return $r['status'] === 404; });
 
 echo "\n=== 4. Static assets tidak di-rewrite ===\n";
-t('css', '/styles/body.css', function (array $r) { return $r['status'] === 200 && stripos($r['ctype'], 'css') !== false; });
+t('css', '/styles/base/body.css', function (array $r) { return $r['status'] === 200 && stripos($r['ctype'], 'css') !== false; });
 t('js',  '/js/config.js',    function (array $r) { return $r['status'] === 200 && (stripos($r['ctype'], 'javascript') !== false || stripos($r['ctype'], 'text/plain') !== false); });
 t('img', '/assets/main_logo.png', function (array $r) { return $r['status'] === 200 && stripos($r['ctype'], 'image/') !== false; });
 t('ico', '/assets/favicon.ico',   function (array $r) { return $r['status'] === 200; });

@@ -24,9 +24,9 @@ if ($next === '' || $next === 'login_admin.php' || !preg_match('/^[a-z0-9_\-]+\.
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login Admin - KSM Education</title>
-    <link rel="stylesheet" href="../styles/fonts.css" />
-    <link rel="stylesheet" href="../styles/login_admin.css" />
-    <link rel="stylesheet" href="../styles/custom_alerts.css" />
+    <link rel="stylesheet" href="../styles/base/fonts.css" />
+    <link rel="stylesheet" href="../styles/admin/login_admin.css" />
+    <link rel="stylesheet" href="../styles/base/custom_alerts.css" />
     <link rel="shortcut icon" type="image/x-icon" href="../assets/favicon.ico" />
     <script src="../js/config.js"></script>
     <script src="https://unpkg.com/feather-icons"></script>

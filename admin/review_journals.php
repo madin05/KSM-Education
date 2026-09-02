@@ -1,9 +1,9 @@
 <?php
 $page_title = 'Review Kiriman Masuk - KSM Admin';
 $extra_head = '
-  <link rel="stylesheet" href="../styles/explore_admin.css" />
-  <link rel="stylesheet" href="../styles/comments_admin.css?v=' . time() . '" />
-  <link rel="stylesheet" href="../styles/review_admin.css?v=' . time() . '" />';
+  <link rel="stylesheet" href="../styles/admin/explore_admin.css" />
+  <link rel="stylesheet" href="../styles/admin/comments_admin.css?v=' . time() . '" />
+  <link rel="stylesheet" href="../styles/admin/review_admin.css?v=' . time() . '" />';
 include 'components/header.php';
 include 'components/sidebar.php';
 ?>

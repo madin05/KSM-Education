@@ -1,15 +1,15 @@
 /* ==========================================================================
    CSS IMPORTS (MUST BE AT THE VERY TOP OF FILE PER W3C SPECIFICATION)
    ========================================================================== */
-@import url("body.css");
-@import url("login_admin.css");
-@import url("body_2.css");
-@import url("journal.css");
-@import url("preview-jurnal.css");
-@import url("opinions.css");
-@import url("social.css");
-@import url("toast.css");
-@import url("custom_alerts.css");
+@import url("../base/body.css");
+@import url("./login_admin.css");
+@import url("../base/body_2.css");
+@import url("../user/journal.css");
+@import url("../user/preview-jurnal.css");
+@import url("../user/opinions.css");
+@import url("../base/social.css");
+@import url("../base/toast.css");
+@import url("../base/custom_alerts.css");
 
 /* ==========================================================================
    DESIGN TOKEN & COLOR PALETTE SPECIFICATION (#2c3e50 Anchor Theme)

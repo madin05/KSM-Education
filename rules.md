@@ -1,0 +1,1 @@
+buat payment gateway menggunakan midrans payment dalaam pembelian token untk upload jurnal alihkan ke payment gawtway dulu, karen asblny aterhubung ke bot wa untk tranksi. jadi bikin modal pricelist dan pilhan paket token beredasrkan yang sudah ada hanya saja terapkan ke modal lalu setelah user memilih berikan qr untk payment

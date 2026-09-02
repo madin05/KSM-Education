@@ -1,9 +1,9 @@
 <?php
 $page_title = 'Jurnal Saya - KSM Education';
-$base_css = '<link rel="stylesheet" href="../styles/dashboard_user.css?v=202501111545" />
-  <link rel="stylesheet" href="../styles/token_wallet.css?v=20260715" />
-  <link rel="stylesheet" href="../styles/upload_journal_modal.css?v=20260715" />
-  <link rel="stylesheet" href="../styles/my_journals_user.css?v=20260715" />';
+$base_css = '<link rel="stylesheet" href="../styles/user/dashboard_user.css?v=202501111545" />
+  <link rel="stylesheet" href="../styles/user/token_wallet.css?v=20260715" />
+  <link rel="stylesheet" href="../styles/user/upload_journal_modal.css?v=20260715" />
+  <link rel="stylesheet" href="../styles/user/my_journals_user.css?v=20260715" />';
 include 'components/header.php';
 include 'components/navbar.php';
 ?>

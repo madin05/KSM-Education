@@ -1,6 +1,6 @@
 <?php
 $page_title = 'Profil Saya - KSM Education';
-$base_css = '<link rel="stylesheet" href="../styles/profile_pages.css?v=20260719" />';
+$base_css = '<link rel="stylesheet" href="../styles/user/profile_pages.css?v=20260719" />';
 include 'components/header.php';
 include 'components/navbar.php';
 ?>

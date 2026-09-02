@@ -1,4 +1,5 @@
 <?php
+
 /**
  * KSM Education Landing Page
  * Premium hybrid educational portal landing page.
@@ -19,19 +20,21 @@ require_once __DIR__ . '/services/landing_controller.php';
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo $lang; ?>">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KSM Education — Portal Publikasi Jurnal & Opini Ilmiah</title>
+    <title>KSM Education — Publikasi Jurnal & Opini Ilmiah</title>
     <!-- Preconnect for fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="styles/fonts.css">
-    <link rel="stylesheet" href="styles/landing.css?v=20260813mobile">
-    <link rel="stylesheet" href="styles/ad_carousel.css?v=20260717">
+    <link rel="stylesheet" href="styles/base/fonts.css">
+    <link rel="stylesheet" href="styles/user/landing.css?v=20260813mobile">
+    <link rel="stylesheet" href="styles/user/ad_carousel.css?v=20260717">
     <link rel="shortcut icon" type="image/x-icon" href="assets/favicon.ico" />
     <script src="https://unpkg.com/feather-icons"></script>
 </head>
+
 <body id="home">
 
     <!-- Top Navigation Bar Component -->
@@ -40,20 +43,18 @@ require_once __DIR__ . '/services/landing_controller.php';
     <!-- Hero Section -->
     <section class="landing-hero" aria-roledescription="carousel" aria-label="KSM Education featured content">
         <div class="landing-hero-slides">
-            <div class="landing-hero-slide active" style="background-image: url('assets/slideshow-1.jpg');"></div>
-            <div class="landing-hero-slide" style="background-image: url('assets/slideshow-2.jpg');"></div>
-            <div class="landing-hero-slide" style="background-image: url('assets/slideshow-3.png');"></div>
+            <div class="landing-hero-slide active" style="background-image: url('assets/slideshow-3.png');"></div>
         </div>
 
         <div class="hero-deco-1"></div>
         <div class="hero-deco-2"></div>
-        
+
         <div class="landing-hero-content">
             <h1><?php echo $t['hero_title']; ?></h1>
             <p style="color: var(--text-muted); font-size: 18px; line-height: 1.6; max-width: 680px; margin: 0 auto;">
                 <?php echo $t['hero_subtitle']; ?>
             </p>
-            
+
             <!-- Search Bar Box with Dropdown filter beside it -->
             <div class="landing-search-container">
                 <form id="searchForm" action="user/journals_user.php" method="GET" class="landing-search-box">
@@ -69,7 +70,6 @@ require_once __DIR__ . '/services/landing_controller.php';
                         <input type="hidden" name="filter" id="searchFilter" value="journals">
                     </div>
 
-                    <i data-feather="search" class="search-icon"></i>
                     <input type="text" name="search" placeholder="<?php echo $t['search_placeholder']; ?>" autocomplete="off">
                     <button type="submit" class="btn-search-submit"><?php echo $t['search_btn']; ?></button>
                 </form>
@@ -85,48 +85,46 @@ require_once __DIR__ . '/services/landing_controller.php';
                     <?php echo $t['cta_news']; ?>
                 </a>
             </div>
-        
+
             <!-- Floating Glassmorphism Statistics Bar -->
             <div class="landing-stats-container">
-            <div class="landing-stat-item">
-                <div class="landing-stat-icon-wrapper">
-                    <i data-feather="file-text"></i>
+                <div class="landing-stat-item">
+                    <div class="landing-stat-icon-wrapper">
+                        <i data-feather="file-text"></i>
+                    </div>
+                    <div class="landing-stat-info">
+                        <span class="landing-stat-val"><?php echo number_format($base_journals_count); ?>+</span>
+                        <span class="landing-stat-lbl"><?php echo $t['stat_journals']; ?></span>
+                    </div>
                 </div>
-                <div class="landing-stat-info">
-                    <span class="landing-stat-val"><?php echo number_format($base_journals_count); ?>+</span>
-                    <span class="landing-stat-lbl"><?php echo $t['stat_journals']; ?></span>
+
+                <div class="landing-stat-item">
+                    <div class="landing-stat-icon-wrapper">
+                        <i data-feather="globe"></i>
+                    </div>
+                    <div class="landing-stat-info">
+                        <span class="landing-stat-val"><?php echo number_format($base_news_count); ?>+</span>
+                        <span class="landing-stat-lbl"><?php echo $t['stat_news']; ?></span>
+                    </div>
+                </div>
+
+                <div class="landing-stat-item">
+                    <div class="landing-stat-icon-wrapper">
+                        <i data-feather="users"></i>
+                    </div>
+                    <div class="landing-stat-info">
+                        <span class="landing-stat-val"><?php echo number_format($base_readers_count); ?>+</span>
+                        <span class="landing-stat-lbl"><?php echo $t['stat_readers']; ?></span>
+                    </div>
                 </div>
             </div>
-            
-            <div class="landing-stat-item">
-                <div class="landing-stat-icon-wrapper">
-                    <i data-feather="globe"></i>
-                </div>
-                <div class="landing-stat-info">
-                    <span class="landing-stat-val"><?php echo number_format($base_news_count); ?>+</span>
-                    <span class="landing-stat-lbl"><?php echo $t['stat_news']; ?></span>
-                </div>
-            </div>
-            
-            <div class="landing-stat-item">
-                <div class="landing-stat-icon-wrapper">
-                    <i data-feather="users"></i>
-                </div>
-                <div class="landing-stat-info">
-                    <span class="landing-stat-val"><?php echo number_format($base_readers_count); ?>+</span>
-                    <span class="landing-stat-lbl"><?php echo $t['stat_readers']; ?></span>
-                </div>
-            </div>
-        </div>
         </div>
     </section>
-
-    
 
     <!-- Split Content Area (The Core) -->
     <section class="landing-split-section">
         <div class="split-grid">
-            
+
             <!-- Left Column: Latest Academic Journals (Text Heavy, Formal) -->
             <div class="split-left-column">
                 <div class="column-header">
@@ -134,7 +132,7 @@ require_once __DIR__ . '/services/landing_controller.php';
                         <i data-feather="file-text"></i>
                         <?php echo $t['title_journals']; ?>
                     </h2>
-                    <a href="user/journals_user.php" class="btn-view-all">
+                    <a href="user/login_user.php" class="btn-view-all">
                         <?php echo $t['btn_view_all']; ?>
                         <i data-feather="arrow-right" style="width: 14px; height: 14px;"></i>
                     </a>
@@ -148,7 +146,7 @@ require_once __DIR__ . '/services/landing_controller.php';
                         </div>
                     <?php else: ?>
                         <?php foreach ($rendered_journals as $journal): ?>
-                            <?php 
+                            <?php
                             $journal_link = ($journal['id'] === '#') ? 'user/journals_user.php' : 'user/explore_jurnal_user.php?id=' . $journal['id'] . '&type=jurnal';
                             ?>
                             <a href="<?php echo $journal_link; ?>" class="academic-card">
@@ -198,7 +196,7 @@ require_once __DIR__ . '/services/landing_controller.php';
                         </div>
                     <?php else: ?>
                         <?php foreach ($rendered_opinions as $opinion): ?>
-                            <?php 
+                            <?php
                             $opinion_link = ($opinion['id'] === '#') ? 'user/opinions_user.php' : 'user/explore_opini_user.php?id=' . $opinion['id'] . '&type=opini';
                             ?>
                             <a href="<?php echo $opinion_link; ?>" class="news-card">
@@ -252,9 +250,10 @@ require_once __DIR__ . '/services/landing_controller.php';
     <script src="js/landing.js?v=202607161225"></script>
     <script src="js/ad_carousel.js?v=20260717"></script>
     <script>
-      if (typeof feather !== 'undefined') {
-        feather.replace();
-      }
+        if (typeof feather !== 'undefined') {
+            feather.replace();
+        }
     </script>
 </body>
+
 </html>

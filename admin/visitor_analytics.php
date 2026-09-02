@@ -7,10 +7,10 @@
 // perangkat, dan kunjungan terakhir.
 $page_title = 'Analitik Pengunjung - KSM Admin';
 $extra_head = '
-  <link rel="stylesheet" href="../styles/explore_admin.css" />
-  <link rel="stylesheet" href="../styles/review_admin.css?v=' . time() . '" />
-  <link rel="stylesheet" href="../styles/token_admin.css?v=' . time() . '" />
-  <link rel="stylesheet" href="../styles/visitor_admin.css?v=' . time() . '" />';
+  <link rel="stylesheet" href="../styles/admin/explore_admin.css" />
+  <link rel="stylesheet" href="../styles/admin/review_admin.css?v=' . time() . '" />
+  <link rel="stylesheet" href="../styles/admin/token_admin.css?v=' . time() . '" />
+  <link rel="stylesheet" href="../styles/admin/visitor_admin.css?v=' . time() . '" />';
 include 'components/header.php';
 include 'components/sidebar.php';
 ?>
